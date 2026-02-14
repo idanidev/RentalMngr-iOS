@@ -125,91 +125,144 @@ private struct RoomRow: View {
     let room: Room
 
     var body: some View {
-        HStack(spacing: 12) {
-            // Photo thumbnail or status indicator
-            if let firstPhotoUrl = room.photoUrls.first {
-                AsyncImage(url: firstPhotoUrl) { image in
-                    image
-                        .resizable()
-                        .scaledToFill()
-                } placeholder: {
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(.secondary.opacity(0.2))
-                        .overlay {
-                            Image(systemName: "photo")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 0) {
+            // Hero photo area
+            ZStack(alignment: .bottomLeading) {
+                if let firstPhotoUrl = room.photoUrls.first {
+                    AsyncImage(url: firstPhotoUrl) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        case .failure:
+                            photoPlaceholder
+                        default:
+                            Rectangle()
+                                .fill(.secondary.opacity(0.1))
+                                .overlay { ProgressView() }
                         }
-                }
-                .frame(width: 48, height: 48)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-                .overlay(alignment: .topTrailing) {
-                    Circle()
-                        .fill(room.occupied ? Color.green : Color.orange)
-                        .frame(width: 10, height: 10)
-                        .offset(x: 3, y: -3)
-                }
-            } else {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(.secondary.opacity(0.1))
-                        .frame(width: 48, height: 48)
-                    Image(systemName: room.roomType == .common ? "sofa" : "bed.double")
-                        .foregroundStyle(.secondary)
-                }
-                .overlay(alignment: .topTrailing) {
-                    if room.roomType == .privateRoom {
-                        Circle()
-                            .fill(room.occupied ? Color.green : Color.orange)
-                            .frame(width: 10, height: 10)
-                            .offset(x: 3, y: -3)
                     }
+                    .frame(height: 140)
+                    .frame(maxWidth: .infinity)
+                    .clipped()
+                } else {
+                    photoPlaceholder
+                        .frame(height: 140)
+                        .frame(maxWidth: .infinity)
                 }
-            }
 
-            VStack(alignment: .leading, spacing: 3) {
-                Text(room.name)
-                    .font(.headline)
-                HStack(spacing: 8) {
+                // Gradient overlay for text readability
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.6)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 70)
+
+                // Room name + rent overlay
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(room.name)
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.white)
                     if room.roomType == .privateRoom {
                         Text(formatCurrency(room.monthlyRent))
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    if room.photos.count > 1 {
-                        Label("\(room.photos.count)", systemImage: "photo")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.white.opacity(0.9))
                     }
                 }
-                if room.roomType == .privateRoom, let tenant = room.tenantName, !tenant.isEmpty {
-                    HStack(spacing: 4) {
-                        Image(systemName: "person.fill")
+                .padding(10)
+
+                // Photo count badge
+                if room.photos.count > 1 {
+                    HStack(spacing: 3) {
+                        Image(systemName: "photo.stack")
                             .font(.caption2)
-                        Text(tenant)
-                            .font(.caption)
+                        Text("\(room.photos.count)")
+                            .font(.caption2)
+                            .fontWeight(.bold)
                     }
-                    .foregroundStyle(.blue)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                    .padding(8)
+                }
+
+                // Occupancy indicator (top-left)
+                if room.roomType == .privateRoom {
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(room.occupied ? Color.green : Color.orange)
+                            .frame(width: 8, height: 8)
+                        Text(room.occupied ? "Ocupada" : "Vacante")
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .padding(8)
                 }
             }
+            .clipShape(RoundedRectangle(cornerRadius: 10))
 
-            Spacer()
-
-            // Occupancy badge (only for private rooms)
+            // Bottom info section
             if room.roomType == .privateRoom {
-                Text(room.occupied ? "Ocupada" : "Vacante")
-                    .font(.caption2)
-                    .fontWeight(.medium)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(
-                        room.occupied ? Color.green.opacity(0.15) : Color.orange.opacity(0.15),
-                        in: Capsule()
-                    )
-                    .foregroundStyle(room.occupied ? .green : .orange)
+                if let tenant = room.tenantName, !tenant.isEmpty {
+                    HStack(spacing: 6) {
+                        Image(systemName: "person.fill")
+                            .font(.caption)
+                            .foregroundStyle(.blue)
+                        Text(tenant)
+                            .font(.subheadline)
+                            .foregroundStyle(.primary)
+                    }
+                    .padding(.top, 6)
+                    .padding(.horizontal, 2)
+                }
+            } else {
+                HStack(spacing: 6) {
+                    Image(systemName: "sofa.fill")
+                        .font(.caption)
+                        .foregroundStyle(.purple)
+                    Text("Zona común")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.top, 6)
+                .padding(.horizontal, 2)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 4)
+    }
+
+    @ViewBuilder
+    private var photoPlaceholder: some View {
+        Rectangle()
+            .fill(
+                LinearGradient(
+                    colors: room.roomType == .common
+                        ? [.purple.opacity(0.15), .purple.opacity(0.05)]
+                        : [.blue.opacity(0.15), .blue.opacity(0.05)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .overlay {
+                VStack(spacing: 6) {
+                    Image(systemName: room.roomType == .common ? "sofa.fill" : "bed.double.fill")
+                        .font(.largeTitle)
+                        .foregroundStyle(
+                            room.roomType == .common ? .purple.opacity(0.4) : .blue.opacity(0.4))
+                    Text("Sin fotos")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
     }
 
     private func formatCurrency(_ value: Decimal) -> String {

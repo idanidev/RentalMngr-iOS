@@ -181,49 +181,162 @@ struct TenantListView: View {
 private struct TenantRow: View {
     let tenant: Tenant
 
+    /// Contract time progress (0...1). 1 = just started, 0 = expired
+    private var contractProgress: Double {
+        guard let start = tenant.contractStartDate, let end = tenant.contractEndDate else {
+            return 0
+        }
+        let total = end.timeIntervalSince(start)
+        guard total > 0 else { return 0 }
+        let remaining = end.timeIntervalSince(Date())
+        return max(0, min(1, remaining / total))
+    }
+
+    /// Days remaining on the contract
+    private var daysRemaining: Int {
+        tenant.contractEndDate?.daysUntil ?? 0
+    }
+
+    /// Color based on contract status
+    private var statusColor: Color {
+        switch tenant.contractStatus {
+        case .active: return .green
+        case .expiringSoon: return .orange
+        case .expired: return .red
+        case .noContract: return .gray
+        }
+    }
+
+    /// Initials from tenant name
+    private var initials: String {
+        let parts = tenant.fullName.split(separator: " ")
+        let first = parts.first?.prefix(1) ?? "?"
+        let last = parts.count > 1 ? parts.last!.prefix(1) : ""
+        return "\(first)\(last)".uppercased()
+    }
+
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text(tenant.fullName)
-                        .font(.headline)
-                    if !tenant.active {
-                        Text("Inactivo")
-                            .font(.caption2)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(.red.opacity(0.2), in: Capsule())
-                            .foregroundStyle(.red)
+        VStack(alignment: .leading, spacing: 10) {
+            // Top row: Avatar + Name + Rent
+            HStack(spacing: 12) {
+                // Avatar with status ring
+                ZStack {
+                    Circle()
+                        .stroke(statusColor.opacity(0.3), lineWidth: 3)
+                        .frame(width: 50, height: 50)
+                    Circle()
+                        .trim(from: 0, to: contractProgress)
+                        .stroke(statusColor, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                        .frame(width: 50, height: 50)
+                        .rotationEffect(.degrees(-90))
+                    Circle()
+                        .fill(statusColor.opacity(0.15))
+                        .frame(width: 44, height: 44)
+                    Text(initials)
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundStyle(statusColor)
+                }
+
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack {
+                        Text(tenant.fullName)
+                            .font(.headline)
+                        if !tenant.active {
+                            Text("Inactivo")
+                                .font(.caption2)
+                                .fontWeight(.semibold)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(.red.opacity(0.15), in: Capsule())
+                                .foregroundStyle(.red)
+                        }
+                    }
+
+                    // Room badge
+                    if let room = tenant.room {
+                        HStack(spacing: 4) {
+                            Image(systemName: "bed.double.fill")
+                                .font(.caption2)
+                            Text(room.name)
+                                .font(.caption)
+                                .fontWeight(.medium)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(.blue.opacity(0.1), in: Capsule())
+                        .foregroundStyle(.blue)
                     }
                 }
-                // Show assigned room if available
-                if let room = tenant.room {
-                    HStack(spacing: 4) {
-                        Image(systemName: "bed.double")
+
+                Spacer()
+
+                // Rent amount
+                if let rent = tenant.effectiveMonthlyRent {
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text(formatCurrency(rent))
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .foregroundStyle(.primary)
+                        Text("/mes")
                             .font(.caption2)
-                        Text(room.name)
-                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
-                    .foregroundStyle(.secondary)
-                }
-                if let endDate = tenant.contractEndDate {
-                    HStack(spacing: 4) {
-                        Image(systemName: "calendar")
-                            .font(.caption2)
-                        Text("Contrato hasta \(endDate.shortFormatted)")
-                            .font(.caption)
-                    }
-                    .foregroundStyle(endDate.isExpiringSoon ? .orange : .secondary)
                 }
             }
-            Spacer()
-            if let rent = tenant.effectiveMonthlyRent {
-                Text(formatCurrency(rent))
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+
+            // Contract progress bar
+            if tenant.contractStartDate != nil, tenant.contractEndDate != nil {
+                VStack(spacing: 5) {
+                    // Progress bar
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(statusColor.opacity(0.15))
+                                .frame(height: 6)
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(statusColor)
+                                .frame(width: max(0, geo.size.width * contractProgress), height: 6)
+                        }
+                    }
+                    .frame(height: 6)
+
+                    // Labels below bar
+                    HStack {
+                        Text(tenant.contractStatus.label)
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(statusColor)
+
+                        Spacer()
+
+                        if daysRemaining > 0 {
+                            Text("\(daysRemaining) días restantes")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        } else if daysRemaining == 0 {
+                            Text("Finaliza hoy")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.red)
+                        } else {
+                            Text("Expirado hace \(abs(daysRemaining)) días")
+                                .font(.caption2)
+                                .foregroundStyle(.red)
+                        }
+                    }
+                }
+            } else {
+                // No contract — show a subtle message
+                HStack(spacing: 4) {
+                    Image(systemName: "doc.questionmark")
+                        .font(.caption2)
+                    Text("Sin contrato definido")
+                        .font(.caption2)
+                }
+                .foregroundStyle(.secondary)
             }
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 6)
     }
 
     private func formatCurrency(_ value: Decimal) -> String {
