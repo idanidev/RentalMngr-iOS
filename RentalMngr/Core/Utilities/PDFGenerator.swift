@@ -66,9 +66,12 @@ final class PDFGenerator {
             y =
                 drawMixedText(
                     [
-                        .regular("D/Doña "), .bold(property.name),
+                        .regular("Doña "), .bold("M.ª Ángeles Díaz Trillo"),
                         .regular(
-                            ", mayor de edad, propietaria de la vivienda compartida situada en "),
+                            ", mayor de edad y titular del DNI "),
+                        .bold("03093405C"),
+                        .regular(
+                            ". Propietaria de la vivienda compartida situada en "),
                         .bold(property.address), .regular("."),
                     ], at: y, contentWidth: contentWidth) + 8
 

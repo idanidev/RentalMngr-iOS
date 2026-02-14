@@ -246,13 +246,14 @@ private struct IncomePaymentRow: View {
             .buttonStyle(.plain)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(income.room?.name ?? "Habitación")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
                 if let tenantName = income.tenantName {
-                    Text(tenantName)
-                        .font(.caption)
-                        .foregroundStyle(.primary)
+                    Text("\(tenantName) (\(income.roomName))")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                } else {
+                    Text(income.roomName)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
                 }
                 if income.paid, let date = income.paymentDate {
                     Text("Pagado \(date.shortFormatted)")

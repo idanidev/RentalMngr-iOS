@@ -65,12 +65,12 @@ private struct IncomeRow: View {
             .buttonStyle(.plain)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(item.roomName)
-                    .font(.headline)
                 if let tenantName = item.tenantName {
-                    Text(tenantName)
-                        .font(.subheadline)
-                        .foregroundStyle(.primary)
+                    Text("\(tenantName) (\(item.roomName))")
+                        .font(.headline)
+                } else {
+                    Text(item.roomName)
+                        .font(.headline)
                 }
                 Text("Mes: \(item.month.monthYear)")
                     .font(.caption)
