@@ -215,6 +215,24 @@ private struct TenantRow: View {
         return "\(first)\(last)".uppercased()
     }
 
+    /// Human-readable remaining time
+    private var remainingLabel: String {
+        if daysRemaining > 30 {
+            let months = daysRemaining / 30
+            let days = daysRemaining % 30
+            if days == 0 {
+                return "\(months) mes\(months == 1 ? "" : "es") restantes"
+            }
+            return "\(months) mes\(months == 1 ? "" : "es") y \(days) día\(days == 1 ? "" : "s")"
+        } else if daysRemaining > 0 {
+            return "\(daysRemaining) día\(daysRemaining == 1 ? "" : "s") restantes"
+        } else if daysRemaining == 0 {
+            return "¡Finaliza hoy!"
+        } else {
+            return "Expirado hace \(abs(daysRemaining)) días"
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             // Top row: Avatar + Name + Rent
@@ -284,9 +302,27 @@ private struct TenantRow: View {
                 }
             }
 
-            // Contract progress bar
-            if tenant.contractStartDate != nil, tenant.contractEndDate != nil {
-                VStack(spacing: 5) {
+            // Contract section
+            if let startDate = tenant.contractStartDate, let endDate = tenant.contractEndDate {
+                VStack(spacing: 6) {
+                    // Contract date range
+                    HStack(spacing: 4) {
+                        Image(systemName: "calendar")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                        Text("\(startDate.dayMonthYear)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 8))
+                            .foregroundStyle(.secondary)
+                        Text("\(endDate.dayMonthYear)")
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .foregroundStyle(statusColor)
+                        Spacer()
+                    }
+
                     // Progress bar
                     GeometryReader { geo in
                         ZStack(alignment: .leading) {
@@ -300,7 +336,7 @@ private struct TenantRow: View {
                     }
                     .frame(height: 6)
 
-                    // Labels below bar
+                    // Status label
                     HStack {
                         Text(tenant.contractStatus.label)
                             .font(.caption2)
@@ -309,28 +345,30 @@ private struct TenantRow: View {
 
                         Spacer()
 
-                        if daysRemaining > 0 {
-                            Text("\(daysRemaining) días restantes")
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                        } else if daysRemaining == 0 {
-                            Text("Finaliza hoy")
-                                .font(.caption2)
-                                .fontWeight(.bold)
-                                .foregroundStyle(.red)
-                        } else {
-                            Text("Expirado hace \(abs(daysRemaining)) días")
-                                .font(.caption2)
-                                .foregroundStyle(.red)
-                        }
+                        Text(remainingLabel)
+                            .font(.caption2)
+                            .fontWeight(daysRemaining <= 0 ? .bold : .regular)
+                            .foregroundStyle(daysRemaining <= 0 ? .red : .secondary)
                     }
                 }
             } else {
-                // No contract — show a subtle message
+                // No contract
                 HStack(spacing: 4) {
                     Image(systemName: "doc.questionmark")
                         .font(.caption2)
                     Text("Sin contrato definido")
+                        .font(.caption2)
+                }
+                .foregroundStyle(.secondary)
+
+            }
+
+            // Contact info row
+            if let phone = tenant.phone, !phone.isEmpty {
+                HStack(spacing: 4) {
+                    Image(systemName: "phone.fill")
+                        .font(.caption2)
+                    Text(phone)
                         .font(.caption2)
                 }
                 .foregroundStyle(.secondary)
