@@ -13,126 +13,213 @@ final class PDFGenerator {
     private let charcoal = UIColor(red: 0.17, green: 0.17, blue: 0.17, alpha: 1)
     private let lightGray = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1)
 
-    // MARK: - Contract PDF (Premium)
+    // MARK: - Contract PDF (Full Legal — matches web app contract.js)
 
     func generateContract(tenant: Tenant, room: Room, property: Property) -> Data {
         let pageRect = CGRect(x: 0, y: 0, width: pageWidth, height: pageHeight)
         let renderer = UIGraphicsPDFRenderer(bounds: pageRect)
+        let contentWidth = pageWidth - margin * 2
+
+        // Format helpers
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .long
+        dateFormatter.locale = Locale(identifier: "es_ES")
+
+        func fmtDate(_ date: Date?) -> String {
+            guard let d = date else { return "" }
+            return dateFormatter.string(from: d)
+        }
+
+        let rent = Int(truncating: room.monthlyRent as NSDecimalNumber)
+        let deposit = Int(truncating: (tenant.depositAmount ?? 0) as NSDecimalNumber)
+        let depositWords = Self.numberToWords(deposit).uppercased()
+        let tenantAddress = tenant.currentAddress ?? property.address
+        let contractDate = dateFormatter.string(from: Date())
 
         return renderer.pdfData { context in
             context.beginPage()
-            var y: CGFloat = 0
-            let contentWidth = pageWidth - margin * 2
+            var y: CGFloat = margin
 
-            // Header bar (navy background)
-            drawRect(
-                at: CGRect(x: 0, y: 0, width: pageWidth, height: 80), color: navy, context: context)
-            drawColoredText(
-                "CONTRATO DE ARRENDAMIENTO", at: CGPoint(x: margin, y: 25),
-                font: .boldSystemFont(ofSize: 22), color: .white, maxWidth: contentWidth,
-                alignment: .center)
-
-            // Gold accent line
-            drawRect(
-                at: CGRect(x: margin, y: 82, width: contentWidth, height: 3), color: gold,
-                context: context)
-            y = 100
-
-            // PARTES section
-            y = drawPremiumSectionTitle("PARTES", at: y)
-
-            // Two-column party cards
-            let cardWidth = (contentWidth - 20) / 2
-            drawInfoCard(
-                title: "ARRENDADOR", lines: [property.name, property.address],
-                at: CGRect(x: margin, y: y, width: cardWidth, height: 60), context: context)
-
-            var tenantLines = [tenant.fullName]
-            if let dni = tenant.dni { tenantLines.append("DNI/NIE: \(dni)") }
-            if let email = tenant.email { tenantLines.append(email) }
-            drawInfoCard(
-                title: "ARRENDATARIO", lines: tenantLines,
-                at: CGRect(x: margin + cardWidth + 20, y: y, width: cardWidth, height: 60),
-                context: context)
-            y += 80
-
-            // OBJETO section
-            y = drawPremiumSectionTitle("OBJETO DEL CONTRATO", at: y)
-            let roomDesc =
-                "Habitación \"\(room.name)\" (\(room.roomType == .privateRoom ? "privada" : "común")) en la propiedad \"\(property.name)\", ubicada en \(property.address)."
+            // MARK: — Title
             y =
                 drawColoredText(
-                    roomDesc, at: CGPoint(x: margin, y: y),
-                    font: .systemFont(ofSize: 11), color: charcoal, maxWidth: contentWidth) + 15
+                    "CONTRATO DE ARRENDAMIENTO DE HABITACIÓN EN PISO COMPARTIDO.",
+                    at: CGPoint(x: margin, y: y),
+                    font: .boldSystemFont(ofSize: 16), color: navy, maxWidth: contentWidth) + 12
 
-            // CONDICIONES ECONÓMICAS — 3 info boxes
-            y = drawPremiumSectionTitle("CONDICIONES ECONÓMICAS", at: y)
-            let boxWidth = (contentWidth - 20) / 3
-            let durationText = tenant.contractMonths.map { "\($0) meses" } ?? "Indefinido"
-            drawInfoBox(
-                title: "Duración", value: durationText,
-                at: CGRect(x: margin, y: y, width: boxWidth, height: 50), context: context)
-            drawInfoBox(
-                title: "Renta mensual", value: formatCurrency(room.monthlyRent),
-                at: CGRect(x: margin + boxWidth + 10, y: y, width: boxWidth, height: 50),
-                context: context)
-            let depositText = tenant.depositAmount.map { formatCurrency($0) } ?? "N/A"
-            drawInfoBox(
-                title: "Fianza", value: depositText,
-                at: CGRect(x: margin + (boxWidth + 10) * 2, y: y, width: boxWidth, height: 50),
-                context: context)
-            y += 70
+            // MARK: — Date & Place
+            y =
+                drawMixedText(
+                    [
+                        .regular("En Guadalajara a "), .bold(contractDate),
+                    ], at: y, contentWidth: contentWidth) + 4
+            y =
+                drawColoredText(
+                    "Estamos reunidos:", at: CGPoint(x: margin, y: y),
+                    font: .systemFont(ofSize: 11), color: charcoal, maxWidth: contentWidth) + 8
 
-            // Dates
-            if let start = tenant.contractStartDate {
-                y = drawLabelValue("Fecha de inicio:", value: start.dayMonthYear, at: y)
-            }
-            if let end = tenant.contractEndDate {
-                y = drawLabelValue("Fecha de fin:", value: end.dayMonthYear, at: y)
-            }
-            y += 15
+            // MARK: — Landlord
+            y =
+                drawColoredText(
+                    "COMO PARTE ARRENDADORA:", at: CGPoint(x: margin, y: y),
+                    font: .boldSystemFont(ofSize: 11), color: charcoal, maxWidth: contentWidth) + 4
+            y =
+                drawMixedText(
+                    [
+                        .regular("D/Doña "), .bold(property.name),
+                        .regular(
+                            ", mayor de edad, propietaria de la vivienda compartida situada en "),
+                        .bold(property.address), .regular("."),
+                    ], at: y, contentWidth: contentWidth) + 8
 
-            // OBLIGACIONES
-            y = drawPremiumSectionTitle("OBLIGACIONES", at: y)
-            let obligations = [
-                "El inquilino se compromete al pago mensual de la renta acordada antes del día 5 de cada mes.",
-                "La fianza será devuelta al finalizar el contrato, previa revisión del estado del inmueble.",
-                "Cualquier daño causado por el inquilino será responsabilidad del mismo.",
-                "El inquilino se compromete a respetar las normas de convivencia establecidas.",
-                "No se permitirán subarriendos sin autorización escrita del arrendador.",
-                "El contrato puede ser renovado por acuerdo mutuo entre las partes.",
-            ]
-            for (i, obligation) in obligations.enumerated() {
-                if y > pageHeight - 120 {
-                    context.beginPage()
-                    y = margin
-                }
-                y = drawBulletPoint("\(i + 1). \(obligation)", at: y, context: context)
-            }
-            y += 15
+            // MARK: — Tenant
+            y =
+                drawColoredText(
+                    "COMO PARTE ARRENDATARIA:", at: CGPoint(x: margin, y: y),
+                    font: .boldSystemFont(ofSize: 11), color: charcoal, maxWidth: contentWidth) + 4
+            y =
+                drawMixedText(
+                    [
+                        .regular("D/Dña. "), .bold(tenant.fullName),
+                        .regular(" mayor de edad con DNI/PASAPORTE "),
+                        .bold(tenant.dni ?? "___________"),
+                        .regular(" Y con domicilio en "), .bold(tenantAddress),
+                    ], at: y, contentWidth: contentWidth) + 12
 
-            // Contract notes if any
-            if let notes = tenant.contractNotes, !notes.isEmpty {
-                if y > pageHeight - 160 {
-                    context.beginPage()
-                    y = margin
-                }
-                y = drawPremiumSectionTitle("CONDICIONES PARTICULARES", at: y)
-                y =
-                    drawColoredText(
-                        notes, at: CGPoint(x: margin, y: y),
-                        font: .italicSystemFont(ofSize: 11), color: charcoal, maxWidth: contentWidth
-                    ) + 20
-            }
+            // MARK: — Agreement
+            y =
+                drawColoredText(
+                    "AMBAS PARTES CONVIENEN EL ARRIENDO DE LA HABITACIÓN",
+                    at: CGPoint(x: margin, y: y),
+                    font: .boldSystemFont(ofSize: 12), color: charcoal, maxWidth: contentWidth) + 4
+            y =
+                drawMixedText(
+                    [
+                        .regular("Que se inicia el día "), .bold(fmtDate(tenant.contractStartDate)),
+                        .regular(" finalizando el día "), .bold(fmtDate(tenant.contractEndDate)),
+                        .regular(". El precio del arriendo es de "), .bold("\(rent)€"),
+                        .regular(
+                            " mensuales, estando incluidos los gastos a excepción de calefacción y electricidad que deberán ser abonados de la siguiente forma, a dividir entre todos los ocupantes de la vivienda."
+                        ),
+                    ], at: y, contentWidth: contentWidth) + 6
 
-            // Signatures — ensure on same page
-            if y > pageHeight - 180 {
-                context.beginPage()
-                y = margin
-            }
-            y += 30
+            // Deposit
+            y = checkPageBreak(y: y, needed: 60, context: context)
+            y =
+                drawMixedText(
+                    [
+                        .regular(
+                            "EL DEPÓSITO que, como garantía deberá abonar el ARRENDATARIO es de "),
+                        .bold("\(deposit)€"), .regular(" ("),
+                        .bold("\(depositWords) EUROS"),
+                        .regular(
+                            "), importe que le será devuelto al finalizar el contrato, bien en metálico bien por transferencia bancaria."
+                        ),
+                    ], at: y, contentWidth: contentWidth) + 6
+
+            // Receipt clause
+            y = checkPageBreak(y: y, needed: 40, context: context)
+            y =
+                drawParagraph(
+                    "Este contrato no tiene validez como justificante de pago del arriendo, EL ARRENDADOR le deberá entregar al ARRENDATARIO un recibo como justificante de pago.",
+                    at: y, contentWidth: contentWidth) + 6
+
+            // Scope
+            y = checkPageBreak(y: y, needed: 50, context: context)
+            y =
+                drawParagraph(
+                    "El objeto del ARRIENDO ES EXCLUSIVAMENTE la habitación que se indica, sin derecho a utilizar otros dormitorios de la casa. En cuanto al resto del mismo, EL ARRENDADOR acepta compartir el uso de la cocina, salón, y baño común para lo que se obliga a las normas de respeto y buena convivencia.",
+                    at: y, contentWidth: contentWidth) + 12
+
+            // MARK: — Landlord Access
+            y = checkPageBreak(y: y, needed: 80, context: context)
+            y =
+                drawColoredText(
+                    "DERECHO DE ACCESO A LA VIVIENDA DEL ARRENDADOR.",
+                    at: CGPoint(x: margin, y: y),
+                    font: .boldSystemFont(ofSize: 11), color: charcoal, maxWidth: contentWidth) + 4
+            y =
+                drawParagraph(
+                    "Las partes acuerdan expresamente la renuncia del arrendatario a impedir que el arrendador pueda acceder a las zonas comunes de la vivienda. La violación de este derecho del arrendador por parte de cualquier persona que se encuentre en la vivienda será considerada causa de disolución del contrato y motivo de desahucio del arrendatario, siendo este responsable de los daños y perjuicios que el impedimento del acceso pueda ocasionar al arrendador, entre otros la perdida de beneficios por no poder arrendar otras habitaciones.",
+                    at: y, contentWidth: contentWidth) + 8
+
+            // MARK: — Notice Period
+            y = checkPageBreak(y: y, needed: 80, context: context)
+            y =
+                drawColoredText(
+                    "CLÁUSULA DE PREAVISO Y PERMANENCIA MENSUAL",
+                    at: CGPoint(x: margin, y: y),
+                    font: .boldSystemFont(ofSize: 11), color: charcoal, maxWidth: contentWidth) + 4
+            y =
+                drawParagraph(
+                    "En caso de que el ARRENDATARIO desee dar por finalizado el contrato antes de su fecha de vencimiento, deberá comunicarlo al ARRENDADOR con un mínimo de 15 días naturales de antelación.",
+                    at: y, contentWidth: contentWidth) + 4
+            y =
+                drawParagraph(
+                    "No obstante, aunque se haya dado el preaviso dentro de ese plazo, el ARRENDATARIO estará obligado a abonar la mensualidad completa del mes en el que abandone la habitación, no correspondiendo, en ningún caso, el prorrateo de dicho importe.",
+                    at: y, contentWidth: contentWidth) + 8
+
+            // MARK: — Termination
+            y = checkPageBreak(y: y, needed: 80, context: context)
+            y =
+                drawParagraph(
+                    "EL ARRENDADOR podrá rescindir el contrato UNILATERALMENTE DE FORMA INMEDIATA si existen faltas en las normas del piso, o de buena convivencia entre compañeros o con el vecindario de la casa, o bien si estuviera en situación de falta de pago de la renta o suministros y/o calefacción, como también si existiera incumplimiento de cualquiera de los términos del contrato.",
+                    at: y, contentWidth: contentWidth) + 4
+            y =
+                drawParagraph(
+                    "EL ARRENDADOR se reserva el derecho de rescindir el contrato por cualquier causa diferente a las anteriores siempre y cuando lo comunique al arrendatario con un mes de antelación.",
+                    at: y, contentWidth: contentWidth) + 6
+
+            // Prohibitions
+            y = checkPageBreak(y: y, needed: 40, context: context)
+            y =
+                drawParagraph(
+                    "Queda prohibida la introducción de terceras personas sin previo aviso al arrendador, la contratación de ningún tipo de servicios, así como la cesión PARCIAL o TOTAL de este contrato, sin previo permiso escrito de la propiedad.",
+                    at: y, contentWidth: contentWidth) + 4
+            y =
+                drawParagraph(
+                    "El contrato no se podrá ceder ni subarrendar de forma parcial por el arrendatario sin previo consentimiento por escrito del arrendador.",
+                    at: y, contentWidth: contentWidth) + 4
+            y =
+                drawParagraph(
+                    "No se permite fumar en el interior de la casa, ya que dispone de zonas, como el patio, en las que se puede fumar sin molestar al resto de inquilinos.",
+                    at: y, contentWidth: contentWidth) + 4
+
+            // Quiet hours
+            y = checkPageBreak(y: y, needed: 40, context: context)
+            y =
+                drawParagraph(
+                    "EL ARRENDATARIO está obligado a cumplir las normas de la casa, respetando el descanso de todos los que habitan la casa, especialmente desde las 23:00 hasta las 8:00.",
+                    at: y, contentWidth: contentWidth) + 4
+
+            // Property condition
+            y = checkPageBreak(y: y, needed: 60, context: context)
+            y =
+                drawParagraph(
+                    "EL ARRENDATARIO declara que el piso está en buen estado, obligándose a conservar todo con la mayor diligencia y a abonar los desperfectos que no sean debidos a un uso normal y correcto. Al finalizar el contrato, se comprobará que haya habido una correcta conservación de la casa y mobiliario. Siendo objeto de arriendo exclusivamente la habitación expresada, la propiedad conserva su derecho a entrar y salir de la casa por lo que el arrendatario se obliga a no cambiar la cerradura de la puerta. Por pérdida de llaves se abonará su importe.",
+                    at: y, contentWidth: contentWidth) + 4
+
+            y = checkPageBreak(y: y, needed: 40, context: context)
+            y =
+                drawParagraph(
+                    "Queda terminantemente PROHIBIDA cualquier obra o alteración en el piso, sin previo permiso por escrito de la propiedad, así como la entrada de animales en el piso.",
+                    at: y, contentWidth: contentWidth) + 4
+            y =
+                drawParagraph(
+                    "EL ARRENDADOR no se hace responsable de pérdidas o hurtos en las habitaciones. A tal efecto todas las habitaciones tienen cerradura privada.",
+                    at: y, contentWidth: contentWidth) + 4
+            y =
+                drawParagraph(
+                    "EL ARRENDADOR tampoco se hace responsable de los posibles daños que pudieran surgir en los dispositivos eléctricos ajenos enchufados en la red eléctrica del piso.",
+                    at: y, contentWidth: contentWidth) + 4
+            y =
+                drawParagraph(
+                    "Y en prueba de conformidad con todo cuanto antecede, firman ambas partes en lugar y fecha indicados.",
+                    at: y, contentWidth: contentWidth) + 20
+
+            // MARK: — Signatures
+            y = checkPageBreak(y: y, needed: 80, context: context)
             let sigWidth = (contentWidth - 40) / 2
-
             drawColoredText(
                 "EL ARRENDADOR", at: CGPoint(x: margin, y: y),
                 font: .boldSystemFont(ofSize: 11), color: navy, maxWidth: sigWidth,
@@ -141,10 +228,9 @@ final class PDFGenerator {
                 "EL ARRENDATARIO", at: CGPoint(x: margin + sigWidth + 40, y: y),
                 font: .boldSystemFont(ofSize: 11), color: navy, maxWidth: sigWidth,
                 alignment: .center)
-            y += 50
-
+            y += 35
             let ctx = context.cgContext
-            ctx.setStrokeColor(navy.cgColor)
+            ctx.setStrokeColor(charcoal.cgColor)
             ctx.setLineWidth(0.5)
             ctx.move(to: CGPoint(x: margin + 10, y: y))
             ctx.addLine(to: CGPoint(x: margin + sigWidth - 10, y: y))
@@ -152,17 +238,168 @@ final class PDFGenerator {
             ctx.addLine(to: CGPoint(x: pageWidth - margin - 10, y: y))
             ctx.strokePath()
 
-            y += 20
-            drawColoredText(
-                "Fecha: ___/___/______", at: CGPoint(x: margin, y: y),
-                font: .systemFont(ofSize: 10), color: .gray, maxWidth: sigWidth)
-            drawColoredText(
-                "Fecha: ___/___/______", at: CGPoint(x: margin + sigWidth + 40, y: y),
-                font: .systemFont(ofSize: 10), color: .gray, maxWidth: sigWidth)
+            // MARK: — Page 2: House Rules
+            context.beginPage()
+            y = margin
 
-            // Footer
+            y =
+                drawColoredText(
+                    "NORMAS DE RESPETO Y BUENA CONVIVENCIA",
+                    at: CGPoint(x: margin, y: y),
+                    font: .boldSystemFont(ofSize: 14), color: navy, maxWidth: contentWidth) + 12
+
+            let normas = [
+                "Repartir y asignar las distintas tareas del hogar. De esta manera, evitarás en la medida de lo posible las discusiones. Dejarlo a la buena voluntad de cada uno no funciona.",
+                "Dejar lo más limpio y presentable posible las habitaciones comunes, como el baño o la cocina.",
+                "Establecer unos horarios de silencio ya que se puede molestar a algunos compañeros que tengan que trabajar. Horario mínimo a respetar de 23h a 8h, no usar la lavadora ni el lavavajillas ni ningún otro electrodoméstico que haga ruido a partir de las 23h.",
+                "Se recomienda no mostrar actitudes demasiado impositivas o irritantes porque puedes acabar perdiendo compañeros o no encontrando piso.",
+                "En el caso de que alguien fume, NUNCA se hará en el interior de la casa, se hará en el patio o terraza.",
+                "Se recomienda la aportación de un fondo común para la comprar de productos de uso común como lavavajillas, papel higiénico, detergente para la lavadora etc.",
+                "No manipular ni el calentador ni estufa de pellet avisar en caso de que no funcione correctamente.",
+                "Frigorífico: Organizar el espacio en función de los compañeros que haya. Limpiar el interior al menos una vez al mes.",
+                "No acumular basura dentro de la casa, imprescindible tirarla a diario.",
+            ]
+
+            for norma in normas {
+                y = checkPageBreak(y: y, needed: 40, context: context)
+                y =
+                    drawColoredText(
+                        "• \(norma)", at: CGPoint(x: margin + 5, y: y),
+                        font: .systemFont(ofSize: 11), color: charcoal, maxWidth: contentWidth - 10)
+                    + 6
+            }
+
+            // Contract notes if any
+            if let notes = tenant.contractNotes, !notes.isEmpty {
+                y += 10
+                y = checkPageBreak(y: y, needed: 60, context: context)
+                y =
+                    drawColoredText(
+                        "CONDICIONES PARTICULARES",
+                        at: CGPoint(x: margin, y: y),
+                        font: .boldSystemFont(ofSize: 12), color: navy, maxWidth: contentWidth) + 6
+                y =
+                    drawColoredText(
+                        notes, at: CGPoint(x: margin, y: y),
+                        font: .italicSystemFont(ofSize: 11), color: charcoal, maxWidth: contentWidth
+                    ) + 10
+            }
+
+            // Footer on both pages
             drawPremiumFooter(context: context)
         }
+    }
+
+    // MARK: - Mixed bold/regular text helper
+
+    private enum TextSpan {
+        case regular(String)
+        case bold(String)
+
+        var text: String {
+            switch self {
+            case .regular(let t), .bold(let t): return t
+            }
+        }
+        var isBold: Bool {
+            if case .bold = self { return true }
+            return false
+        }
+    }
+
+    private func drawMixedText(_ spans: [TextSpan], at y: CGFloat, contentWidth: CGFloat) -> CGFloat
+    {
+        let fullText = spans.map(\.text).joined()
+        let font = UIFont.systemFont(ofSize: 11)
+        let boldFont = UIFont.boldSystemFont(ofSize: 11)
+
+        // Build NSMutableAttributedString with bold regions
+        let attr = NSMutableAttributedString()
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 3
+
+        for span in spans {
+            let f = span.isBold ? boldFont : font
+            let part = NSAttributedString(
+                string: span.text,
+                attributes: [
+                    .font: f,
+                    .foregroundColor: charcoal,
+                    .paragraphStyle: paragraphStyle,
+                ])
+            attr.append(part)
+        }
+
+        let boundingRect = attr.boundingRect(
+            with: CGSize(width: contentWidth, height: .greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            context: nil)
+
+        let drawRect = CGRect(x: margin, y: y, width: contentWidth, height: boundingRect.height)
+        attr.draw(in: drawRect)
+        return y + boundingRect.height
+    }
+
+    /// Draw a plain paragraph at standard size
+    private func drawParagraph(_ text: String, at y: CGFloat, contentWidth: CGFloat) -> CGFloat {
+        drawColoredText(
+            text, at: CGPoint(x: margin, y: y),
+            font: .systemFont(ofSize: 11), color: charcoal, maxWidth: contentWidth)
+    }
+
+    /// If remaining space is less than `needed`, start a new page
+    private func checkPageBreak(y: CGFloat, needed: CGFloat, context: UIGraphicsPDFRendererContext)
+        -> CGFloat
+    {
+        if y + needed > pageHeight - margin {
+            context.beginPage()
+            return margin
+        }
+        return y
+    }
+
+    // MARK: - Number to Words (Spanish)
+
+    static func numberToWords(_ num: Int) -> String {
+        let ones = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"]
+        let specials = [
+            "diez", "once", "doce", "trece", "catorce", "quince",
+            "dieciséis", "diecisiete", "dieciocho", "diecinueve",
+        ]
+        let tens = [
+            "", "", "veinte", "treinta", "cuarenta", "cincuenta",
+            "sesenta", "setenta", "ochenta", "noventa",
+        ]
+        let hundreds = [
+            "", "ciento", "doscientos", "trescientos", "cuatrocientos",
+            "quinientos", "seiscientos", "setecientos", "ochocientos", "novecientos",
+        ]
+
+        if num == 0 { return "cero" }
+        if num < 10 { return ones[num] }
+        if num < 20 { return specials[num - 10] }
+        if num < 100 {
+            let t = num / 10
+            let o = num % 10
+            return tens[t] + (o > 0 ? " y \(ones[o])" : "")
+        }
+        if num == 100 { return "cien" }
+        if num < 1000 {
+            let h = num / 100
+            let remainder = num % 100
+            return hundreds[h] + (remainder > 0 ? " \(numberToWords(remainder))" : "")
+        }
+        if num == 1000 { return "mil" }
+        if num < 2000 {
+            return "mil \(numberToWords(num - 1000))"
+        }
+        if num < 1_000_000 {
+            let thousands = num / 1000
+            let remainder = num % 1000
+            let prefix = numberToWords(thousands) + " mil"
+            return remainder > 0 ? "\(prefix) \(numberToWords(remainder))" : prefix
+        }
+        return "\(num)"
     }
 
     // MARK: - Room Ad PDF (Premium — matches webapp generateRoomAd)
