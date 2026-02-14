@@ -1,14 +1,37 @@
 import Foundation
 
-/// Room info embedded in income from join: room:room_id(id, name, tenant_name)
+/// Tenant info embedded in income from nested join: tenant:tenant_id(full_name)
+struct IncomeTenant: Codable, Sendable, Hashable {
+    let fullName: String
+
+    enum CodingKeys: String, CodingKey {
+        case fullName = "full_name"
+    }
+}
+
+/// Room info embedded in income from join: room:room_id(id, name, tenant_name, tenant:tenant_id(full_name))
 struct IncomeRoom: Codable, Sendable, Hashable {
     let id: UUID
     let name: String
     let tenantName: String?
+    var tenant: IncomeTenant?
 
     enum CodingKeys: String, CodingKey {
-        case id, name
+        case id, name, tenant
         case tenantName = "tenant_name"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        tenantName = try container.decodeIfPresent(String.self, forKey: .tenantName)
+        // Supabase may return tenant as array or object
+        if let tenants = try? container.decode([IncomeTenant].self, forKey: .tenant) {
+            tenant = tenants.first
+        } else {
+            tenant = try? container.decode(IncomeTenant.self, forKey: .tenant)
+        }
     }
 }
 
@@ -91,8 +114,8 @@ struct Income: Codable, Identifiable, Sendable, Hashable {
         room?.name ?? "Habitación"
     }
 
-    /// Tenant name from room's denormalized tenant_name column
+    /// Tenant name: prefer joined tenant full_name, fallback to denormalized tenant_name
     var tenantName: String? {
-        room?.tenantName
+        room?.tenant?.fullName ?? room?.tenantName
     }
 }

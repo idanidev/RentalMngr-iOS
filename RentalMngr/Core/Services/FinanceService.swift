@@ -19,7 +19,7 @@ final class FinanceService {
     private var client: SupabaseClient { SupabaseService.shared.client }
 
     /// The join select string for income with room name and tenant name
-    private let incomeSelect = "*, room:room_id(id, name, tenant_name)"
+    private let incomeSelect = "*, room:room_id(id, name, tenant_name, tenant:tenant_id(full_name))"
 
     private let iso8601: ISO8601DateFormatter = {
         let f = ISO8601DateFormatter()
