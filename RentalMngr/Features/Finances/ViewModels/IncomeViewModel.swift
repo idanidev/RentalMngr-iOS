@@ -1,6 +1,6 @@
 import Foundation
 
-@Observable
+@MainActor @Observable
 final class IncomeViewModel {
     var amount = ""
     var month = Date()
@@ -9,15 +9,16 @@ final class IncomeViewModel {
     var errorMessage: String?
 
     let propertyId: UUID
-    private let financeService: FinanceService
+    private let financeService: FinanceServiceProtocol
 
-    init(propertyId: UUID, financeService: FinanceService) {
+    init(propertyId: UUID, financeService: FinanceServiceProtocol) {
         self.propertyId = propertyId
         self.financeService = financeService
     }
 
     var isFormValid: Bool {
-        Decimal(string: amount) != nil && roomId != nil
+        guard let value = Decimal(string: amount) else { return false }
+        return value > 0 && roomId != nil
     }
 
     func save() async -> Income? {
@@ -30,6 +31,10 @@ final class IncomeViewModel {
             )
             isLoading = false
             return result
+        } catch is CancellationError {
+            // Tarea cancelada por navegación — no es un error real
+            isLoading = false
+            return nil
         } catch {
             errorMessage = error.localizedDescription
             isLoading = false

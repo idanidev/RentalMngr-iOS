@@ -1,14 +1,23 @@
 import Foundation
+import os
+
+private let logger = Logger(subsystem: "com.rentalmngr", category: "NotificationVM")
 
 enum NotificationFilter: String, CaseIterable {
-    case all = "Todas"
-    case unread = "No leídas"
-    case contracts = "Contratos"
-    case weekly = "Semanales"
-    case invitations = "Invitaciones"
+    case all, unread, contracts, weekly, invitations
+
+    var displayName: String {
+        switch self {
+        case .all: String(localized: "All", locale: LanguageService.currentLocale, comment: "Notification filter")
+        case .unread: String(localized: "Unread", locale: LanguageService.currentLocale, comment: "Notification filter")
+        case .contracts: String(localized: "Contracts", locale: LanguageService.currentLocale, comment: "Notification filter")
+        case .weekly: String(localized: "Weekly", locale: LanguageService.currentLocale, comment: "Notification filter")
+        case .invitations: String(localized: "Invitations", locale: LanguageService.currentLocale, comment: "Notification filter")
+        }
+    }
 }
 
-@Observable
+@MainActor @Observable
 final class NotificationViewModel {
     var notifications: [AppNotification] = []
     var localAlerts: [LocalAlert] = []
@@ -17,20 +26,25 @@ final class NotificationViewModel {
     var errorMessage: String?
     var selectedFilter: NotificationFilter = .all
 
-    private let notificationService: NotificationAppService
-    private let localAlertService: LocalAlertService
-    private let financeService: FinanceService
-    private let systemNotificationService: SystemNotificationService
+    private let notificationService: NotificationServiceProtocol
+    private let localAlertService: LocalAlertServiceProtocol
+    private let financeService: FinanceServiceProtocol
+    private let utilityService: UtilityServiceProtocol
+    private let systemNotificationService: SystemNotificationServiceProtocol?
     private let userId: UUID?
 
     init(
-        notificationService: NotificationAppService, localAlertService: LocalAlertService,
-        financeService: FinanceService, systemNotificationService: SystemNotificationService,
+        notificationService: NotificationServiceProtocol,
+        localAlertService: LocalAlertServiceProtocol,
+        financeService: FinanceServiceProtocol,
+        utilityService: UtilityServiceProtocol,
+        systemNotificationService: SystemNotificationServiceProtocol?,
         userId: UUID?
     ) {
         self.notificationService = notificationService
         self.localAlertService = localAlertService
         self.financeService = financeService
+        self.utilityService = utilityService
         self.systemNotificationService = systemNotificationService
         self.userId = userId
     }
@@ -62,17 +76,22 @@ final class NotificationViewModel {
         guard let userId else { return }
         isLoading = true
         do {
-            async let fetched = notificationService.fetchNotifications(userId: userId)
+            async let fetched = notificationService.fetchNotifications(
+                userId: userId, limit: 50, offset: 0, unreadOnly: false)
             async let count = notificationService.getUnreadCount(userId: userId)
             async let alerts = localAlertService.generateAlerts()
             notifications = try await fetched
             unreadCount = try await count
             localAlerts = await alerts
 
-            // Update system reminders based on unpaid rent alerts
-            let unpaidCount = localAlerts.filter { $0.type == .unpaidRent }.count
-            systemNotificationService.updatePaymentReminders(pendingCount: unpaidCount)
+            // Update system reminders based on unpaid rent + utility alerts
+            let unpaidCount = localAlerts.filter { $0.type == .unpaidRent || $0.type == .unpaidUtility }.count
+            systemNotificationService?.updatePaymentReminders(pendingCount: unpaidCount)
 
+        } catch is CancellationError {
+            // Tarea cancelada por navegación — no es un error real
+            isLoading = false
+            return
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -87,11 +106,24 @@ final class NotificationViewModel {
             localAlerts.removeAll { $0.id == alert.id }
 
             // Update system reminders
-            let unpaidCount = localAlerts.filter { $0.type == .unpaidRent }.count
-            systemNotificationService.updatePaymentReminders(pendingCount: unpaidCount)
+            let unpaidCount = localAlerts.filter { $0.type == .unpaidRent || $0.type == .unpaidUtility }.count
+            systemNotificationService?.updatePaymentReminders(pendingCount: unpaidCount)
 
         } catch {
-            print("[NotificationVM] Error marking paid: \(error)")
+            logger.error("[NotificationVM] Error marking paid: \(error)")
+        }
+    }
+
+    /// Mark a utility charge as paid (from unpaid utility alert)
+    func markAlertUtilityAsPaid(_ alert: LocalAlert) async {
+        guard let chargeId = alert.relatedUtilityChargeId else { return }
+        do {
+            try await utilityService.markUtilityPaid(chargeId: chargeId)
+            localAlerts.removeAll { $0.id == alert.id }
+            let unpaidCount = localAlerts.filter { $0.type == .unpaidRent || $0.type == .unpaidUtility }.count
+            systemNotificationService?.updatePaymentReminders(pendingCount: unpaidCount)
+        } catch {
+            logger.error("[NotificationVM] Error marking utility paid: \(error)")
         }
     }
 
@@ -107,6 +139,9 @@ final class NotificationViewModel {
                 notifications[index].read = true
                 unreadCount = max(0, unreadCount - 1)
             }
+        } catch is CancellationError {
+            // Tarea cancelada por navegación — no es un error real
+            return
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -120,6 +155,9 @@ final class NotificationViewModel {
                 notifications[i].read = true
             }
             unreadCount = 0
+        } catch is CancellationError {
+            // Tarea cancelada por navegación — no es un error real
+            return
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -132,6 +170,9 @@ final class NotificationViewModel {
             if !notification.read {
                 unreadCount = max(0, unreadCount - 1)
             }
+        } catch is CancellationError {
+            // Tarea cancelada por navegación — no es un error real
+            return
         } catch {
             errorMessage = error.localizedDescription
         }

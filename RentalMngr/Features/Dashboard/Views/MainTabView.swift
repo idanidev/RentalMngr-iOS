@@ -2,37 +2,38 @@ import SwiftUI
 
 struct MainTabView: View {
     @Environment(AppState.self) private var appState
-    @State private var selectedTab: AppTab = .dashboard
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            Tab("Inicio", systemImage: "house.fill", value: .dashboard) {
+        @Bindable var bindable = appState
+
+        TabView(selection: $bindable.selectedTab) {
+            Tab(
+                String(localized: "Home", locale: LanguageService.currentLocale, comment: "Tab bar item for dashboard"),
+                systemImage: "house.fill",
+                value: AppTab.dashboard
+            ) {
                 NavigationStack {
                     DashboardView()
                 }
             }
 
-            Tab("Propiedades", systemImage: "building.2.fill", value: .properties) {
-                NavigationStack {
+            Tab(
+                String(localized: "Properties", locale: LanguageService.currentLocale, comment: "Tab bar item for properties"),
+                systemImage: "building.2.fill",
+                value: AppTab.properties
+            ) {
+                NavigationStack(path: $bindable.propertiesNavigationPath) {
                     PropertyListView()
                 }
             }
 
-            Tab("Finanzas", systemImage: "eurosign.circle.fill", value: .finances) {
+            Tab(
+                String(localized: "Finances", locale: LanguageService.currentLocale, comment: "Tab bar item for finances"),
+                systemImage: "chart.line.uptrend.xyaxis",
+                value: AppTab.finances
+            ) {
                 NavigationStack {
                     GlobalFinanceView()
-                }
-            }
-
-            Tab("Avisos", systemImage: "bell.fill", value: .notifications) {
-                NavigationStack {
-                    NotificationListView()
-                }
-            }
-
-            Tab("Más", systemImage: "ellipsis", value: .more) {
-                NavigationStack {
-                    SettingsView()
                 }
             }
         }

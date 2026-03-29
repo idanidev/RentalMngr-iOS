@@ -9,15 +9,20 @@ struct GlobalFinanceView: View {
             if let vm = viewModel {
                 financeContent(vm)
             } else {
-                ProgressView("Cargando finanzas...")
+                ProgressView(
+                    String(localized: "Loading finances...", locale: LanguageService.currentLocale, comment: "Loading message for finances"))
             }
         }
-        .navigationTitle("Finanzas")
+        .navigationTitle(
+            String(localized: "Finances", locale: LanguageService.currentLocale, comment: "Navigation title for finances view")
+        )
         .task {
             if viewModel == nil {
                 viewModel = GlobalFinanceViewModel(
                     propertyService: appState.propertyService,
-                    financeService: appState.financeService
+                    financeService: appState.financeService,
+                    utilityService: appState.utilityService,
+                    realtimeService: appState.realtimeService
                 )
             }
             await viewModel?.loadData()
@@ -46,8 +51,10 @@ struct GlobalFinanceView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                    Button("Reintentar") { Task { await vm.loadData() } }
-                        .buttonStyle(.bordered)
+                    Button(String(localized: "Retry", locale: LanguageService.currentLocale, comment: "Button to retry loading")) {
+                        Task { await vm.loadData() }
+                    }
+                    .buttonStyle(.bordered)
                 }
                 .padding()
                 Spacer()
@@ -61,8 +68,10 @@ struct GlobalFinanceView: View {
                         if vm.properties.isEmpty {
                             EmptyStateView(
                                 icon: "building.2",
-                                title: "Sin propiedades",
-                                subtitle: "No tienes propiedades registradas"
+                                title: String(localized: "No properties",
+                                    locale: LanguageService.currentLocale, comment: "Empty state title when no properties exist"),
+                                subtitle: String(localized: "You have no registered properties",
+                                    locale: LanguageService.currentLocale, comment: "Empty state subtitle for no properties")
                             )
                             .padding(.top, 40)
                         } else {
@@ -75,58 +84,60 @@ struct GlobalFinanceView: View {
                 }
             }
         }
+        .refreshable {
+            await vm.refresh()
+        }
     }
 
     // MARK: - Month Selector
 
     private func monthSelector(_ vm: GlobalFinanceViewModel) -> some View {
-        HStack {
-            Button {
-                vm.changeMonth(by: -1)
-            } label: {
+        HStack(spacing: 0) {
+            Button { vm.changeMonth(by: -1) } label: {
                 Image(systemName: "chevron.left")
-                    .font(.title3)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(.indigo)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
             }
-
             Spacer()
-
             Text(vm.monthYearLabel)
                 .font(.headline)
-
             Spacer()
-
-            Button {
-                vm.changeMonth(by: 1)
-            } label: {
+            Button { vm.changeMonth(by: 1) } label: {
                 Image(systemName: "chevron.right")
-                    .font(.title3)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(.indigo)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 12)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 4)
         .background(.ultraThinMaterial)
+        .overlay(alignment: .bottom) { Divider() }
     }
 
     // MARK: - Summary Cards
 
     private func summaryCards(_ vm: GlobalFinanceViewModel) -> some View {
-        LazyVGrid(
-            columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())],
-            spacing: 10
-        ) {
-            SummaryCard(
+        HStack(spacing: 12) {
+            FinanceSummaryCard(
                 title: "Esperado",
                 amount: vm.totalExpected,
-                color: .blue
+                icon: "calendar.circle.fill",
+                color: .indigo
             )
-            SummaryCard(
+            FinanceSummaryCard(
                 title: "Cobrado",
                 amount: vm.totalPaid,
+                icon: "checkmark.circle.fill",
                 color: .green
             )
-            SummaryCard(
+            FinanceSummaryCard(
                 title: "Pendiente",
                 amount: vm.totalPending,
+                icon: "clock.circle.fill",
                 color: vm.totalPending > 0 ? .red : .green
             )
         }
@@ -135,7 +146,9 @@ struct GlobalFinanceView: View {
     // MARK: - Property Section
 
     private func propertySection(_ property: Property, vm: GlobalFinanceViewModel) -> some View {
-        let income = vm.incomeForProperty(property.id)
+        let roomGroups = vm.paymentsByPropertyAndRoom[property.id] ?? []
+        let totalItems = roomGroups.reduce(0) { $0 + $1.totalItems }
+        let paidItems = roomGroups.reduce(0) { $0 + $1.paidItems }
 
         return VStack(alignment: .leading, spacing: 8) {
             // Property header
@@ -146,30 +159,28 @@ struct GlobalFinanceView: View {
                     .font(.headline)
                 Spacer()
 
-                if !income.isEmpty {
-                    let paid = income.filter(\.paid).count
-                    let total = income.count
-                    Text("\(paid)/\(total)")
+                if totalItems > 0 {
+                    Text("\(paidItems)/\(totalItems)")
                         .font(.caption)
                         .fontWeight(.semibold)
-                        .foregroundStyle(paid == total ? .green : .orange)
+                        .foregroundStyle(paidItems == totalItems ? .green : .orange)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
                         .background(
-                            (paid == total ? Color.green : Color.orange).opacity(0.15)
+                            (paidItems == totalItems ? Color.green : Color.orange).opacity(0.15)
                         )
                         .clipShape(Capsule())
                 }
             }
 
-            // Income rows or empty state
-            if income.isEmpty {
+            // Room payment groups
+            if roomGroups.isEmpty {
                 HStack {
                     Image(systemName: "eurosign.circle")
                         .foregroundStyle(.secondary)
-                    Text("Sin ingresos registrados para este mes")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    Text("Sin ingresos registrados este mes")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 }
                 .padding(.vertical, 8)
                 .padding(.horizontal, 8)
@@ -177,17 +188,8 @@ struct GlobalFinanceView: View {
                 .background(Color.secondary.opacity(0.05))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {
-                ForEach(income, id: \.id) { income in
-                    IncomePaymentRow(income: income) {
-                        // Toggle paid/unpaid
-                        Task {
-                            if income.paid {
-                                await vm.markAsUnpaid(income)
-                            } else {
-                                await vm.markAsPaid(income)
-                            }
-                        }
-                    }
+                ForEach(roomGroups) { group in
+                    roomPaymentSection(group, vm: vm)
                 }
             }
         }
@@ -195,37 +197,99 @@ struct GlobalFinanceView: View {
         .background(.regularMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
+
+    // MARK: - Room Payment Section (Rent + Utilities)
+
+    private func roomPaymentSection(_ group: RoomPaymentGroup, vm: GlobalFinanceViewModel)
+        -> some View
+    {
+        VStack(alignment: .leading, spacing: 4) {
+            // Tenant/Room header
+            HStack(spacing: 6) {
+                Image(systemName: "person.fill")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                if let tenant = group.tenantName {
+                    Text(tenant)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                } else {
+                    Text(group.roomName)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                }
+                Spacer()
+
+                // Paid count badge
+                Text("\(group.paidItems)/\(group.totalItems)")
+                    .font(.caption2)
+                    .fontWeight(.medium)
+                    .foregroundStyle(group.allPaid ? .green : .orange)
+            }
+            .padding(.bottom, 2)
+
+            // Rent row
+            if let rent = group.rent {
+                IncomePaymentRow(income: rent) {
+                    Task {
+                        if rent.paid {
+                            await vm.markAsUnpaid(rent)
+                        } else {
+                            await vm.markAsPaid(rent)
+                        }
+                    }
+                }
+            }
+
+            // Utility rows
+            ForEach(group.utilities) { charge in
+                UtilityPaymentRow(charge: charge) {
+                    Task {
+                        if charge.paid {
+                            await vm.markUtilityUnpaid(charge)
+                        } else {
+                            await vm.markUtilityPaid(charge)
+                        }
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
 }
 
-// MARK: - Summary Card
+// MARK: - Finance Summary Card
 
-private struct SummaryCard: View {
+private struct FinanceSummaryCard: View {
     let title: String
     let amount: Decimal
+    let icon: String
     let color: Color
 
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.system(size: 18))
+                    .foregroundStyle(color)
+                Spacer()
+            }
+            Text(amount.formatted(currencyCode: "EUR"))
+                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .foregroundStyle(color)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
             Text(title)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
-            Text(formatCurrency(amount))
-                .font(.subheadline)
-                .fontWeight(.bold)
-                .foregroundStyle(color)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 10)
-        .background(color.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-    }
-
-    private func formatCurrency(_ value: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "EUR"
-        formatter.maximumFractionDigits = 0
-        return formatter.string(from: value as NSDecimalNumber) ?? "€0"
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(color.opacity(0.08), in: RoundedRectangle(cornerRadius: 14))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .strokeBorder(color.opacity(0.15), lineWidth: 0.5)
+        )
     }
 }
 
@@ -237,7 +301,6 @@ private struct IncomePaymentRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // Status icon
             Button(action: onToggle) {
                 Image(systemName: income.paid ? "checkmark.circle.fill" : "circle")
                     .font(.title3)
@@ -245,18 +308,17 @@ private struct IncomePaymentRow: View {
             }
             .buttonStyle(.plain)
 
+            Image(systemName: "house.fill")
+                .font(.caption)
+                .foregroundStyle(.blue)
+                .frame(width: 20)
+
             VStack(alignment: .leading, spacing: 2) {
-                if let tenantName = income.tenantName {
-                    Text("\(tenantName) (\(income.roomName))")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                } else {
-                    Text(income.roomName)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                }
+                Text("Alquiler")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
                 if income.paid, let date = income.paymentDate {
-                    Text("Pagado \(date.shortFormatted)")
+                    Text("Pagado el \(date.shortFormatted)")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -264,7 +326,7 @@ private struct IncomePaymentRow: View {
 
             Spacer()
 
-            Text(formatCurrency(income.amount))
+            Text(income.amount.formatted(currencyCode: "EUR"))
                 .font(.subheadline)
                 .fontWeight(.semibold)
                 .foregroundStyle(income.paid ? .green : .primary)
@@ -274,11 +336,53 @@ private struct IncomePaymentRow: View {
         .background(income.paid ? Color.green.opacity(0.05) : Color.red.opacity(0.05))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
+}
 
-    private func formatCurrency(_ value: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "EUR"
-        return formatter.string(from: value as NSDecimalNumber) ?? "€0"
+// MARK: - Utility Payment Row
+
+private struct UtilityPaymentRow: View {
+    let charge: UtilityCharge
+    let onToggle: () -> Void
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Button(action: onToggle) {
+                Image(systemName: charge.paid ? "checkmark.circle.fill" : "circle")
+                    .font(.title3)
+                    .foregroundStyle(charge.paid ? .green : .red)
+            }
+            .buttonStyle(.plain)
+
+            if let type = charge.type {
+                Image(systemName: type.icon)
+                    .font(.caption)
+                    .foregroundStyle(type.color)
+                    .frame(width: 20)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(charge.type?.displayName ?? charge.utilityType)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                if charge.paid, let date = charge.paymentDate {
+                    Text("Pagado el \(date.shortFormatted)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                }
+            }
+
+            Spacer()
+
+            if charge.amount > 0 {
+                Text(charge.amount.formatted(currencyCode: "EUR"))
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(charge.paid ? .green : .primary)
+            }
+        }
+        .padding(.vertical, 4)
+        .padding(.horizontal, 8)
+        .background(charge.paid ? Color.green.opacity(0.05) : Color.red.opacity(0.05))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

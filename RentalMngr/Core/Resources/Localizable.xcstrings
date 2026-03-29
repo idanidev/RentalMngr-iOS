@@ -1,0 +1,6646 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ""
+          }
+        }
+      }
+    },
+    "-120 €" : {
+
+    },
+    "·  %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "·  %@"
+          }
+        }
+      }
+    },
+    "/ mes" : {
+
+    },
+    "/mo" : {
+      "comment" : "Monthly rent abbreviation suffix\nPer month abbreviation for rent",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "/mes"
+          }
+        }
+      }
+    },
+    "%@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        }
+      }
+    },
+    "%@ — %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ — %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ — %2$@"
+          }
+        }
+      }
+    },
+    "%@ — contract expired %lld days ago" : {
+      "comment" : "Alert message for expired contract",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ — contract expired %2$lld days ago"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ — el contrato expiró hace %2$lld días"
+          }
+        }
+      }
+    },
+    "%@ · %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "%@ · %@: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · %2$@: %3$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@: %3$@"
+          }
+        }
+      }
+    },
+    "%@ (%@)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ (%2$@)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ (%2$@)"
+          }
+        }
+      }
+    },
+    "%@ in %@" : {
+      "comment" : "Alert message for expiring contract with tenant name and room",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ in %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ en %2$@"
+          }
+        }
+      }
+    },
+    "%@ not found" : {
+      "comment" : "AppError",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ no encontrado"
+          }
+        }
+      }
+    },
+    "%@ uncollected this month" : {
+      "comment" : "Alert message for unpaid rent amount",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ sin cobrar este mes"
+          }
+        }
+      }
+    },
+    "%@ will be unassigned from this room" : {
+      "comment" : "Check-out confirmation message with tenant name",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ será desasignado de esta habitación"
+          }
+        }
+      }
+    },
+    "%@: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@: %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@: %2$@"
+          }
+        }
+      }
+    },
+    "%@'s contract expires in %lld days." : {
+      "comment" : "Notification body for contract expiry",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@'s contract expires in %2$lld days."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El contrato de %1$@ vence en %2$lld días."
+          }
+        }
+      }
+    },
+    "%lld" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          }
+        }
+      }
+    },
+    "%lld €" : {
+
+    },
+    "%lld day(s) remaining" : {
+      "comment" : "Days remaining on contract",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld día(s) restante(s)"
+          }
+        }
+      }
+    },
+    "%lld days" : {
+      "comment" : "Number of days for contract alert advance notice",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld días"
+          }
+        }
+      }
+    },
+    "%lld days remaining" : {
+      "comment" : "Number of days until contract expires",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld días restantes"
+          }
+        }
+      }
+    },
+    "%lld month(s) and %lld day(s)" : {
+      "comment" : "Months and days remaining on contract",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld month(s) and %2$lld day(s)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld mes(es) y %2$lld día(s)"
+          }
+        }
+      }
+    },
+    "%lld month(s) remaining" : {
+      "comment" : "Months remaining on contract",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld mes(es) restante(s)"
+          }
+        }
+      }
+    },
+    "%lld pendientes" : {
+
+    },
+    "%lld rooms" : {
+      "comment" : "Number of rooms in property",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld habitaciones"
+          }
+        }
+      }
+    },
+    "%lld/%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld/%2$lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld/%2$lld"
+          }
+        }
+      }
+    },
+    "%lld/%lld hab." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld/%2$lld hab."
+          }
+        }
+      }
+    },
+    "%lld/%lld occupied" : {
+      "comment" : "Occupied rooms ratio",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld/%2$lld occupied"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld/%2$lld ocupadas"
+          }
+        }
+      }
+    },
+    "%lld/%lld rooms" : {
+      "comment" : "Occupied/total rooms count in property card",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld/%2$lld hab."
+          }
+        }
+      }
+    },
+    "%lldd" : {
+
+    },
+    "+4,2%" : {
+
+    },
+    "+480 €" : {
+
+    },
+    "✓ Access granted directly to %@" : {
+      "comment" : "Success message when direct access is granted",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✓ Acceso concedido directamente a %@"
+          }
+        }
+      }
+    },
+    "✓ Invitation sent to %@" : {
+      "comment" : "Success message when invitation is sent",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✓ Invitación enviada a %@"
+          }
+        }
+      }
+    },
+    "✓ Role updated successfully" : {
+      "comment" : "Success message when role is updated",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✓ Rol actualizado correctamente"
+          }
+        }
+      }
+    },
+    "1 day" : {
+      "comment" : "1 day advance notice option",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 día"
+          }
+        }
+      }
+    },
+    "6.300 €" : {
+
+    },
+    "81,8%" : {
+
+    },
+    "99+" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "99+"
+          }
+        }
+      }
+    },
+    "A common fund is recommended for purchasing shared products such as dishwasher soap, toilet paper, laundry detergent, etc." : {
+      "comment" : "PDF house rule 6",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se recomienda un fondo común para la compra de productos compartidos como jabón de lavavajillas, papel higiénico, detergente, etc."
+          }
+        }
+      }
+    },
+    "A test notification has been created. Check the Notifications tab." : {
+      "comment" : "Alert message after sending test notification",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se ha creado una notificación de prueba. Comprueba la pestaña de Notificaciones."
+          }
+        }
+      }
+    },
+    "Accept" : {
+      "comment" : "Accept invitation button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aceptar"
+          }
+        }
+      }
+    },
+    "Acciones rápidas" : {
+
+    },
+    "Accommodation" : {
+      "comment" : "Section header in tenant detail",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alojamiento"
+          }
+        }
+      }
+    },
+    "Account created. Check your email to confirm." : {
+      "comment" : "Success message after sign up",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuenta creada. Revisa tu email para confirmar."
+          }
+        }
+      }
+    },
+    "Acquisition" : {
+      "comment" : "Section header for purchase info",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adquisición"
+          }
+        }
+      }
+    },
+    "Actions" : {
+      "comment" : "Section header for actions\nSection header for tenant actions",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acciones"
+          }
+        }
+      }
+    },
+    "Active" : {
+      "comment" : "Contract status\nFilter for active tenants",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activo"
+          }
+        }
+      }
+    },
+    "Active alerts" : {
+      "comment" : "Section header for active local alerts",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alertas activas"
+          }
+        }
+      }
+    },
+    "Ad" : {
+      "comment" : "Navigation title for room ad view",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anuncio"
+          }
+        }
+      }
+    },
+    "Ad - %@" : {
+      "comment" : "Share preview title for room ad PDF",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anuncio - %@"
+          }
+        }
+      }
+    },
+    "Add" : {
+      "comment" : "Add photo button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir"
+          }
+        }
+      }
+    },
+    "Add a Room" : {
+      "comment" : "Setup step 2 title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añade una habitación"
+          }
+        }
+      }
+    },
+    "Add expense" : {
+      "comment" : "Button to add a new expense\nButton to add shared expense",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir gasto"
+          }
+        }
+      }
+    },
+    "Add furniture and items to this room." : {
+      "comment" : "Inventory empty subtitle",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añade mobiliario y objetos a esta habitación."
+          }
+        }
+      }
+    },
+    "Add house rules for cohabitation" : {
+      "comment" : "Empty state subtitle for house rules",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añade normas de convivencia"
+          }
+        }
+      }
+    },
+    "Add income" : {
+      "comment" : "Button to add new income entry",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir ingreso"
+          }
+        }
+      }
+    },
+    "Add income and expenses to see the summary" : {
+      "comment" : "Empty state subtitle for finance summary",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añade ingresos y gastos para ver el resumen"
+          }
+        }
+      }
+    },
+    "Add Item" : {
+      "comment" : "Inventory form add title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir artículo"
+          }
+        }
+      }
+    },
+    "Add Property" : {
+      "comment" : "Button to add first property",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir propiedad"
+          }
+        }
+      }
+    },
+    "Add room" : {
+      "comment" : "Button to add a new room",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir habitación"
+          }
+        }
+      }
+    },
+    "Add Room" : {
+      "comment" : "Setup add room button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir habitación"
+          }
+        }
+      }
+    },
+    "Add rooms to this property" : {
+      "comment" : "Empty state subtitle for rooms",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añade habitaciones a esta propiedad"
+          }
+        }
+      }
+    },
+    "Add rule" : {
+      "comment" : "Button to add a new house rule",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir norma"
+          }
+        }
+      }
+    },
+    "Add Tenant" : {
+      "comment" : "Button to add a tenant",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir inquilino"
+          }
+        }
+      }
+    },
+    "Add your first property to get started" : {
+      "comment" : "Empty state subtitle for properties",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añade tu primera propiedad para empezar"
+          }
+        }
+      }
+    },
+    "Address" : {
+      "comment" : "Label for tenant address\nProperty address field\nSection header for landlord address\nSetup field label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dirección"
+          }
+        }
+      }
+    },
+    "Ajustes" : {
+
+    },
+    "Alerts" : {
+      "comment" : "Quick action view alerts",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alertas"
+          }
+        }
+      }
+    },
+    "Alerts before contracts expire" : {
+      "comment" : "Onboarding bullet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avisos antes de que venzan los contratos"
+          }
+        }
+      }
+    },
+    "Alerts when a tenant's contract is about to expire or has already expired" : {
+      "comment" : "Subtitle for contract alerts toggle",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alertas cuando el contrato de un inquilino está a punto de vencer o ya ha vencido"
+          }
+        }
+      }
+    },
+    "All" : {
+      "comment" : "Filter for all tenants\nNotification filter",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos"
+          }
+        }
+      }
+    },
+    "All read" : {
+      "comment" : "Empty state title when all notifications are read",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo leído"
+          }
+        }
+      }
+    },
+    "All rooms are occupied" : {
+      "comment" : "Empty state subtitle when no rooms available for assignment",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todas las habitaciones están ocupadas"
+          }
+        }
+      }
+    },
+    "All Set!" : {
+      "comment" : "Setup done title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Todo listo!"
+          }
+        }
+      }
+    },
+    "All tenant documents in one place" : {
+      "comment" : "Onboarding bullet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos los documentos del inquilino en un lugar"
+          }
+        }
+      }
+    },
+    "All tenants already have an assigned room or there are no active tenants" : {
+      "comment" : "Empty state subtitle for no available tenants",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos los inquilinos ya tienen habitación asignada o no hay inquilinos activos"
+          }
+        }
+      }
+    },
+    "All time" : {
+      "comment" : "Filter label when showing all time data",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo el tiempo"
+          }
+        }
+      }
+    },
+    "All your data — properties, tenants, finances — will be permanently erased. This cannot be undone." : {
+      "comment" : "Confirmation message for permanent account deletion",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos tus datos — propiedades, inquilinos, finanzas — se eliminarán permanentemente. Esta acción no se puede deshacer."
+          }
+        }
+      }
+    },
+    "Alquiler" : {
+
+    },
+    "Alquiler cobrado" : {
+
+    },
+    "Already have an account? Sign In" : {
+      "comment" : "Toggle to sign in mode",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Ya tienes cuenta? Inicia sesión"
+          }
+        }
+      }
+    },
+    "Always One Step Ahead" : {
+      "comment" : "Onboarding page 5 title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siempre por delante"
+          }
+        }
+      }
+    },
+    "Amount (€)" : {
+      "comment" : "Amount field placeholder for expense\nAmount placeholder for income form",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importe (€)"
+          }
+        }
+      }
+    },
+    "Amount (€) *" : {
+      "comment" : "Placeholder for shared expense amount field",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importe (€) *"
+          }
+        }
+      }
+    },
+    "Apariencia" : {
+
+    },
+    "App" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aplicación"
+          }
+        }
+      }
+    },
+    "Appearance" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apariencia"
+          }
+        }
+      }
+    },
+    "Appliances" : {
+      "comment" : "Expense category",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Electrodomésticos"
+          }
+        }
+      }
+    },
+    "Assign tenant (Check-in)" : {
+      "comment" : "Button to assign a tenant to a room",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asignar inquilino (Check-in)"
+          }
+        }
+      }
+    },
+    "Assign to %@" : {
+      "comment" : "Navigation title for assigning tenant to a room",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asignar a %@"
+          }
+        }
+      }
+    },
+    "Assign to Room" : {
+      "comment" : "Button to assign tenant to a room",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asignar a habitación"
+          }
+        }
+      }
+    },
+    "Availability" : {
+      "comment" : "PDF room ad availability label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disponibilidad"
+          }
+        }
+      }
+    },
+    "Available on iPhone and iPad, always with you" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disponible en iPhone y iPad, siempre contigo"
+          }
+        }
+      }
+    },
+    "Available Variables" : {
+      "comment" : "Section header for template variable list",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Variables disponibles"
+          }
+        }
+      }
+    },
+    "Basic Info" : {
+      "comment" : "Inventory form section header propertys",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Información básica"
+          }
+        }
+      }
+    },
+    "Bathroom" : {
+      "comment" : "House rule category",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Baño"
+          }
+        }
+      }
+    },
+    "Broken" : {
+      "comment" : "Inventory condition broken",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Roto"
+          }
+        }
+      }
+    },
+    "Build" : {
+      "comment" : "Label for app build number",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compilación"
+          }
+        }
+      }
+    },
+    "Buscar" : {
+
+    },
+    "By Room" : {
+      "comment" : "Split type",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por habitación"
+          }
+        }
+      }
+    },
+    "Call" : {
+      "comment" : "Context menu action to call tenant",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Llamar"
+          }
+        }
+      }
+    },
+    "Calle Mayor 12 · hace %lldh" : {
+
+    },
+    "Cancel" : {
+      "comment" : "Button to cancel\nButton to cancel house rule creation\nCancel button\nCancel button in confirmation dialog\nInventory form cancel",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelar"
+          }
+        }
+      }
+    },
+    "Category" : {
+      "comment" : "Expense form\nLabel for house rule category picker\nLabel for shared expense category picker",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Categoría"
+          }
+        }
+      }
+    },
+    "Cerrar" : {
+
+    },
+    "Cerrar sesión" : {
+
+    },
+    "Change Language" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambiar Idioma"
+          }
+        }
+      }
+    },
+    "Check out?" : {
+      "comment" : "Confirmation dialog title for check-out",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Hacer check-out?"
+          }
+        }
+      }
+    },
+    "Check-in: %@" : {
+      "comment" : "Navigation title for check-in with room name",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check-in: %@"
+          }
+        }
+      }
+    },
+    "Check-out" : {
+      "comment" : "Check-out button label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check-out"
+          }
+        }
+      }
+    },
+    "Cleaning" : {
+      "comment" : "Expense category\nHouse rule category\nReminder type\nShared expense category",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limpieza"
+          }
+        }
+      }
+    },
+    "Close" : {
+      "comment" : "Close button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrar"
+          }
+        }
+      }
+    },
+    "Collected" : {
+      "comment" : "Hero stat collected income\nSummary card title for collected income",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cobrado"
+          }
+        }
+      }
+    },
+    "Common" : {
+      "comment" : "Common room type\nCommon room type option",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Común"
+          }
+        }
+      }
+    },
+    "Common (%lld)" : {
+      "comment" : "Section header for common rooms with count",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Común (%lld)"
+          }
+        }
+      }
+    },
+    "Common area" : {
+      "comment" : "PDF room type common",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zona común"
+          }
+        }
+      }
+    },
+    "COMMON AREAS" : {
+      "comment" : "PDF room ad common areas section title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ZONAS COMUNES"
+          }
+        }
+      }
+    },
+    "Community" : {
+      "comment" : "Expense category\nHouse rule category",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comunidad"
+          }
+        }
+      }
+    },
+    "Community fees" : {
+      "comment" : "Utility type",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuotas de comunidad"
+          }
+        }
+      }
+    },
+    "Condition" : {
+      "comment" : "Inventory form section header condition",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado"
+          }
+        }
+      }
+    },
+    "Configure utility services in the property settings to start tracking payments" : {
+      "comment" : "Empty state subtitle for no utilities configured",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configura los suministros en los ajustes de la propiedad para comenzar a registrar pagos"
+          }
+        }
+      }
+    },
+    "Confirm check-out" : {
+      "comment" : "Button to confirm tenant check-out",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirmar check-out"
+          }
+        }
+      }
+    },
+    "Confirm Password" : {
+      "comment" : "Confirm password field placeholder",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirmar contraseña"
+          }
+        }
+      }
+    },
+    "Contact" : {
+      "comment" : "Section header for landlord contact information",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contacto"
+          }
+        }
+      }
+    },
+    "Contact: " : {
+      "comment" : "PDF room ad contact prefix",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contacto: "
+          }
+        }
+      }
+    },
+    "Continue" : {
+      "comment" : "Onboarding continue button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuar"
+          }
+        }
+      }
+    },
+    "Contract" : {
+      "comment" : "Navigation title for contract view\nProperty tab for contract template\nSection header for tenant contract details",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contrato"
+          }
+        }
+      }
+    },
+    "Contract - %@" : {
+      "comment" : "Share preview title for tenant contract",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contrato - %@"
+          }
+        }
+      }
+    },
+    "Contract alerts" : {
+      "comment" : "Toggle title for contract expiry alerts",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alertas de contrato"
+          }
+        }
+      }
+    },
+    "Contract Details" : {
+      "comment" : "Section header for contract details",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detalles del contrato"
+          }
+        }
+      }
+    },
+    "Contract Editor" : {
+      "comment" : "Navigation title for contract template editor",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editor de contrato"
+          }
+        }
+      }
+    },
+    "Contract expired" : {
+      "comment" : "Alert title for expired contract",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contrato expirado"
+          }
+        }
+      }
+    },
+    "Contract expires in %lld days" : {
+      "comment" : "Alert title for contract expiring soon",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El contrato vence en %lld días"
+          }
+        }
+      }
+    },
+    "Contract expires today" : {
+      "comment" : "Alert title for contract expiring today",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El contrato vence hoy"
+          }
+        }
+      }
+    },
+    "Contract expiry" : {
+      "comment" : "Toggle title for contract expiry alerts",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vencimiento de contrato"
+          }
+        }
+      }
+    },
+    "Contract expiry reminders (30, 15, 7 days before)" : {
+      "comment" : "Notification benefit",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avisos de vencimiento de contratos (30, 15, 7 días antes)"
+          }
+        }
+      }
+    },
+    "Contract notes" : {
+      "comment" : "Placeholder for contract notes field",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notas del contrato"
+          }
+        }
+      }
+    },
+    "Contract Notes" : {
+      "comment" : "Section header for contract notes",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notas del contrato"
+          }
+        }
+      }
+    },
+    "Contract renewal" : {
+      "comment" : "Subtitle in renew contract sheet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renovación de contrato"
+          }
+        }
+      }
+    },
+    "Contract Renewal" : {
+      "comment" : "Notification title for contract expiry",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renovación de contrato"
+          }
+        }
+      }
+    },
+    "Contract Template" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plantilla de Contrato"
+          }
+        }
+      }
+    },
+    "Contracts" : {
+      "comment" : "Notification filter\nSection header for contract alert settings",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contratos"
+          }
+        }
+      }
+    },
+    "Contracts with expiry and renewal dates" : {
+      "comment" : "Onboarding bullet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contratos con fechas de vencimiento y renovación"
+          }
+        }
+      }
+    },
+    "Contracts with expiry dates and renewals" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contratos con fechas de vencimiento y renovación"
+          }
+        }
+      }
+    },
+    "Contratos por vencer" : {
+
+    },
+    "Could not access the file" : {
+      "comment" : "Error when file access is denied",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo acceder al archivo"
+          }
+        }
+      }
+    },
+    "Could not generate the ad" : {
+      "comment" : "Error subtitle when PDF generation fails",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo generar el anuncio"
+          }
+        }
+      }
+    },
+    "Could not generate the contract" : {
+      "comment" : "Error message when contract PDF generation fails",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo generar el contrato"
+          }
+        }
+      }
+    },
+    "Create Account" : {
+      "comment" : "Auth subtitle when in sign up mode\nSign up button label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crear cuenta"
+          }
+        }
+      }
+    },
+    "Create Property" : {
+      "comment" : "Setup create property button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crear propiedad"
+          }
+        }
+      }
+    },
+    "Create test notification" : {
+      "comment" : "Button to send a test notification",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crear notificación de prueba"
+          }
+        }
+      }
+    },
+    "Create Your First Property" : {
+      "comment" : "Setup step 1 title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crea tu primera propiedad"
+          }
+        }
+      }
+    },
+    "Crystal Clear Finances" : {
+      "comment" : "Onboarding page 4 title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finanzas al detalle"
+          }
+        }
+      }
+    },
+    "Current address" : {
+      "comment" : "Placeholder for tenant current address field",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dirección actual"
+          }
+        }
+      }
+    },
+    "Current Contract" : {
+      "comment" : "Section header for current contract dates",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contrato actual"
+          }
+        }
+      }
+    },
+    "Custom" : {
+      "comment" : "Split type",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personalizado"
+          }
+        }
+      }
+    },
+    "Custom reminders you create yourself" : {
+      "comment" : "Notification benefit",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recordatorios personalizados que creas tú mismo"
+          }
+        }
+      }
+    },
+    "D" : {
+
+    },
+    "dani@example.com" : {
+
+    },
+    "Dark" : {
+      "comment" : "Theme option",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oscuro"
+          }
+        }
+      }
+    },
+    "Data error: %@" : {
+      "comment" : "AppError",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error de datos: %@"
+          }
+        }
+      }
+    },
+    "Data synced in real time across all devices" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datos sincronizados en tiempo real en todos los dispositivos"
+          }
+        }
+      }
+    },
+    "Date" : {
+      "comment" : "Date picker label\nDate picker label for shared expense",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fecha"
+          }
+        }
+      }
+    },
+    "Day of week:" : {
+      "comment" : "Label for weekly report day selector",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Día de la semana:"
+          }
+        }
+      }
+    },
+    "Deactivate" : {
+      "comment" : "Context menu action to deactivate tenant\nDestructive button to confirm deactivation",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desactivar"
+          }
+        }
+      }
+    },
+    "Deactivate Tenant" : {
+      "comment" : "Button to deactivate tenant",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desactivar inquilino"
+          }
+        }
+      }
+    },
+    "Deactivate Tenant?" : {
+      "comment" : "Dialog title for deactivate tenant confirmation",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Desactivar inquilino?"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "comment" : "Button to delete document\nContext menu action to delete\nContext menu action to delete notification\nDelete action\nDelete expense\nDelete expense button\nDelete property button\nSwipe action to delete\nSwipe action to delete a house rule\nSwipe action to delete a reminder\nSwipe action to delete property",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar"
+          }
+        }
+      }
+    },
+    "Delete Account" : {
+      "comment" : "Button label for permanently deleting the account",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar cuenta"
+          }
+        }
+      }
+    },
+    "Delete Account Permanently" : {
+      "comment" : "Destructive confirmation button for account deletion",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar cuenta permanentemente"
+          }
+        }
+      }
+    },
+    "Delete Account?" : {
+      "comment" : "Confirmation dialog title for permanent account deletion",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar cuenta?"
+          }
+        }
+      }
+    },
+    "Delete expense?" : {
+      "comment" : "Delete expense confirmation title"
+    },
+    "Delete property?" : {
+      "comment" : "Confirmation dialog title for deleting a property",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar propiedad?"
+          }
+        }
+      }
+    },
+    "Deleting account…" : {
+      "comment" : "Loading state while deleting account",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminando cuenta…"
+          }
+        }
+      }
+    },
+    "Deposit" : {
+      "comment" : "Label for deposit amount\nPDF room ad deposit label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Depósito"
+          }
+        }
+      }
+    },
+    "Deposit (€)" : {
+      "comment" : "Placeholder for deposit amount field",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Depósito (€)"
+          }
+        }
+      }
+    },
+    "Deposit (words)" : {
+      "comment" : "Contract variable chip label",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Depósito (palabras)"
+          }
+        }
+      }
+    },
+    "Deposits and monthly payments tracked" : {
+      "comment" : "Onboarding bullet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fianzas y mensualidades controladas"
+          }
+        }
+      }
+    },
+    "Description" : {
+      "comment" : "Inventory form description placeholder\nPlaceholder for house rule description field\nPlaceholder for shared expense description",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descripción"
+          }
+        }
+      }
+    },
+    "DESCRIPTION" : {
+      "comment" : "PDF room ad description section title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DESCRIPCIÓN"
+          }
+        }
+      }
+    },
+    "Description (optional)" : {
+      "comment" : "Description field placeholder\nProperty description field",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descripción (opcional)"
+          }
+        }
+      }
+    },
+    "Description / Notes" : {
+      "comment" : "Inventory item description placeholder",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descripción / Notas"
+          }
+        }
+      }
+    },
+    "Details" : {
+      "comment" : "Section header for shared expense details",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detalles"
+          }
+        }
+      }
+    },
+    "DETAILS" : {
+      "comment" : "PDF room ad details section title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DETALLES"
+          }
+        }
+      }
+    },
+    "Distribute and assign the different household tasks. This way, you will avoid arguments as much as possible. Leaving it to each person's goodwill does not work." : {
+      "comment" : "PDF house rule 1",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Distribuye y asigna las diferentes tareas del hogar. Así evitarás discusiones en la medida de lo posible. Dejarlo a la buena voluntad de cada uno no funciona."
+          }
+        }
+      }
+    },
+    "DNI/NIE" : {
+      "comment" : "Label for tenant ID document",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DNI/NIE"
+          }
+        }
+      }
+    },
+    "Do not accumulate trash inside the house. It is essential to take it out daily." : {
+      "comment" : "PDF house rule 9",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No acumules basura dentro de casa. Es fundamental sacarla a diario."
+          }
+        }
+      }
+    },
+    "Do not tamper with the water heater or pellet stove. Report any malfunctions." : {
+      "comment" : "PDF house rule 7",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No toques el calentador de agua ni la estufa de pellets. Notifica cualquier avería."
+          }
+        }
+      }
+    },
+    "Documents" : {
+      "comment" : "Navigation title for documents list\nProperty tab",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Documentos"
+          }
+        }
+      }
+    },
+    "Don't have an account? Sign Up" : {
+      "comment" : "Toggle to sign up mode",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿No tienes cuenta? Regístrate"
+          }
+        }
+      }
+    },
+    "Downloading photos..." : {
+      "comment" : "Loading message while downloading photos",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descargando fotos..."
+          }
+        }
+      }
+    },
+    "Duration" : {
+      "comment" : "Duration picker label\nLabel for contract duration",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duración"
+          }
+        }
+      }
+    },
+    "Duration: %lld months" : {
+      "comment" : "Stepper label showing contract duration in months",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duración: %lld meses"
+          }
+        }
+      }
+    },
+    "e.g. Calle Mayor 12" : {
+      "comment" : "Property name placeholder",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "p.ej. Calle Mayor 12"
+          }
+        }
+      }
+    },
+    "e.g. Room 1, Studio A" : {
+      "comment" : "Room name placeholder",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "p.ej. Habitación 1, Estudio A"
+          }
+        }
+      }
+    },
+    "Edit" : {
+      "comment" : "Button to edit room\nEdit action\nEdit button\nEdit contract template button\nEdit expense\nEdit property",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar"
+          }
+        }
+      }
+    },
+    "Edit Contract" : {
+      "comment" : "Title for contract editor sheet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar contrato"
+          }
+        }
+      }
+    },
+    "Edit Item" : {
+      "comment" : "Inventory form edit title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar artículo"
+          }
+        }
+      }
+    },
+    "Edit Profile" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar Perfil"
+          }
+        }
+      }
+    },
+    "Edit Property" : {
+      "comment" : "Navigation title for edit property form",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar propiedad"
+          }
+        }
+      }
+    },
+    "Edit template" : {
+      "comment" : "Empty state action button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar plantilla"
+          }
+        }
+      }
+    },
+    "Edit tenant" : {
+      "comment" : "Navigation title for edit tenant form",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar inquilino"
+          }
+        }
+      }
+    },
+    "Editor" : {
+      "comment" : "Access role\nEditor access role",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editor"
+          }
+        }
+      }
+    },
+    "Electricity" : {
+      "comment" : "Utility type",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Electricidad"
+          }
+        }
+      }
+    },
+    "Email" : {
+      "comment" : "Email field for invitation\nEmail field placeholder\nLabel for landlord email field\nLabel for tenant email\nPlaceholder for landlord email field",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Correo electrónico"
+          }
+        }
+      }
+    },
+    "Email sent. Check your inbox." : {
+      "comment" : "Success message after password reset email sent",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email enviado. Revisa tu bandeja de entrada."
+          }
+        }
+      }
+    },
+    "Enable Alerts" : {
+      "comment" : "Setup step 3 title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activa las alertas"
+          }
+        }
+      }
+    },
+    "Enable Notifications" : {
+      "comment" : "Setup enable notifications button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activar notificaciones"
+          }
+        }
+      }
+    },
+    "End" : {
+      "comment" : "Contract end date label\nLabel for contract end date",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fin"
+          }
+        }
+      }
+    },
+    "End date" : {
+      "comment" : "Contract variable chip label",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fecha fin"
+          }
+        }
+      }
+    },
+    "End Date" : {
+      "comment" : "Label for contract end date",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fecha de fin"
+          }
+        }
+      }
+    },
+    "Ends today!" : {
+      "comment" : "Contract ends today",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Termina hoy!"
+          }
+        }
+      }
+    },
+    "Enter your email and we'll send you a link to reset your password." : {
+      "comment" : "Reset password instructions",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Introduce tu email y te enviaremos un enlace para restablecer tu contraseña."
+          }
+        }
+      }
+    },
+    "Equal Split" : {
+      "comment" : "Split type",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "División igualitaria"
+          }
+        }
+      }
+    },
+    "Error" : {
+      "comment" : "Alert title\nError title when PDF generation fails",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error"
+          }
+        }
+      }
+    },
+    "Error creating item: %@" : {
+      "comment" : "Error message when inventory item creation fails",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al crear el artículo: %@"
+          }
+        }
+      }
+    },
+    "Error deleting document: %@" : {
+      "comment" : "Error message when document deletion fails",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al eliminar el documento: %@"
+          }
+        }
+      }
+    },
+    "Error deleting item: %@" : {
+      "comment" : "Error message when inventory item deletion fails",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al eliminar el artículo: %@"
+          }
+        }
+      }
+    },
+    "Error loading documents" : {
+      "comment" : "Error heading when documents fail to load",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al cargar documentos"
+          }
+        }
+      }
+    },
+    "Error loading documents: %@" : {
+      "comment" : "Error message when documents fail to load",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al cargar documentos: %@"
+          }
+        }
+      }
+    },
+    "Error loading inventory: %@" : {
+      "comment" : "Error message when inventory fails to load",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al cargar el inventario: %@"
+          }
+        }
+      }
+    },
+    "Error loading notifications" : {
+      "comment" : "Error title when notifications fail to load",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al cargar notificaciones"
+          }
+        }
+      }
+    },
+    "Error loading properties" : {
+      "comment" : "Error heading when properties fail to load",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al cargar propiedades"
+          }
+        }
+      }
+    },
+    "Error loading rooms" : {
+      "comment" : "Error heading when rooms fail to load",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al cargar habitaciones"
+          }
+        }
+      }
+    },
+    "Error loading rooms: %@" : {
+      "comment" : "Error message when rooms fail to load",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al cargar habitaciones: %@"
+          }
+        }
+      }
+    },
+    "Error loading tenants" : {
+      "comment" : "Error heading when tenants fail to load",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al cargar inquilinos"
+          }
+        }
+      }
+    },
+    "Error moving tenant: %@" : {
+      "comment" : "Error message when tenant move fails",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al mover al inquilino: %@"
+          }
+        }
+      }
+    },
+    "Error uploading document: %@" : {
+      "comment" : "Error message when document upload fails",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al subir el documento: %@"
+          }
+        }
+      }
+    },
+    "Establish quiet hours as some housemates may need to work. Minimum quiet hours to respect: 11 PM to 8 AM. Do not use the washing machine, dishwasher, or any other noisy appliance after 11 PM." : {
+      "comment" : "PDF house rule 3",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Establece horarios de silencio ya que algunos compañeros pueden necesitar trabajar. Horas mínimas de silencio a respetar: 23:00 a 8:00. No uses la lavadora, el lavavajillas ni ningún electrodoméstico ruidoso después de las 23:00."
+          }
+        }
+      }
+    },
+    "Event" : {
+      "comment" : "Reminder type",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Evento"
+          }
+        }
+      }
+    },
+    "Every detail of every property at your fingertips" : {
+      "comment" : "Onboarding page 2 desc",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada detalle de cada propiedad al alcance de tu mano"
+          }
+        }
+      }
+    },
+    "Every Monday at 9:00 AM" : {
+      "comment" : "Subtitle describing weekly report schedule",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada lunes a las 9:00"
+          }
+        }
+      }
+    },
+    "Everything Under Control" : {
+      "comment" : "Onboarding page 1 title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo bajo control"
+          }
+        }
+      }
+    },
+    "Expected" : {
+      "comment" : "Summary card title for expected income",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Previsto"
+          }
+        }
+      }
+    },
+    "Expense Breakdown" : {
+      "comment" : "Section header for expense breakdown by category",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desglose de gastos"
+          }
+        }
+      }
+    },
+    "Expenses" : {
+      "comment" : "Finance section\nFinance stat card title for expenses\nToggle title for expense alerts",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gastos"
+          }
+        }
+      }
+    },
+    "Expired" : {
+      "comment" : "Contract status",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expirado"
+          }
+        }
+      }
+    },
+    "Expired %lld days ago" : {
+      "comment" : "Contract expired days ago",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expiró hace %lld días"
+          }
+        }
+      }
+    },
+    "Expires" : {
+      "comment" : "Invitation expiry",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vence"
+          }
+        }
+      }
+    },
+    "Expires: %@" : {
+      "comment" : "Invitation expiry date",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vence: %@"
+          }
+        }
+      }
+    },
+    "Expiring Contracts" : {
+      "comment" : "Dashboard stat card for expiring contracts count\nSection header for expiring contracts on dashboard",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contratos por vencer"
+          }
+        }
+      }
+    },
+    "Expiring Soon" : {
+      "comment" : "Contract status",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Próximo vencimiento"
+          }
+        }
+      }
+    },
+    "Fair" : {
+      "comment" : "Inventory condition fair",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regular"
+          }
+        }
+      }
+    },
+    "Filter" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filtrar"
+          }
+        }
+      }
+    },
+    "Filtering by month" : {
+      "comment" : "Filter label when monthly filter is active",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filtrando por mes"
+          }
+        }
+      }
+    },
+    "Finances" : {
+      "comment" : "Navigation title for finances view\nProperty tab\nSection header for financial notification settings\nTab bar item for finances\nTab title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finanzas"
+          }
+        }
+      }
+    },
+    "Finanzas" : {
+
+    },
+    "FOR RENT" : {
+      "comment" : "PDF room ad status badge",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SE ALQUILA"
+          }
+        }
+      }
+    },
+    "Forgot your password?" : {
+      "comment" : "Forgot password link",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Olvidaste tu contraseña?"
+          }
+        }
+      }
+    },
+    "Full Address" : {
+      "comment" : "Placeholder for landlord full address field",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dirección completa"
+          }
+        }
+      }
+    },
+    "Full financial history with filters" : {
+      "comment" : "Onboarding bullet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historial financiero completo con filtros"
+          }
+        }
+      }
+    },
+    "Full Name" : {
+      "comment" : "Placeholder for landlord full name field",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre completo"
+          }
+        }
+      }
+    },
+    "Full name *" : {
+      "comment" : "Placeholder for tenant full name field",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre completo *"
+          }
+        }
+      }
+    },
+    "Fully customisable reminders" : {
+      "comment" : "Onboarding bullet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recordatorios totalmente personalizables"
+          }
+        }
+      }
+    },
+    "Garden" : {
+      "comment" : "PDF amenity garden",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jardín"
+          }
+        }
+      }
+    },
+    "Gas" : {
+      "comment" : "Utility type",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gas"
+          }
+        }
+      }
+    },
+    "Gasto registrado" : {
+
+    },
+    "Gastos" : {
+
+    },
+    "General notes" : {
+      "comment" : "Placeholder for general notes field",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notas generales"
+          }
+        }
+      }
+    },
+    "General Notes" : {
+      "comment" : "Section header for general notes",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notas generales"
+          }
+        }
+      }
+    },
+    "Generate Contract PDF" : {
+      "comment" : "Button to generate contract PDF",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generar PDF del contrato"
+          }
+        }
+      }
+    },
+    "Generate PDF ad" : {
+      "comment" : "Action to generate a PDF listing ad",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generar anuncio en PDF"
+          }
+        }
+      }
+    },
+    "Generated with Rental Manager" : {
+      "comment" : "PDF footer text",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generado con Rental Manager"
+          }
+        }
+      }
+    },
+    "Generating contract..." : {
+      "comment" : "Loading message while generating PDF contract",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generando contrato..."
+          }
+        }
+      }
+    },
+    "Generating PDF..." : {
+      "comment" : "Loading message while generating PDF",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generando PDF..."
+          }
+        }
+      }
+    },
+    "Get notified before contracts expire" : {
+      "comment" : "Subtitle for contract alerts toggle",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recibe notificaciones antes de que venzan los contratos"
+          }
+        }
+      }
+    },
+    "Get notified before contracts expire and when payments are due. Stay ahead, always." : {
+      "comment" : "Onboarding page 4 subtitle",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recibe avisos antes de que venzan los contratos y cuando haya pagos pendientes. Siempre un paso por delante."
+          }
+        }
+      }
+    },
+    "Get Started" : {
+      "comment" : "Onboarding final button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empezar"
+          }
+        }
+      }
+    },
+    "Good" : {
+      "comment" : "Inventory condition good",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bueno"
+          }
+        }
+      }
+    },
+    "Heating" : {
+      "comment" : "Utility type",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calefacción"
+          }
+        }
+      }
+    },
+    "Herramientas" : {
+
+    },
+    "Hide" : {
+      "comment" : "Swipe action to dismiss an alert",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar"
+          }
+        }
+      }
+    },
+    "Home" : {
+      "comment" : "Tab bar item for dashboard\nTab title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inicio"
+          }
+        }
+      }
+    },
+    "House rules" : {
+      "comment" : "Navigation title for house rules list",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Normas de la casa"
+          }
+        }
+      }
+    },
+    "ID" : {
+      "comment" : "Property ID label",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ID"
+          }
+        }
+      }
+    },
+    "ID Number" : {
+      "comment" : "Label for landlord ID number field",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Número de ID"
+          }
+        }
+      }
+    },
+    "ID Number (DNI / NIE)" : {
+      "comment" : "Placeholder for landlord ID number field",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Número de ID (DNI / NIE)"
+          }
+        }
+      }
+    },
+    "ID number is required." : {
+      "comment" : "Validation error for missing DNI",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El número de identificación es obligatorio."
+          }
+        }
+      }
+    },
+    "Identification" : {
+      "comment" : "Section header for landlord identification fields",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Identificación"
+          }
+        }
+      }
+    },
+    "Idioma" : {
+
+    },
+    "If anyone smokes, it must NEVER be done inside the house. Smoking should be done on the patio or terrace." : {
+      "comment" : "PDF house rule 5",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si alguien fuma, NUNCA debe hacerlo dentro de casa. Se debe fumar en el patio o terraza."
+          }
+        }
+      }
+    },
+    "Immediate" : {
+      "comment" : "PDF room ad immediate availability",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inmediato"
+          }
+        }
+      }
+    },
+    "Importe (€)" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importe (€)"
+          }
+        }
+      }
+    },
+    "Inactive" : {
+      "comment" : "Inactive tenant badge",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inactivo"
+          }
+        }
+      }
+    },
+    "Include Contract Details" : {
+      "comment" : "Toggle for contract details",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incluir detalles del contrato"
+          }
+        }
+      }
+    },
+    "Income" : {
+      "comment" : "Finance section\nFinance stat card title for income",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingresos"
+          }
+        }
+      }
+    },
+    "Income (Paid/Total)" : {
+      "comment" : "Dashboard stat card for monthly income (collected vs potential)",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingresos (Cobrado/Total)"
+          }
+        }
+      }
+    },
+    "Income & Expenses" : {
+      "comment" : "Onboarding page 3 title",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingresos y gastos"
+          }
+        }
+      }
+    },
+    "Income and expenses per property" : {
+      "comment" : "Onboarding bullet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingresos y gastos por propiedad"
+          }
+        }
+      }
+    },
+    "Information" : {
+      "comment" : "Property form section header\nSection header for room info",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Información"
+          }
+        }
+      }
+    },
+    "Ingresos" : {
+
+    },
+    "Ingresos del mes" : {
+
+    },
+    "Ingresos este mes" : {
+
+    },
+    "Ingresos vs Gastos" : {
+
+    },
+    "Inicio" : {
+
+    },
+    "Insert variable" : {
+      "comment" : "Label for variable insertion bar\nVariable bar label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Insertar variable"
+          }
+        }
+      }
+    },
+    "Insurance" : {
+      "comment" : "Expense category",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seguro"
+          }
+        }
+      }
+    },
+    "Internet" : {
+      "comment" : "Utility type",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internet"
+          }
+        }
+      }
+    },
+    "Inventory" : {
+      "comment" : "Inventory navigation title\nSection header for inventory",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inventario"
+          }
+        }
+      }
+    },
+    "Inventory of %@" : {
+      "comment" : "Navigation title for room inventory",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inventario de %@"
+          }
+        }
+      }
+    },
+    "Invitations" : {
+      "comment" : "Notification filter\nToggle label for invitation alerts",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invitaciones"
+          }
+        }
+      }
+    },
+    "Invite user" : {
+      "comment" : "Section header for inviting users",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invitar usuario"
+          }
+        }
+      }
+    },
+    "It is recommended not to display overly imposing or irritating attitudes, as you may end up losing housemates or not finding a flat." : {
+      "comment" : "PDF house rule 4",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se recomienda no mostrar actitudes demasiado impositivas o irritantes, ya que podrías acabar perdiendo compañeros de piso o no encontrar piso."
+          }
+        }
+      }
+    },
+    "Item Name" : {
+      "comment" : "Inventory form name placeholder",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre del artículo"
+          }
+        }
+      }
+    },
+    "Keep common rooms such as the bathroom or kitchen as clean and presentable as possible." : {
+      "comment" : "PDF house rule 2",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantén las zonas comunes como el baño o la cocina lo más limpias y presentables posible."
+          }
+        }
+      }
+    },
+    "Keep track of your tenants, contracts, deposits and renewal dates. Never miss an expiry again." : {
+      "comment" : "Onboarding page 2 subtitle",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lleva un seguimiento de tus inquilinos, contratos, fianzas y fechas de renovación. No vuelvas a perder un vencimiento."
+          }
+        }
+      }
+    },
+    "Kitchen" : {
+      "comment" : "House rule category\nPDF amenity kitchen",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cocina"
+          }
+        }
+      }
+    },
+    "Know exactly how much your properties earn" : {
+      "comment" : "Onboarding page 4 desc",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sabe exactamente cuánto generan tus propiedades"
+          }
+        }
+      }
+    },
+    "Landlord Details" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detalles del Propietario"
+          }
+        }
+      }
+    },
+    "Landlord ID" : {
+      "comment" : "Contract variable chip label",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DNI arrendador"
+          }
+        }
+      }
+    },
+    "Landlord name" : {
+      "comment" : "Contract variable chip label",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre arrendador"
+          }
+        }
+      }
+    },
+    "Landlord Profile" : {
+      "comment" : "Navigation title for landlord profile screen",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perfil del propietario"
+          }
+        }
+      }
+    },
+    "Language" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Idioma"
+          }
+        }
+      }
+    },
+    "Libre" : {
+
+    },
+    "Light" : {
+      "comment" : "Theme option",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Claro"
+          }
+        }
+      }
+    },
+    "Living room" : {
+      "comment" : "PDF amenity living room",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salón"
+          }
+        }
+      }
+    },
+    "Load and replace" : {
+      "comment" : "Confirm load global",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cargar y reemplazar"
+          }
+        }
+      }
+    },
+    "Load global template" : {
+      "comment" : "Load global template button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cargar plantilla global"
+          }
+        }
+      }
+    },
+    "Load global template?" : {
+      "comment" : "Confirmation title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cargar plantilla global?"
+          }
+        }
+      }
+    },
+    "Loading data..." : {
+      "comment" : "Loading message while fetching room ad data",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cargando datos..."
+          }
+        }
+      }
+    },
+    "Loading finances..." : {
+      "comment" : "Loading message for finances",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cargando finanzas..."
+          }
+        }
+      }
+    },
+    "Loading settings..." : {
+      "comment" : "Loading indicator for notification settings",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cargando ajustes..."
+          }
+        }
+      }
+    },
+    "Loading tenants..." : {
+      "comment" : "Loading indicator for tenants",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cargando inquilinos..."
+          }
+        }
+      }
+    },
+    "Loading..." : {
+      "comment" : "Default loading message\nLoading screen message",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cargando..."
+          }
+        }
+      }
+    },
+    "Maintenance" : {
+      "comment" : "Expense category",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantenimiento"
+          }
+        }
+      }
+    },
+    "Manage all your rental properties in one place" : {
+      "comment" : "Onboarding page 1 desc",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestiona todas tus propiedades de alquiler en un solo lugar"
+          }
+        }
+      }
+    },
+    "Manage all your rental properties in one place. Rooms, occupancy, photos — everything at a glance." : {
+      "comment" : "Onboarding page 1 subtitle",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestiona todas tus propiedades de alquiler en un solo lugar. Habitaciones, ocupación, fotos — todo de un vistazo."
+          }
+        }
+      }
+    },
+    "Mark as occupied" : {
+      "comment" : "Action to mark room as occupied",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marcar como ocupada"
+          }
+        }
+      }
+    },
+    "Mark as Occupied" : {
+      "comment" : "Context menu action to mark room as occupied",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marcar como ocupada"
+          }
+        }
+      }
+    },
+    "Mark as paid" : {
+      "comment" : "Alert action to mark rent as paid\nAlert action to mark utility as paid",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marcar como pagado"
+          }
+        }
+      }
+    },
+    "Mark as read" : {
+      "comment" : "Context menu action to mark notification as read",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marcar como leído"
+          }
+        }
+      }
+    },
+    "Mark as vacant" : {
+      "comment" : "Action to mark room as vacant",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marcar como libre"
+          }
+        }
+      }
+    },
+    "Mark as Vacant" : {
+      "comment" : "Context menu action to mark room as vacant",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marcar como libre"
+          }
+        }
+      }
+    },
+    "Marzo 2026" : {
+
+    },
+    "Meeting" : {
+      "comment" : "Reminder type",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reunión"
+          }
+        }
+      }
+    },
+    "Mis invitaciones" : {
+
+    },
+    "Mis propiedades" : {
+
+    },
+    "Month" : {
+      "comment" : "Month date picker label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mes"
+          }
+        }
+      }
+    },
+    "Month: %@" : {
+      "comment" : "Income row month label\nUtility charge month label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mes: %@"
+          }
+        }
+      }
+    },
+    "Monthly rent" : {
+      "comment" : "Monthly rent label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alquiler mensual"
+          }
+        }
+      }
+    },
+    "Monthly Rent" : {
+      "comment" : "Label for monthly rent",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alquiler mensual"
+          }
+        }
+      }
+    },
+    "Monthly rent (€)" : {
+      "comment" : "Monthly rent field placeholder\nPlaceholder for monthly rent field\nSetup field label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alquiler mensual (€)"
+          }
+        }
+      }
+    },
+    "More" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más"
+          }
+        }
+      }
+    },
+    "Move Room" : {
+      "comment" : "Button to move tenant to another room",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambiar habitación"
+          }
+        }
+      }
+    },
+    "Move Tenant" : {
+      "comment" : "Button to confirm moving tenant to new room\nNavigation title for move tenant view",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mover inquilino"
+          }
+        }
+      }
+    },
+    "My invitations" : {
+      "comment" : "Navigation title for invitations list",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mis invitaciones"
+          }
+        }
+      }
+    },
+    "My Invitations" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mis Invitaciones"
+          }
+        }
+      }
+    },
+    "My Properties" : {
+      "comment" : "Section header for properties list on dashboard",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mis propiedades"
+          }
+        }
+      }
+    },
+    "Name" : {
+      "comment" : "Label for landlord name field\nLabel for tenant name\nProperty name field\nRoom name field placeholder",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre"
+          }
+        }
+      }
+    },
+    "Name (e.g. Double bed)" : {
+      "comment" : "Inventory item name placeholder",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre (p. ej. Cama doble)"
+          }
+        }
+      }
+    },
+    "Name is required." : {
+      "comment" : "Validation error for missing name",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El nombre es obligatorio."
+          }
+        }
+      }
+    },
+    "Network error: %@" : {
+      "comment" : "AppError",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error de red: %@"
+          }
+        }
+      }
+    },
+    "Never lose track of a contract or payment again" : {
+      "comment" : "Onboarding page 3 desc",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No pierdas de vista ningún contrato ni pago"
+          }
+        }
+      }
+    },
+    "New" : {
+      "comment" : "Inventory condition new",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuevo"
+          }
+        }
+      }
+    },
+    "New Contract" : {
+      "comment" : "Section header for new contract date preview",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuevo contrato"
+          }
+        }
+      }
+    },
+    "New End" : {
+      "comment" : "New contract end date label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nueva fin"
+          }
+        }
+      }
+    },
+    "New expenses" : {
+      "comment" : "Toggle label for expense alerts",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuevos gastos"
+          }
+        }
+      }
+    },
+    "New income" : {
+      "comment" : "Navigation title for new income form",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuevos ingresos"
+          }
+        }
+      }
+    },
+    "New Item" : {
+      "comment" : "Navigation title for new inventory item",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuevo artículo"
+          }
+        }
+      }
+    },
+    "New Property" : {
+      "comment" : "Navigation title for new property form",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nueva propiedad"
+          }
+        }
+      }
+    },
+    "New rule" : {
+      "comment" : "Navigation title for new house rule form",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nueva norma"
+          }
+        }
+      }
+    },
+    "New shared expense" : {
+      "comment" : "Navigation title for new shared expense form",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuevo gasto compartido"
+          }
+        }
+      }
+    },
+    "New Start" : {
+      "comment" : "New contract start date label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuevo inicio"
+          }
+        }
+      }
+    },
+    "New tenant" : {
+      "comment" : "Navigation title for new tenant form",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuevo inquilino"
+          }
+        }
+      }
+    },
+    "No active tenants" : {
+      "comment" : "Empty state subtitle when only showing active tenants",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay inquilinos activos"
+          }
+        }
+      }
+    },
+    "No available tenants" : {
+      "comment" : "Empty state title when no tenants available for check-in",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay inquilinos disponibles"
+          }
+        }
+      }
+    },
+    "No Contract" : {
+      "comment" : "Contract status",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin contrato"
+          }
+        }
+      }
+    },
+    "No contract alerts" : {
+      "comment" : "Empty state title for contract filter",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin alertas de contrato"
+          }
+        }
+      }
+    },
+    "No contract defined" : {
+      "comment" : "Label when tenant has no contract",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin contrato definido"
+          }
+        }
+      }
+    },
+    "No contract template" : {
+      "comment" : "Empty state title for contract tab",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin plantilla de contrato"
+          }
+        }
+      }
+    },
+    "No data" : {
+      "comment" : "Empty state title for finance summary",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin datos"
+          }
+        }
+      }
+    },
+    "No documents" : {
+      "comment" : "Empty state title for documents",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin documentos"
+          }
+        }
+      }
+    },
+    "No expenses" : {
+      "comment" : "Empty state title when no expenses",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin gastos"
+          }
+        }
+      }
+    },
+    "No income" : {
+      "comment" : "Empty state title when no income recorded",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin ingresos"
+          }
+        }
+      }
+    },
+    "No income recorded for this month" : {
+      "comment" : "Empty state for property with no income this month",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay ingresos registrados para este mes"
+          }
+        }
+      }
+    },
+    "No invitations" : {
+      "comment" : "Empty state title for invitations filter\nEmpty state title when no invitations",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin invitaciones"
+          }
+        }
+      }
+    },
+    "No Items" : {
+      "comment" : "Inventory empty title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin artículos"
+          }
+        }
+      }
+    },
+    "No matches found for \"%@\"" : {
+      "comment" : "Empty state subtitle for search",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se encontraron resultados para \"%@\""
+          }
+        }
+      }
+    },
+    "No notifications" : {
+      "comment" : "Empty state title when no notifications exist",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin notificaciones"
+          }
+        }
+      }
+    },
+    "No pending reminders" : {
+      "comment" : "Empty state subtitle for reminders",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin recordatorios pendientes"
+          }
+        }
+      }
+    },
+    "No photos" : {
+      "comment" : "Empty state title for photos view",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin fotos"
+          }
+        }
+      }
+    },
+    "No properties" : {
+      "comment" : "Empty state title when no properties exist",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin propiedades"
+          }
+        }
+      }
+    },
+    "No reminders" : {
+      "comment" : "Empty state title when no reminders exist",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin recordatorios"
+          }
+        }
+      }
+    },
+    "No results" : {
+      "comment" : "Empty state title for search",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin resultados"
+          }
+        }
+      }
+    },
+    "no room" : {
+      "comment" : "Fallback when tenant has no room",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sin habitación"
+          }
+        }
+      }
+    },
+    "No rooms" : {
+      "comment" : "Empty state title when no rooms exist",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin habitaciones"
+          }
+        }
+      }
+    },
+    "No rooms available" : {
+      "comment" : "Empty state title when all rooms are occupied",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay habitaciones disponibles"
+          }
+        }
+      }
+    },
+    "No rules" : {
+      "comment" : "Empty state title when no house rules exist",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin normas"
+          }
+        }
+      }
+    },
+    "No se pudieron calcular las nuevas fechas del contrato." : {
+      "comment" : "Error when contract renewal date calculation fails"
+    },
+    "No shared expenses" : {
+      "comment" : "Empty state title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin gastos compartidos"
+          }
+        }
+      }
+    },
+    "No template yet" : {
+      "comment" : "Empty preview state title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin plantilla todavía"
+          }
+        }
+      }
+    },
+    "No tenants" : {
+      "comment" : "Empty state title when no tenants",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin inquilinos"
+          }
+        }
+      }
+    },
+    "No tenants found" : {
+      "comment" : "Empty state subtitle when showing all tenants",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se encontraron inquilinos"
+          }
+        }
+      }
+    },
+    "No upcoming contract expiry alerts" : {
+      "comment" : "Empty state subtitle for contract filter",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin alertas de vencimiento próximas"
+          }
+        }
+      }
+    },
+    "No utilities configured" : {
+      "comment" : "Empty state title when no utilities are set up",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin suministros configurados"
+          }
+        }
+      }
+    },
+    "No utility charges" : {
+      "comment" : "Empty state title when no charges exist",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin cargos de suministros"
+          }
+        }
+      }
+    },
+    "No vacant rooms available in this property." : {
+      "comment" : "Message when no rooms are available for moving",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay habitaciones libres en esta propiedad."
+          }
+        }
+      }
+    },
+    "No weekly reports" : {
+      "comment" : "Empty state title for weekly report filter",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin informes semanales"
+          }
+        }
+      }
+    },
+    "No weekly reports have been generated" : {
+      "comment" : "Empty state subtitle for weekly report filter",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se han generado informes semanales"
+          }
+        }
+      }
+    },
+    "Noise" : {
+      "comment" : "House rule category",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ruido"
+          }
+        }
+      }
+    },
+    "Not assigned to any room" : {
+      "comment" : "Placeholder when no room assigned",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin habitación asignada"
+          }
+        }
+      }
+    },
+    "Not now" : {
+      "comment" : "Setup skip notifications button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ahora no"
+          }
+        }
+      }
+    },
+    "Notes" : {
+      "comment" : "Section header for notes\nSection header for tenant notes",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notas"
+          }
+        }
+      }
+    },
+    "Notes (optional)" : {
+      "comment" : "Notes field placeholder",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notas (opcional)"
+          }
+        }
+      }
+    },
+    "Notificaciones" : {
+
+    },
+    "Notification sent" : {
+      "comment" : "Alert title after sending test notification",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notificación enviada"
+          }
+        }
+      }
+    },
+    "Notification settings" : {
+      "comment" : "Navigation title for notification settings screen",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes de notificaciones"
+          }
+        }
+      }
+    },
+    "Notification Settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes de Notificaciones"
+          }
+        }
+      }
+    },
+    "Notifications" : {
+      "comment" : "Navigation title for notifications list",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notificaciones"
+          }
+        }
+      }
+    },
+    "Notify in advance:" : {
+      "comment" : "Label for contract alert days selection",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notificar con antelación:"
+          }
+        }
+      }
+    },
+    "Occupancy" : {
+      "comment" : "Occupancy rate stat label",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocupación"
+          }
+        }
+      }
+    },
+    "Occupancy rate always visible" : {
+      "comment" : "Onboarding bullet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tasa de ocupación siempre visible"
+          }
+        }
+      }
+    },
+    "Occupancy rate always visible at a glance" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tasa de ocupación siempre visible de un vistazo"
+          }
+        }
+      }
+    },
+    "Occupancy, income and outstanding payments — every Monday at 9:00 AM" : {
+      "comment" : "Subtitle describing weekly report schedule and content",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocupación, ingresos y pagos pendientes — todos los lunes a las 9:00"
+          }
+        }
+      }
+    },
+    "Occupied" : {
+      "comment" : "Room is occupied",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocupada"
+          }
+        }
+      }
+    },
+    "Occupied without assigned tenant" : {
+      "comment" : "Status when room is occupied but no tenant assigned",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocupada sin inquilino asignado"
+          }
+        }
+      }
+    },
+    "ocupación" : {
+
+    },
+    "Ocupación" : {
+
+    },
+    "Ocupada" : {
+
+    },
+    "OK" : {
+      "comment" : "Alert dismiss button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aceptar"
+          }
+        }
+      }
+    },
+    "Other" : {
+      "comment" : "Expense category\nHouse rule category\nReminder type\nShared expense category",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otro"
+          }
+        }
+      }
+    },
+    "Other notifications" : {
+      "comment" : "Section header for miscellaneous notification settings",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otras notificaciones"
+          }
+        }
+      }
+    },
+    "Owner" : {
+      "comment" : "Access role",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Propietario"
+          }
+        }
+      }
+    },
+    "Pagado el %@" : {
+
+    },
+    "Paid" : {
+      "comment" : "Label for paid count",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pagado"
+          }
+        }
+      }
+    },
+    "Paid %@" : {
+      "comment" : "Label showing payment date\nLabel showing utility payment date",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pagado %@"
+          }
+        }
+      }
+    },
+    "Parking" : {
+      "comment" : "PDF amenity parking",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parking"
+          }
+        }
+      }
+    },
+    "Password" : {
+      "comment" : "Password field placeholder",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contraseña"
+          }
+        }
+      }
+    },
+    "Payment" : {
+      "comment" : "Reminder type",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pago"
+          }
+        }
+      }
+    },
+    "PDF Ad" : {
+      "comment" : "Context menu action to generate PDF ad",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anuncio PDF"
+          }
+        }
+      }
+    },
+    "Pending" : {
+      "comment" : "Label for pending/unpaid count",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pendiente"
+          }
+        }
+      }
+    },
+    "Pending %@ — %@" : {
+      "comment" : "Alert title for unpaid utility charge",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pending %1$@ — %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pendiente %1$@ — %2$@"
+          }
+        }
+      }
+    },
+    "Pending invitations" : {
+      "comment" : "Section header for pending invitations",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invitaciones pendientes"
+          }
+        }
+      }
+    },
+    "Pending payment — %@" : {
+      "comment" : "Alert title for unpaid rent",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pago pendiente — %@"
+          }
+        }
+      }
+    },
+    "Pending payments" : {
+      "comment" : "Notification title for pending rent payments",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pagos pendientes"
+          }
+        }
+      }
+    },
+    "Pending Payments" : {
+      "comment" : "Dashboard stat card for pending payments count",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pagos pendientes"
+          }
+        }
+      }
+    },
+    "Perfil" : {
+
+    },
+    "Permanently deletes your account and all associated data. This action cannot be undone." : {
+      "comment" : "Footer warning for delete account section",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina permanentemente tu cuenta y todos los datos asociados. Esta acción no se puede deshacer."
+          }
+        }
+      }
+    },
+    "Personal details" : {
+      "comment" : "Section header for tenant personal information",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datos personales"
+          }
+        }
+      }
+    },
+    "Personal Information" : {
+      "comment" : "Section header for tenant personal info",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Información personal"
+          }
+        }
+      }
+    },
+    "Phone" : {
+      "comment" : "Label for landlord phone number field\nLabel for tenant phone\nPlaceholder for phone number field",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Teléfono"
+          }
+        }
+      }
+    },
+    "Phone (Optional)" : {
+      "comment" : "Placeholder for optional landlord phone field",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Teléfono (opcional)"
+          }
+        }
+      }
+    },
+    "Photos" : {
+      "comment" : "Section header for photos",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotos"
+          }
+        }
+      }
+    },
+    "Photos (%lld)" : {
+      "comment" : "Navigation title for photos view showing count"
+    },
+    "Photos (%lld/%lld)" : {
+      "comment" : "Photo count label showing current and maximum",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Photos (%1$lld/%2$lld)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotos (%1$lld/%2$lld)"
+          }
+        }
+      }
+    },
+    "Photos and inventory per room" : {
+      "comment" : "Onboarding bullet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotos e inventario por habitación"
+          }
+        }
+      }
+    },
+    "Pool" : {
+      "comment" : "PDF amenity pool",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Piscina"
+          }
+        }
+      }
+    },
+    "Poor" : {
+      "comment" : "Inventory condition poor",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Malo"
+          }
+        }
+      }
+    },
+    "Price" : {
+      "comment" : "Inventory form price placeholder",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Precio"
+          }
+        }
+      }
+    },
+    "Private" : {
+      "comment" : "Private room type\nPrivate room type option",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privado"
+          }
+        }
+      }
+    },
+    "Private (%lld)" : {
+      "comment" : "Section header for private rooms with count",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privado (%lld)"
+          }
+        }
+      }
+    },
+    "Private room" : {
+      "comment" : "PDF room type private",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitación privada"
+          }
+        }
+      }
+    },
+    "Private rooms and common areas" : {
+      "comment" : "Onboarding bullet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitaciones privadas y zonas comunes"
+          }
+        }
+      }
+    },
+    "Private rooms and common areas per property" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitaciones privadas y zonas comunes por propiedad"
+          }
+        }
+      }
+    },
+    "Profile" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perfil"
+          }
+        }
+      }
+    },
+    "Profit" : {
+      "comment" : "Finance stat card title for net profit",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beneficio"
+          }
+        }
+      }
+    },
+    "Profit margin" : {
+      "comment" : "Label for profit margin percentage",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Margen de beneficio"
+          }
+        }
+      }
+    },
+    "Properties" : {
+      "comment" : "Property list navigation title\nSearch results section for properties\nSection header for property notification settings\nTab bar item for properties\nTab title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Propiedades"
+          }
+        }
+      }
+    },
+    "Properties & Rooms" : {
+      "comment" : "Onboarding page 2 title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Propiedades y habitaciones"
+          }
+        }
+      }
+    },
+    "Properties with rooms, photos and occupancy" : {
+      "comment" : "Onboarding bullet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Propiedades con habitaciones, fotos y ocupación"
+          }
+        }
+      }
+    },
+    "Property address" : {
+      "comment" : "Contract variable chip label",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dirección propiedad"
+          }
+        }
+      }
+    },
+    "Property invitation" : {
+      "comment" : "Invitation card title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invitación a propiedad"
+          }
+        }
+      }
+    },
+    "Property name" : {
+      "comment" : "Setup field label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre de la propiedad"
+          }
+        }
+      }
+    },
+    "Propiedades" : {
+
+    },
+    "Purchase Date" : {
+      "comment" : "Inventory form date label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fecha de compra"
+          }
+        }
+      }
+    },
+    "Purchase Details" : {
+      "comment" : "Inventory form section header purchase",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detalles de compra"
+          }
+        }
+      }
+    },
+    "Purchase price" : {
+      "comment" : "Purchase price field placeholder",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Precio de compra"
+          }
+        }
+      }
+    },
+    "Reactivate" : {
+      "comment" : "Context menu action to reactivate tenant",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reactivar"
+          }
+        }
+      }
+    },
+    "Reactivate Tenant" : {
+      "comment" : "Button to reactivate a deactivated tenant",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reactivar inquilino"
+          }
+        }
+      }
+    },
+    "Read all" : {
+      "comment" : "Button to mark all notifications as read",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leer todo"
+          }
+        }
+      }
+    },
+    "Real-time sync across all your devices" : {
+      "comment" : "Onboarding bullet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sincronización en tiempo real en todos tus dispositivos"
+          }
+        }
+      }
+    },
+    "Record expenses for this property" : {
+      "comment" : "Empty state subtitle for expenses",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registra los gastos de esta propiedad"
+          }
+        }
+      }
+    },
+    "Record your rental payments" : {
+      "comment" : "Empty state subtitle for income list",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registra tus pagos de alquiler"
+          }
+        }
+      }
+    },
+    "Recovery email sent. Check your inbox." : {
+      "comment" : "Success message after password reset request",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email de recuperación enviado. Revisa tu bandeja de entrada."
+          }
+        }
+      }
+    },
+    "Refrigerator: Organize space according to the number of housemates. Clean the interior at least once a month." : {
+      "comment" : "PDF house rule 8",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Frigorífico: Organiza el espacio según el número de compañeros. Limpia el interior al menos una vez al mes."
+          }
+        }
+      }
+    },
+    "Reject" : {
+      "comment" : "Reject invitation button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rechazar"
+          }
+        }
+      }
+    },
+    "Remember to check this month's rent payments." : {
+      "comment" : "Notification body for monthly rent reminder",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recuerda revisar los pagos de alquiler de este mes."
+          }
+        }
+      }
+    },
+    "Reminders" : {
+      "comment" : "Navigation title for reminders list",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recordatorios"
+          }
+        }
+      }
+    },
+    "Renew" : {
+      "comment" : "Alert action to renew contract\nConfirm renew button\nContext menu action to renew tenant contract",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renovar"
+          }
+        }
+      }
+    },
+    "Renew 1 year" : {
+      "comment" : "Renew contract for 1 year\nRenew contract option for 1 year",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renovar 1 año"
+          }
+        }
+      }
+    },
+    "Renew 6 months" : {
+      "comment" : "Renew contract for 6 months",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renovar 6 meses"
+          }
+        }
+      }
+    },
+    "Renew contract" : {
+      "comment" : "Renewal confirmation dialog title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renovar contrato"
+          }
+        }
+      }
+    },
+    "Renew Contract" : {
+      "comment" : "Button to renew tenant contract\nNavigation title for renew contract sheet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renovar contrato"
+          }
+        }
+      }
+    },
+    "Renewal Duration" : {
+      "comment" : "Section header for renewal duration picker",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duración de la renovación"
+          }
+        }
+      }
+    },
+    "Rent" : {
+      "comment" : "PDF room ad rent label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alquiler"
+          }
+        }
+      }
+    },
+    "Rent Collection" : {
+      "comment" : "Notification title for monthly rent reminder",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cobro de alquiler"
+          }
+        }
+      }
+    },
+    "Rent payments" : {
+      "comment" : "Toggle title for income alerts",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pagos de alquiler"
+          }
+        }
+      }
+    },
+    "Rental Manager" : {
+      "comment" : "App name on login screen",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rental Manager"
+          }
+        }
+      }
+    },
+    "RentalMngr" : {
+
+    },
+    "Repairs" : {
+      "comment" : "Expense category\nShared expense category",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reparaciones"
+          }
+        }
+      }
+    },
+    "Reports" : {
+      "comment" : "Section header for report notification settings",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informes"
+          }
+        }
+      }
+    },
+    "Reset Password" : {
+      "comment" : "Navigation title for reset password screen\nReset password screen title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restablecer contraseña"
+          }
+        }
+      }
+    },
+    "Resetear Asistente de configuración" : {
+
+    },
+    "Resetear Onboarding (slides)" : {
+
+    },
+    "Resetear todo el Onboarding" : {
+
+    },
+    "Retry" : {
+      "comment" : "Button to retry loading\nButton to retry loading notifications\nRetry loading button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reintentar"
+          }
+        }
+      }
+    },
+    "Role" : {
+      "comment" : "Access role picker\nInvitation role label\nRole picker label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rol"
+          }
+        }
+      }
+    },
+    "Room" : {
+      "comment" : "Default room name\nDefault room name fallback\nLabel for room name\nRoom picker label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitación"
+          }
+        }
+      }
+    },
+    "Room 1" : {
+      "comment" : "Default room name in setup",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitación 1"
+          }
+        }
+      }
+    },
+    "Room changes" : {
+      "comment" : "Toggle title for room change alerts",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambios de habitación"
+          }
+        }
+      }
+    },
+    "Room name" : {
+      "comment" : "Setup field label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre de la habitación"
+          }
+        }
+      }
+    },
+    "ROOM PHOTOS" : {
+      "comment" : "PDF room ad photos section title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FOTOS DE LA HABITACIÓN"
+          }
+        }
+      }
+    },
+    "room.type.common" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Common area"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zona común"
+          }
+        }
+      }
+    },
+    "room.type.private" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Private room"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitación privada"
+          }
+        }
+      }
+    },
+    "Rooms" : {
+      "comment" : "Property tab\nSearch results section for rooms",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitaciones"
+          }
+        }
+      }
+    },
+    "Rooms are where your tenants live. You can add more later." : {
+      "comment" : "Setup step 2 subtitle",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las habitaciones son donde viven tus inquilinos. Puedes añadir más después."
+          }
+        }
+      }
+    },
+    "RULES OF RESPECT AND GOOD COEXISTENCE" : {
+      "comment" : "PDF house rules title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NORMAS DE RESPETO Y BUENA CONVIVENCIA"
+          }
+        }
+      }
+    },
+    "Save" : {
+      "comment" : "Button to save\nButton to save landlord profile\nButton to save new house rule\nInventory form save\nSave button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar"
+          }
+        }
+      }
+    },
+    "Save Changes" : {
+      "comment" : "Save changes button",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar cambios"
+          }
+        }
+      }
+    },
+    "Scan document" : {
+      "comment" : "Menu option to scan a document with camera",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escanear documento"
+          }
+        }
+      }
+    },
+    "Search" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar"
+          }
+        }
+      }
+    },
+    "Search properties, rooms, tenants..." : {
+      "comment" : "Search bar placeholder",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar propiedades, habitaciones, inquilinos..."
+          }
+        }
+      }
+    },
+    "Selecciona una propiedad" : {
+
+    },
+    "Select App Language" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleccionar Idioma de la App"
+          }
+        }
+      }
+    },
+    "Select new room" : {
+      "comment" : "Section header for room selection when moving tenant",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleccionar nueva habitación"
+          }
+        }
+      }
+    },
+    "Select renewal duration" : {
+      "comment" : "Message in renew contract dialog",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleccionar duración de la renovación"
+          }
+        }
+      }
+    },
+    "Select the renewal duration" : {
+      "comment" : "Renewal duration selection prompt",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selecciona la duración de la renovación"
+          }
+        }
+      }
+    },
+    "Select which utility services this property has to track their payments." : {
+      "comment" : "Utilities section description",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selecciona los suministros de esta propiedad para registrar sus pagos."
+          }
+        }
+      }
+    },
+    "Select..." : {
+      "comment" : "Picker placeholder",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleccionar..."
+          }
+        }
+      }
+    },
+    "Send invitation" : {
+      "comment" : "Send invitation button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar invitación"
+          }
+        }
+      }
+    },
+    "Send Link" : {
+      "comment" : "Send password reset link button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar enlace"
+          }
+        }
+      }
+    },
+    "Sends a test notification to verify everything is working correctly." : {
+      "comment" : "Footer explaining the test notification button",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envía una notificación de prueba para verificar que todo funciona correctamente."
+          }
+        }
+      }
+    },
+    "Session expired. Please sign in again." : {
+      "comment" : "AppError",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sesión expirada. Por favor, inicia sesión de nuevo."
+          }
+        }
+      }
+    },
+    "Share" : {
+      "comment" : "Share property\nShare property navigation title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartir"
+          }
+        }
+      }
+    },
+    "Share access with your team" : {
+      "comment" : "Onboarding bullet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comparte el acceso con tu equipo"
+          }
+        }
+      }
+    },
+    "Share ad" : {
+      "comment" : "Button to share the room ad",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartir anuncio"
+          }
+        }
+      }
+    },
+    "Share contract" : {
+      "comment" : "Button label to share contract PDF",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compartir contrato"
+          }
+        }
+      }
+    },
+    "Shared expenses" : {
+      "comment" : "Navigation title for shared expenses list",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gastos compartidos"
+          }
+        }
+      }
+    },
+    "Shopping" : {
+      "comment" : "Shared expense category",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compras"
+          }
+        }
+      }
+    },
+    "Show completed" : {
+      "comment" : "Toggle to show or hide completed reminders",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar completados"
+          }
+        }
+      }
+    },
+    "Sign In" : {
+      "comment" : "Auth subtitle when in sign in mode\nSign in button label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniciar sesión"
+          }
+        }
+      }
+    },
+    "Sign Out" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrar Sesión"
+          }
+        }
+      }
+    },
+    "Sign Out Confirmation Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cerrar sesión?"
+          }
+        }
+      }
+    },
+    "Sin ingresos registrados este mes" : {
+
+    },
+    "Size" : {
+      "comment" : "Room size label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamaño"
+          }
+        }
+      }
+    },
+    "Size m² (optional)" : {
+      "comment" : "Room size field placeholder",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamaño m² (opcional)"
+          }
+        }
+      }
+    },
+    "Size:" : {
+      "comment" : "PDF room ad size label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamaño:"
+          }
+        }
+      }
+    },
+    "Skip" : {
+      "comment" : "Onboarding skip button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Omitir"
+          }
+        }
+      }
+    },
+    "Skip for now" : {
+      "comment" : "Setup skip button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Omitir por ahora"
+          }
+        }
+      }
+    },
+    "Smart Alerts" : {
+      "comment" : "Onboarding page 4 title",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alertas inteligentes"
+          }
+        }
+      }
+    },
+    "Smart alerts so nothing ever slips through the cracks" : {
+      "comment" : "Onboarding page 5 desc",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alertas inteligentes para que nada se escape"
+          }
+        }
+      }
+    },
+    "SPECIAL CONDITIONS" : {
+      "comment" : "PDF contract special conditions header",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CONDICIONES ESPECIALES"
+          }
+        }
+      }
+    },
+    "Split type" : {
+      "comment" : "Picker label for expense split type",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipo de reparto"
+          }
+        }
+      }
+    },
+    "Start" : {
+      "comment" : "Contract start date label\nLabel for contract start date",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inicio"
+          }
+        }
+      }
+    },
+    "Start by adding the property you want to manage." : {
+      "comment" : "Setup step 1 subtitle",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empieza añadiendo la propiedad que quieres gestionar."
+          }
+        }
+      }
+    },
+    "Start date" : {
+      "comment" : "Contract variable chip label",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fecha inicio"
+          }
+        }
+      }
+    },
+    "Start Date" : {
+      "comment" : "Label for contract start date",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fecha de inicio"
+          }
+        }
+      }
+    },
+    "Start Using RentalMngr" : {
+      "comment" : "Setup finish button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empezar a usar RentalMngr"
+          }
+        }
+      }
+    },
+    "Status" : {
+      "comment" : "Label for contract status\nRoom occupancy status label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado"
+          }
+        }
+      }
+    },
+    "Stay ahead of important dates without having to open the app." : {
+      "comment" : "Setup step 3 subtitle",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantente al tanto de fechas importantes sin abrir la app."
+          }
+        }
+      }
+    },
+    "Street, city" : {
+      "comment" : "Address placeholder",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calle, ciudad"
+          }
+        }
+      }
+    },
+    "Summary" : {
+      "comment" : "Finance section",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resumen"
+          }
+        }
+      }
+    },
+    "Super User" : {
+
+    },
+    "System" : {
+      "comment" : "Theme option",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sistema"
+          }
+        }
+      }
+    },
+    "Tap a variable to copy it" : {
+      "comment" : "Instruction for template variables",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toca una variable para copiarla"
+          }
+        }
+      }
+    },
+    "Tap Edit to write the contract template for this property." : {
+      "comment" : "Empty state description for contract tab",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pulsa Editar para escribir la plantilla de contrato de esta propiedad."
+          }
+        }
+      }
+    },
+    "Taxes" : {
+      "comment" : "Expense category",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impuestos"
+          }
+        }
+      }
+    },
+    "Tema" : {
+
+    },
+    "Template" : {
+      "comment" : "Template section label",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plantilla"
+          }
+        }
+      }
+    },
+    "Tenant" : {
+      "comment" : "Section header for tenant info",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inquilino"
+          }
+        }
+      }
+    },
+    "Tenant address" : {
+      "comment" : "Contract variable chip label",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dirección inquilino"
+          }
+        }
+      }
+    },
+    "Tenant documents all in one place" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Documentos del inquilino en un solo lugar"
+          }
+        }
+      }
+    },
+    "Tenant ID" : {
+      "comment" : "Contract variable chip label",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DNI inquilino"
+          }
+        }
+      }
+    },
+    "Tenant Management" : {
+      "comment" : "Onboarding page 2 title",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestión de inquilinos"
+          }
+        }
+      }
+    },
+    "Tenant name" : {
+      "comment" : "Contract variable chip label",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre inquilino"
+          }
+        }
+      }
+    },
+    "Tenants" : {
+      "comment" : "Property tab\nSearch results section for tenants",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inquilinos"
+          }
+        }
+      }
+    },
+    "Tenants & Contracts" : {
+      "comment" : "Onboarding page 3 title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inquilinos y contratos"
+          }
+        }
+      }
+    },
+    "Tenants, contracts and deposits tracked" : {
+      "comment" : "Onboarding bullet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inquilinos, contratos y fianzas controlados"
+          }
+        }
+      }
+    },
+    "Terminated" : {
+      "comment" : "Contract status",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminado"
+          }
+        }
+      }
+    },
+    "Terrace" : {
+      "comment" : "PDF amenity terrace",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terraza"
+          }
+        }
+      }
+    },
+    "Testing" : {
+      "comment" : "Section header for test notification",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pruebas"
+          }
+        }
+      }
+    },
+    "Theme" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tema"
+          }
+        }
+      }
+    },
+    "This action cannot be undone. All associated rooms, tenants, and financial data will be deleted." : {
+      "comment" : "Delete property warning message",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta acción no se puede deshacer. Se eliminarán todas las habitaciones, inquilinos y datos financieros asociados."
+          }
+        }
+      }
+    },
+    "This information will appear on generated contracts." : {
+      "comment" : "Footer explaining that profile data is used in contracts",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta información aparecerá en los contratos generados."
+          }
+        }
+      }
+    },
+    "This will mark the tenant as inactive." : {
+      "comment" : "Message in deactivate tenant dialog",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esto marcará al inquilino como inactivo."
+          }
+        }
+      }
+    },
+    "This will replace the current template with the global one." : {
+      "comment" : "Confirmation message",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esto reemplazará la plantilla actual con la plantilla global."
+          }
+        }
+      }
+    },
+    "Title *" : {
+      "comment" : "Placeholder for house rule title field\nPlaceholder for shared expense title field",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Título *"
+          }
+        }
+      }
+    },
+    "Tools" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herramientas"
+          }
+        }
+      }
+    },
+    "Track deposits and monthly payments" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Control de fianzas y mensualidades"
+          }
+        }
+      }
+    },
+    "Track expenses to split among tenants" : {
+      "comment" : "Empty state subtitle for shared expenses",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registra gastos para repartir entre inquilinos"
+          }
+        }
+      }
+    },
+    "Track rent payments, utilities and expenses in one place. Know exactly how your properties perform." : {
+      "comment" : "Onboarding page 3 subtitle",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Registra los pagos de alquiler, suministros y gastos en un solo lugar. Conoce exactamente el rendimiento de tus propiedades."
+          }
+        }
+      }
+    },
+    "Trash collection" : {
+      "comment" : "Utility type",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recogida de basura"
+          }
+        }
+      }
+    },
+    "Type" : {
+      "comment" : "Room type label\nRoom type picker label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipo"
+          }
+        }
+      }
+    },
+    "Type:" : {
+      "comment" : "PDF room ad type label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipo:"
+          }
+        }
+      }
+    },
+    "Unread" : {
+      "comment" : "Notification filter",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No leído"
+          }
+        }
+      }
+    },
+    "Upcoming rent payment reminders" : {
+      "comment" : "Notification benefit",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avisos de próximos pagos de alquiler"
+          }
+        }
+      }
+    },
+    "Upload" : {
+      "comment" : "Button to upload document",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subir"
+          }
+        }
+      }
+    },
+    "Upload contracts, invoices, or IDs." : {
+      "comment" : "Empty state subtitle for documents",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sube contratos, facturas o DNIs."
+          }
+        }
+      }
+    },
+    "Upload error" : {
+      "comment" : "Alert title for upload error",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al subir"
+          }
+        }
+      }
+    },
+    "Upload file" : {
+      "comment" : "Menu option to upload a file",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subir archivo"
+          }
+        }
+      }
+    },
+    "Uploading..." : {
+      "comment" : "Upload progress indicator",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subiendo..."
+          }
+        }
+      }
+    },
+    "Users with access" : {
+      "comment" : "Section header for users who have access",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuarios con acceso"
+          }
+        }
+      }
+    },
+    "Utilities" : {
+      "comment" : "Expense category\nFinance section for utility bills\nShared expense category\nUtilities section header in property form",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suministros"
+          }
+        }
+      }
+    },
+    "Utility bills broken down by room" : {
+      "comment" : "Onboarding bullet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suministros desglosados por habitación"
+          }
+        }
+      }
+    },
+    "Utility charges will appear here once created" : {
+      "comment" : "Empty state subtitle for no utility charges",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los cargos de suministros aparecerán aquí una vez creados"
+          }
+        }
+      }
+    },
+    "Vacant" : {
+      "comment" : "Room is vacant",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Libre"
+          }
+        }
+      }
+    },
+    "Vence %@" : {
+
+    },
+    "Vence en %lldd" : {
+
+    },
+    "Ver todas" : {
+
+    },
+    "Version" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versión"
+          }
+        }
+      }
+    },
+    "Versión" : {
+
+    },
+    "View" : {
+      "comment" : "Button to view document",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver"
+          }
+        }
+      }
+    },
+    "View inventory" : {
+      "comment" : "Button to view room inventory",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver inventario"
+          }
+        }
+      }
+    },
+    "View photos (%lld)" : {
+      "comment" : "Action to view room photos with count",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver fotos (%lld)"
+          }
+        }
+      }
+    },
+    "Viewer" : {
+      "comment" : "Access role\nViewer access role",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espectador"
+          }
+        }
+      }
+    },
+    "Visitors" : {
+      "comment" : "House rule category",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visitas"
+          }
+        }
+      }
+    },
+    "Water" : {
+      "comment" : "Utility type",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agua"
+          }
+        }
+      }
+    },
+    "Weekly" : {
+      "comment" : "Notification filter",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Semanal"
+          }
+        }
+      }
+    },
+    "Weekly report" : {
+      "comment" : "Toggle title for weekly report notification",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informe semanal"
+          }
+        }
+      }
+    },
+    "Weekly summary" : {
+      "comment" : "Toggle title for weekly report notification",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resumen semanal"
+          }
+        }
+      }
+    },
+    "Welcome!" : {
+      "comment" : "Welcome alert title",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Bienvenido!"
+          }
+        }
+      }
+    },
+    "When a new expense is logged on any of your properties" : {
+      "comment" : "Subtitle for expense alerts toggle",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando se registra un nuevo gasto en alguna de tus propiedades"
+          }
+        }
+      }
+    },
+    "When a payment is marked as paid or a new income entry is added" : {
+      "comment" : "Subtitle for income alerts toggle",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando un pago se marca como pagado o se registra un nuevo ingreso"
+          }
+        }
+      }
+    },
+    "When a room is occupied, vacated or its details are updated" : {
+      "comment" : "Subtitle for room change alerts toggle",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando una habitación se ocupa, queda libre o se actualizan sus datos"
+          }
+        }
+      }
+    },
+    "When someone accepts or rejects an invitation to a property" : {
+      "comment" : "Subtitle for invitation alerts toggle",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando alguien acepta o rechaza una invitación a una propiedad"
+          }
+        }
+      }
+    },
+    "Write a contract template in the editor to preview it here." : {
+      "comment" : "Empty preview description",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribe una plantilla de contrato en el editor para previsualizarla aquí."
+          }
+        }
+      }
+    },
+    "Write your contract template here. Use the variables above to insert dynamic data like tenant name, dates, and amounts." : {
+      "comment" : "Hint when contract template is empty",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribe aquí tu plantilla de contrato. Usa las variables de arriba para insertar datos dinámicos como el nombre del inquilino, fechas e importes."
+          }
+        }
+      }
+    },
+    "You" : {
+      "comment" : "Label indicating current user",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tú"
+          }
+        }
+      }
+    },
+    "You have %lld pending rent payment(s)." : {
+      "comment" : "Notification body for pending rent payments",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tienes %lld pago(s) de alquiler pendiente(s)."
+          }
+        }
+      }
+    },
+    "You have %lld unread notification%@" : {
+      "comment" : "Banner showing number of unread notifications",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "You have %1$lld unread notification%2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tienes %1$lld notificación(es) sin leer%2$@"
+          }
+        }
+      }
+    },
+    "You have been granted access to: %@" : {
+      "comment" : "Welcome message after invitation accepted",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se te ha concedido acceso a: %@"
+          }
+        }
+      }
+    },
+    "You have no invitation notifications" : {
+      "comment" : "Empty state subtitle for invitations filter",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No tienes notificaciones de invitaciones"
+          }
+        }
+      }
+    },
+    "You have no pending invitations" : {
+      "comment" : "Empty state subtitle for invitations",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No tienes invitaciones pendientes"
+          }
+        }
+      }
+    },
+    "You have no pending notifications" : {
+      "comment" : "Empty state subtitle when no notifications exist",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No tienes notificaciones pendientes"
+          }
+        }
+      }
+    },
+    "You have no registered properties" : {
+      "comment" : "Empty state subtitle for no properties",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No tienes propiedades registradas"
+          }
+        }
+      }
+    },
+    "You have read all notifications" : {
+      "comment" : "Empty state subtitle when all are read",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Has leído todas las notificaciones"
+          }
+        }
+      }
+    },
+    "You will also receive an alert when a contract has already expired." : {
+      "comment" : "Footer explaining expired contract alerts",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "También recibirás una alerta cuando un contrato ya haya vencido."
+          }
+        }
+      }
+    },
+    "Your current session will be closed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se cerrará tu sesión actual"
+          }
+        }
+      }
+    },
+    "Your Properties, Organised" : {
+      "comment" : "Onboarding page 1 title",
+      "extractionState" : "stale",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus propiedades, organizadas"
+          }
+        }
+      }
+    },
+    "Your workspace is ready. Here's what we created:" : {
+      "comment" : "Setup done subtitle",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu espacio está listo. Esto es lo que hemos creado:"
+          }
+        }
+      }
+    },
+    "Zona común" : {
+
+    }
+  },
+  "version" : "1.0"
+}
