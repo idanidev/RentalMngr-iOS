@@ -17,8 +17,8 @@ struct TenantAssignView: View {
             } else if vacantRooms.isEmpty {
                 EmptyStateView(
                     icon: "bed.double.fill",
-                    title: "Sin habitaciones disponibles",
-                    subtitle: "Todas las habitaciones están ocupadas"
+                    title: String(localized: "No rooms available", locale: LanguageService.currentLocale, comment: "Empty state title when all rooms are occupied"),
+                    subtitle: String(localized: "All rooms are occupied", locale: LanguageService.currentLocale, comment: "Empty state subtitle when no rooms available for assignment")
                 )
             } else {
                 List(vacantRooms) { room in
@@ -35,7 +35,7 @@ struct TenantAssignView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(room.name)
                                 .font(.headline)
-                            Text(formatCurrency(room.monthlyRent) + "/mes")
+                            Text(room.monthlyRent.formatted(currencyCode: "EUR") + "/mes")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
@@ -43,11 +43,11 @@ struct TenantAssignView: View {
                 }
             }
         }
-        .navigationTitle("Asignar a \(tenant.fullName)")
+        .navigationTitle(String(localized: "Assign to \(tenant.fullName)", locale: LanguageService.currentLocale, comment: "Navigation title for assigning tenant to a room"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Cancelar") { dismiss() }
+                Button(String(localized: "Cancel", locale: LanguageService.currentLocale, comment: "Cancel button")) { dismiss() }
             }
         }
         .errorAlert($errorMessage)
@@ -65,10 +65,4 @@ struct TenantAssignView: View {
         rooms.filter { $0.roomType == .privateRoom && !$0.occupied }
     }
 
-    private func formatCurrency(_ value: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "EUR"
-        return formatter.string(from: value as NSDecimalNumber) ?? "€0"
-    }
 }

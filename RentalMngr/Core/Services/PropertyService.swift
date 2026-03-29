@@ -1,7 +1,10 @@
 import Foundation
 import Supabase
+import os
 
-final class PropertyService {
+private let logger = Logger(subsystem: "com.rentalmngr", category: "PropertyService")
+
+final class PropertyService: PropertyServiceProtocol {
     private var client: SupabaseClient { SupabaseService.shared.client }
 
     /// Fetch all properties the current user has access to, WITH rooms embedded
@@ -10,38 +13,38 @@ final class PropertyService {
         // Step 1: Get property IDs the user has access to
         let accessList: [PropertyAccess] =
             try await client
-            .from("property_access")
+            .from(SupabaseTable.propertyAccess)
             .select()
             .execute()
             .value
 
-        print("[PropertyService] Access list count: \(accessList.count)")
+        logger.debug("Access list count: \(accessList.count)")
         guard !accessList.isEmpty else { return [] }
 
         let propertyIds = accessList.map(\.propertyId)
-        print("[PropertyService] Property IDs: \(propertyIds)")
+        logger.debug("Property IDs: \(propertyIds)")
 
         // Step 2: Get properties WITH rooms (joined)
         do {
             let properties: [Property] =
                 try await client
-                .from("properties")
+                .from(SupabaseTable.properties)
                 .select("*, rooms(*)")
                 .in("id", values: propertyIds)
                 .order("created_at", ascending: false)
                 .execute()
                 .value
-            print("[PropertyService] Successfully decoded \(properties.count) properties")
+            logger.debug("Successfully decoded \(properties.count) properties")
             return properties
         } catch {
-            print("[PropertyService] Bulk decoding error: \(error)")
+            logger.error("[PropertyService] Bulk decoding error: \(error)")
             // Fallback: try loading each property individually
             var properties: [Property] = []
             for pid in propertyIds {
                 do {
                     let p: Property =
                         try await client
-                        .from("properties")
+                        .from(SupabaseTable.properties)
                         .select("*, rooms(*)")
                         .eq("id", value: pid)
                         .single()
@@ -49,7 +52,7 @@ final class PropertyService {
                         .value
                     properties.append(p)
                 } catch {
-                    print("[PropertyService] Failed to decode property \(pid): \(error)")
+                    logger.error("[PropertyService] Failed to decode property \(pid): \(error)")
                 }
             }
             return properties
@@ -59,7 +62,7 @@ final class PropertyService {
     /// Fetch a single property WITH rooms embedded
     func fetchProperty(id: UUID) async throws -> Property {
         try await client
-            .from("properties")
+            .from(SupabaseTable.properties)
             .select("*, rooms(*)")
             .eq("id", value: id)
             .single()
@@ -78,7 +81,7 @@ final class PropertyService {
         }
         return
             try await client
-            .from("properties")
+            .from(SupabaseTable.properties)
             .insert(
                 NewProperty(
                     name: name, address: address, description: description, owner_id: ownerId)
@@ -97,7 +100,7 @@ final class PropertyService {
         }
         return
             try await client
-            .from("properties")
+            .from(SupabaseTable.properties)
             .update(
                 UpdateProperty(
                     name: property.name, address: property.address,
@@ -110,9 +113,20 @@ final class PropertyService {
             .value
     }
 
+    func updateContractTemplate(propertyId: UUID, template: String) async throws {
+        struct TemplateUpdate: Encodable {
+            let contract_template: String
+        }
+        try await client
+            .from(SupabaseTable.properties)
+            .update(TemplateUpdate(contract_template: template))
+            .eq("id", value: propertyId)
+            .execute()
+    }
+
     func deleteProperty(id: UUID) async throws {
         try await client
-            .from("properties")
+            .from(SupabaseTable.properties)
             .delete()
             .eq("id", value: id)
             .execute()
@@ -122,19 +136,25 @@ final class PropertyService {
 
     func getPropertyAccess(propertyId: UUID) async throws -> [PropertyAccess] {
         try await client
-            .from("property_access")
+            .from(SupabaseTable.propertyAccess)
             .select()
             .eq("property_id", value: propertyId)
+            .execute()
+            .value
+
+    }
+
+    func getPropertyMembers(propertyId: UUID) async throws -> [PropertyMember] {
+        let params = GetPropertyMembersParams(p_property_id: propertyId)
+        return
+            try await client
+            .rpc("get_property_members", params: params)
             .execute()
             .value
     }
 
     /// Smart invite: if user exists → grant direct access, if not → create pending invitation
     /// Matches webapp: permissionsService.inviteUser()
-    enum InviteResult {
-        case direct  // User existed, access granted immediately
-        case pending  // User doesn't exist, invitation created
-    }
 
     func inviteUser(propertyId: UUID, email: String, role: AccessRole, createdBy: UUID) async throws
         -> InviteResult
@@ -160,11 +180,10 @@ final class PropertyService {
             return .direct
         } else {
             // User doesn't exist → create pending invitation
-            let expiresAt = ISO8601DateFormatter().string(
-                from: Calendar.current.date(byAdding: .day, value: 30, to: Date())!
-            )
+            let expiry = Calendar.current.date(byAdding: .day, value: 30, to: Date()) ?? Date(timeIntervalSinceNow: 30 * 86400)
+            let expiresAt = ISO8601DateFormatter().string(from: expiry)
             try await client
-                .from("invitations")
+                .from(SupabaseTable.invitations)
                 .insert(
                     NewInvitation(
                         property_id: propertyId, email: email,
@@ -179,7 +198,7 @@ final class PropertyService {
 
     func getPendingInvitations(propertyId: UUID) async throws -> [Invitation] {
         try await client
-            .from("invitations")
+            .from(SupabaseTable.invitations)
             .select()
             .eq("property_id", value: propertyId)
             .execute()
@@ -191,7 +210,7 @@ final class PropertyService {
         let now = ISO8601DateFormatter().string(from: Date())
         return
             try await client
-            .from("invitations")
+            .from(SupabaseTable.invitations)
             .select()
             .eq("email", value: email)
             .gt("expires_at", value: now)
@@ -204,7 +223,7 @@ final class PropertyService {
         // Get the invitation by token
         let invitation: Invitation =
             try await client
-            .from("invitations")
+            .from(SupabaseTable.invitations)
             .select()
             .eq("token", value: token)
             .single()
@@ -223,7 +242,7 @@ final class PropertyService {
 
         // Delete the invitation
         try await client
-            .from("invitations")
+            .from(SupabaseTable.invitations)
             .delete()
             .eq("token", value: token)
             .execute()
@@ -232,7 +251,7 @@ final class PropertyService {
     /// Reject/decline an invitation
     func rejectInvitation(id: UUID) async throws {
         try await client
-            .from("invitations")
+            .from(SupabaseTable.invitations)
             .delete()
             .eq("id", value: id)
             .execute()
@@ -240,7 +259,7 @@ final class PropertyService {
 
     func revokeInvitation(id: UUID) async throws {
         try await client
-            .from("invitations")
+            .from(SupabaseTable.invitations)
             .delete()
             .eq("id", value: id)
             .execute()
@@ -251,7 +270,7 @@ final class PropertyService {
         let now = ISO8601DateFormatter().string(from: Date())
         let pendingInvitations: [Invitation] =
             try await client
-            .from("invitations")
+            .from(SupabaseTable.invitations)
             .select()
             .eq("email", value: email)
             .gt("expires_at", value: now)
@@ -264,7 +283,7 @@ final class PropertyService {
             // Check if user already has access
             let existing: [PropertyAccess] =
                 try await client
-                .from("property_access")
+                .from(SupabaseTable.propertyAccess)
                 .select()
                 .eq("property_id", value: invitation.propertyId)
                 .eq("user_id", value: userId)
@@ -290,7 +309,7 @@ final class PropertyService {
 
             // Delete the processed invitation
             try await client
-                .from("invitations")
+                .from(SupabaseTable.invitations)
                 .delete()
                 .eq("id", value: invitation.id)
                 .execute()
@@ -300,12 +319,26 @@ final class PropertyService {
     }
 
     func removeAccess(propertyId: UUID, userId: UUID) async throws {
+        let params = RemoveAccessParams(p_property_id: propertyId, p_user_id: userId)
+        try await client.rpc("remove_property_access", params: params).execute()
+    }
+
+    func updateAccess(propertyId: UUID, userId: UUID, role: AccessRole) async throws {
         try await client
-            .from("property_access")
-            .delete()
+            .from(SupabaseTable.propertyAccess)
+            .update(UpdateAccess(role: role.rawValue))
             .eq("property_id", value: propertyId)
             .eq("user_id", value: userId)
             .execute()
+    }
+
+    func leaveProperty(propertyId: UUID) async throws {
+        guard let userId = client.auth.currentUser?.id else {
+            throw AppError.authenticationRequired
+        }
+        let params = RemoveAccessParams(
+            p_property_id: propertyId, p_user_id: userId)
+        try await client.rpc("remove_property_access", params: params).execute()
     }
 
     /// Change user role for a property (matches webapp changeUserRole)
@@ -314,35 +347,10 @@ final class PropertyService {
             let role: String
         }
         try await client
-            .from("property_access")
+            .from(SupabaseTable.propertyAccess)
             .update(RoleUpdate(role: newRole.rawValue))
             .eq("property_id", value: propertyId)
             .eq("user_id", value: userId)
             .execute()
     }
-}
-
-// MARK: - RPC Parameter structs (file-level for actor isolation)
-
-nonisolated private struct GetUserByEmailParams: Encodable, Sendable {
-    let user_email: String
-}
-
-nonisolated private struct UserEmailResult: Decodable, Sendable {
-    let id: UUID
-    let email: String
-}
-
-nonisolated private struct GrantAccessParams: Encodable, Sendable {
-    let p_property_id: UUID
-    let p_user_id: UUID
-    let p_role: String
-}
-
-nonisolated private struct NewInvitation: Encodable, Sendable {
-    let property_id: UUID
-    let email: String
-    let role: String
-    let created_by: UUID
-    let expires_at: String
 }

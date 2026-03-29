@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 
 struct RoomPhotosView: View {
@@ -5,28 +6,38 @@ struct RoomPhotosView: View {
     let photos: [String]
     @State private var selectedIndex = 0
 
+    // Resolve all URLs up-front, outside any @ViewBuilder context
+    private func resolvedURLs() -> [URL?] {
+        photos.map { path in try? appState.storageService.getPublicURL(path: path) }
+    }
+
     var body: some View {
-        TabView(selection: $selectedIndex) {
-            ForEach(Array(photos.enumerated()), id: \.offset) { index, path in
-                AsyncImage(url: try? appState.storageService.getPublicURL(path: path)) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFit()
-                    case .failure:
-                        Image(systemName: "photo")
-                            .font(.largeTitle)
-                            .foregroundStyle(.secondary)
-                    default:
-                        ProgressView()
+        Group {
+            if photos.isEmpty {
+                ContentUnavailableView(
+                    String(localized: "No photos", locale: LanguageService.currentLocale,
+                           comment: "Empty state title for photos view"),
+                    systemImage: "photo.slash"
+                )
+            } else {
+                let urls = resolvedURLs()
+                TabView(selection: $selectedIndex) {
+                    ForEach(urls.indices, id: \.self) { index in
+                        AsyncImageView(url: urls[index], contentMode: .fit)
+                            .tag(index)
                     }
                 }
-                .tag(index)
+                .tabViewStyle(.page(indexDisplayMode: .always))
+                .onAppear {
+                    if selectedIndex >= photos.count {
+                        selectedIndex = max(0, photos.count - 1)
+                    }
+                }
             }
         }
-        .tabViewStyle(.page(indexDisplayMode: .always))
-        .navigationTitle("Fotos")
+        .navigationTitle(
+            String(localized: "Photos (\(photos.count))", locale: LanguageService.currentLocale,
+                   comment: "Navigation title for photos view showing count"))
         .navigationBarTitleDisplayMode(.inline)
     }
 }

@@ -1,12 +1,12 @@
 import Foundation
 import Supabase
 
-final class ReminderService {
+final class ReminderService: ReminderServiceProtocol {
     private var client: SupabaseClient { SupabaseService.shared.client }
 
     func fetchReminders(propertyId: UUID) async throws -> [Reminder] {
         try await client
-            .from("reminders")
+            .from(SupabaseTable.reminders)
             .select()
             .eq("property_id", value: propertyId)
             .order("due_date")
@@ -16,7 +16,7 @@ final class ReminderService {
 
     func fetchPendingReminders(propertyId: UUID) async throws -> [Reminder] {
         try await client
-            .from("reminders")
+            .from(SupabaseTable.reminders)
             .select()
             .eq("property_id", value: propertyId)
             .eq("completed", value: false)
@@ -38,7 +38,7 @@ final class ReminderService {
             let created_by: UUID
         }
         return try await client
-            .from("reminders")
+            .from(SupabaseTable.reminders)
             .insert(NewReminder(property_id: propertyId, title: title, description: description,
                                 reminder_type: reminderType.rawValue, due_date: dueDate,
                                 due_time: dueTime, created_by: createdBy))
@@ -54,7 +54,7 @@ final class ReminderService {
             let completed_at: Date?
         }
         try await client
-            .from("reminders")
+            .from(SupabaseTable.reminders)
             .update(CompletedUpdate(completed: completed, completed_at: completed ? Date() : nil))
             .eq("id", value: reminderId)
             .execute()
@@ -62,7 +62,7 @@ final class ReminderService {
 
     func deleteReminder(id: UUID) async throws {
         try await client
-            .from("reminders")
+            .from(SupabaseTable.reminders)
             .delete()
             .eq("id", value: id)
             .execute()

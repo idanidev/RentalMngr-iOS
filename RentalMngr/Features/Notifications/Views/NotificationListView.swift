@@ -12,11 +12,11 @@ struct NotificationListView: View {
                 LoadingView()
             }
         }
-        .navigationTitle("Avisos")
+        .navigationTitle(String(localized: "Notifications", locale: LanguageService.currentLocale, comment: "Navigation title for notifications list"))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 if let vm = viewModel, vm.unreadCount > 0 {
-                    Button("Leer todo") {
+                    Button(String(localized: "Read all", locale: LanguageService.currentLocale, comment: "Button to mark all notifications as read")) {
                         Task { await vm.markAllAsRead() }
                     }
                 }
@@ -27,18 +27,20 @@ struct NotificationListView: View {
                 let localAlertService = LocalAlertService(
                     tenantService: appState.tenantService,
                     financeService: appState.financeService,
-                    propertyService: appState.propertyService
+                    propertyService: appState.propertyService,
+                    utilityService: appState.utilityService
                 )
                 viewModel = NotificationViewModel(
                     notificationService: appState.notificationService,
                     localAlertService: localAlertService,
                     financeService: appState.financeService,
+                    utilityService: appState.utilityService,
                     systemNotificationService: appState.systemNotificationService,
                     userId: appState.authService.currentUserId
                 )
             }
             // Request permission on first load
-            _ = try? await appState.systemNotificationService.requestPermission()
+            _ = try? await appState.systemNotificationService?.requestPermission()
 
             await viewModel?.loadNotifications()
         }
@@ -56,7 +58,8 @@ struct NotificationListView: View {
                     Image(systemName: "bell.badge.fill")
                         .foregroundStyle(.blue)
                     Text(
-                        "Tienes \(vm.unreadCount) notificación\(vm.unreadCount == 1 ? "" : "es") no leída\(vm.unreadCount == 1 ? "" : "s")"
+                        "You have \(vm.unreadCount) unread notification\(vm.unreadCount == 1 ? "" : "s")",
+                        comment: "Banner showing number of unread notifications"
                     )
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -72,6 +75,24 @@ struct NotificationListView: View {
                     // MARK: - Local Alerts Section
                     if !vm.localAlerts.isEmpty && vm.selectedFilter == .all {
                         localAlertsSection(vm)
+                    }
+
+                    if let error = vm.errorMessage {
+                        VStack(spacing: 12) {
+                            Image(systemName: "exclamationmark.triangle")
+                                .font(.title)
+                                .foregroundStyle(.orange)
+                            Text("Error loading notifications", comment: "Error title when notifications fail to load")
+                                .font(.headline)
+                            Text(error)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Button(String(localized: "Retry", locale: LanguageService.currentLocale, comment: "Button to retry loading notifications")) {
+                                Task { await vm.loadNotifications() }
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                        .padding(.top, 40)
                     }
 
                     // MARK: - Notifications
@@ -92,13 +113,13 @@ struct NotificationListView: View {
                                         Button {
                                             Task { await vm.markAsRead(notification) }
                                         } label: {
-                                            Label("Marcar como leído", systemImage: "checkmark")
+                                            Label(String(localized: "Mark as read", locale: LanguageService.currentLocale, comment: "Context menu action to mark notification as read"), systemImage: "checkmark")
                                         }
                                     }
                                     Button(role: .destructive) {
                                         Task { await vm.deleteNotification(notification) }
                                     } label: {
-                                        Label("Eliminar", systemImage: "trash")
+                                        Label(String(localized: "Delete", locale: LanguageService.currentLocale, comment: "Context menu action to delete notification"), systemImage: "trash")
                                     }
                                 }
 
@@ -122,7 +143,7 @@ struct NotificationListView: View {
             HStack {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundStyle(.orange)
-                Text("Alertas activas")
+                Text("Active alerts", comment: "Section header for active local alerts")
                     .font(.headline)
                 Spacer()
                 Text("\(vm.localAlerts.count)")
@@ -139,8 +160,13 @@ struct NotificationListView: View {
             ForEach(vm.localAlerts) { alert in
                 AlertCard(alert: alert) {
                     // Action button tapped
-                    if alert.type == .unpaidRent {
+                    switch alert.type {
+                    case .unpaidRent:
                         Task { await vm.markAlertIncomeAsPaid(alert) }
+                    case .unpaidUtility:
+                        Task { await vm.markAlertUtilityAsPaid(alert) }
+                    default:
+                        break
                     }
                 } onDismiss: {
                     vm.dismissAlert(alert)
@@ -165,7 +191,7 @@ struct NotificationListView: View {
                         vm.selectedFilter = filter
                     } label: {
                         HStack(spacing: 4) {
-                            Text(filter.rawValue)
+                            Text(filter.displayName)
                                 .font(.caption)
                                 .fontWeight(isSelected ? .semibold : .regular)
                             if filter == .all {
@@ -203,21 +229,21 @@ struct NotificationListView: View {
 
     private func emptyTitle(for filter: NotificationFilter) -> String {
         switch filter {
-        case .all: "Sin avisos"
-        case .unread: "Todo leído"
-        case .contracts: "Sin alertas de contratos"
-        case .weekly: "Sin informes semanales"
-        case .invitations: "Sin invitaciones"
+        case .all: String(localized: "No notifications", locale: LanguageService.currentLocale, comment: "Empty state title when no notifications exist")
+        case .unread: String(localized: "All read", locale: LanguageService.currentLocale, comment: "Empty state title when all notifications are read")
+        case .contracts: String(localized: "No contract alerts", locale: LanguageService.currentLocale, comment: "Empty state title for contract filter")
+        case .weekly: String(localized: "No weekly reports", locale: LanguageService.currentLocale, comment: "Empty state title for weekly report filter")
+        case .invitations: String(localized: "No invitations", locale: LanguageService.currentLocale, comment: "Empty state title for invitations filter")
         }
     }
 
     private func emptySubtitle(for filter: NotificationFilter) -> String {
         switch filter {
-        case .all: "No tienes notificaciones pendientes"
-        case .unread: "Has leído todas las notificaciones"
-        case .contracts: "No hay alertas de contratos por vencer"
-        case .weekly: "No se han generado informes semanales"
-        case .invitations: "No tienes notificaciones de invitaciones"
+        case .all: String(localized: "You have no pending notifications", locale: LanguageService.currentLocale, comment: "Empty state subtitle when no notifications exist")
+        case .unread: String(localized: "You have read all notifications", locale: LanguageService.currentLocale, comment: "Empty state subtitle when all are read")
+        case .contracts: String(localized: "No upcoming contract expiry alerts", locale: LanguageService.currentLocale, comment: "Empty state subtitle for contract filter")
+        case .weekly: String(localized: "No weekly reports have been generated", locale: LanguageService.currentLocale, comment: "Empty state subtitle for weekly report filter")
+        case .invitations: String(localized: "You have no invitation notifications", locale: LanguageService.currentLocale, comment: "Empty state subtitle for invitations filter")
         }
     }
 }
@@ -230,40 +256,39 @@ private struct AlertCard: View {
     let onDismiss: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(alignment: .top, spacing: 10) {
             Image(systemName: alert.icon)
-                .font(.title3)
+                .font(.subheadline)
                 .foregroundStyle(colorForSeverity(alert.severity))
-                .frame(width: 32)
+                .frame(width: 24, height: 24)
+                .padding(.top, 2)
 
-            VStack(alignment: .leading, spacing: 3) {
-                HStack {
-                    Text(alert.title)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                    Spacer()
-                    Text(alert.propertyName)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-                Text(alert.message)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(alert.title)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text("\(alert.propertyName) · \(alert.message)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-            }
+                    .lineLimit(2)
 
-            if let label = alert.actionLabel {
-                Button(label) {
-                    onAction()
+                if let label = alert.actionLabel {
+                    Button(label) {
+                        onAction()
+                    }
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(colorForSeverity(alert.severity).opacity(0.15))
+                    .foregroundStyle(colorForSeverity(alert.severity))
+                    .clipShape(Capsule())
+                    .padding(.top, 2)
                 }
-                .font(.caption)
-                .fontWeight(.semibold)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background(colorForSeverity(alert.severity).opacity(0.15))
-                .foregroundStyle(colorForSeverity(alert.severity))
-                .clipShape(Capsule())
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(12)
         .background(colorForSeverity(alert.severity).opacity(0.06))
@@ -272,7 +297,7 @@ private struct AlertCard: View {
             Button {
                 onDismiss()
             } label: {
-                Label("Ocultar", systemImage: "eye.slash")
+                Label(String(localized: "Hide", locale: LanguageService.currentLocale, comment: "Swipe action to dismiss an alert"), systemImage: "eye.slash")
             }
             .tint(.gray)
         }

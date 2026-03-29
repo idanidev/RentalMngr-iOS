@@ -1,13 +1,25 @@
 import Foundation
 
 enum HouseRuleCategory: String, Codable, Sendable, CaseIterable {
-    case limpieza
-    case ruido
-    case visitas
-    case cocina
-    case baño = "baño"
-    case comunidad
-    case otro
+    case cleaning = "limpieza"
+    case noise = "ruido"
+    case visitors = "visitas"
+    case kitchen = "cocina"
+    case bathroom = "baño"
+    case community = "comunidad"
+    case other = "otro"
+
+    var displayName: String {
+        switch self {
+        case .cleaning: String(localized: "Cleaning", locale: LanguageService.currentLocale, comment: "House rule category")
+        case .noise: String(localized: "Noise", locale: LanguageService.currentLocale, comment: "House rule category")
+        case .visitors: String(localized: "Visitors", locale: LanguageService.currentLocale, comment: "House rule category")
+        case .kitchen: String(localized: "Kitchen", locale: LanguageService.currentLocale, comment: "House rule category")
+        case .bathroom: String(localized: "Bathroom", locale: LanguageService.currentLocale, comment: "House rule category")
+        case .community: String(localized: "Community", locale: LanguageService.currentLocale, comment: "House rule category")
+        case .other: String(localized: "Other", locale: LanguageService.currentLocale, comment: "House rule category")
+        }
+    }
 }
 
 struct HouseRule: Codable, Identifiable, Sendable, Hashable {

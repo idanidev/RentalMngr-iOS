@@ -1,0 +1,103 @@
+default_platform(:ios)
+
+platform :ios do
+
+  # ──────────────────────────────────────────────────────────────────
+  # CONFIGURACIÓN COMPARTIDA
+  # ──────────────────────────────────────────────────────────────────
+  SCHEME        = "RentalMngr"
+  PROJECT       = "RentalMngr.xcodeproj"
+  BUNDLE_ID     = "idanidev.RentalMngr"
+  EXPORT_OPTS   = "exportOptions.plist"
+
+  # ──────────────────────────────────────────────────────────────────
+  # LANE: tests  →  ejecuta todos los tests
+  # ──────────────────────────────────────────────────────────────────
+  desc "Ejecuta los tests unitarios y de UI"
+  lane :tests do
+    run_tests(
+      scheme: SCHEME,
+      devices: ["iPhone 16"],
+      clean: true
+    )
+  end
+
+  # ──────────────────────────────────────────────────────────────────
+  # LANE: build  →  genera el .ipa sin subir
+  # ──────────────────────────────────────────────────────────────────
+  desc "Compila la app y exporta el .ipa"
+  lane :build do
+    increment_build_number(
+      build_number: latest_testflight_build_number + 1
+    )
+
+    build_app(
+      scheme: SCHEME,
+      project: PROJECT,
+      export_options: EXPORT_OPTS,
+      output_directory: "./build",
+      output_name: "RentalMngr.ipa",
+      clean: true,
+      silent: false
+    )
+  end
+
+  # ──────────────────────────────────────────────────────────────────
+  # LANE: beta  →  sube a TestFlight
+  # ──────────────────────────────────────────────────────────────────
+  desc "Sube una nueva versión beta a TestFlight"
+  lane :beta do
+    build
+
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      apple_id: BUNDLE_ID
+    )
+
+    UI.success "✅ Build subido a TestFlight correctamente"
+  end
+
+  # ──────────────────────────────────────────────────────────────────
+  # LANE: release  →  sube a App Store para revisión
+  # ──────────────────────────────────────────────────────────────────
+  desc "Sube la app al App Store para revisión de Apple"
+  lane :release do
+    ensure_git_status_clean
+
+    build
+
+    upload_to_app_store(
+      skip_screenshots: false,
+      skip_metadata: false,
+      submit_for_review: false,   # ponlo en true para enviar a revisión automáticamente
+      automatic_release: false,   # ponlo en true para liberar automáticamente tras aprobación
+      force: true
+    )
+
+    UI.success "✅ App subida al App Store correctamente"
+  end
+
+  # ──────────────────────────────────────────────────────────────────
+  # LANE: screenshots  →  genera capturas automáticas con Snapshot
+  # ──────────────────────────────────────────────────────────────────
+  desc "Genera capturas de pantalla con Snapshot"
+  lane :screenshots do
+    capture_screenshots(
+      scheme: "RentalMngrUITests",
+      devices: [
+        "iPhone 16 Pro Max",
+        "iPhone 16",
+        "iPad Pro 13-inch (M4)"
+      ]
+    )
+    frame_screenshots(white: false)
+  end
+
+  # ──────────────────────────────────────────────────────────────────
+  # CALLBACKS
+  # ──────────────────────────────────────────────────────────────────
+  error do |lane, exception|
+    UI.error "❌ Error en lane '#{lane}': #{exception.message}"
+  end
+
+end

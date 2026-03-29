@@ -1,0 +1,1 @@
+rental,property,landlord,tenant,management,finance,rooms,lease,income,expenses

@@ -1,0 +1,8 @@
+First release of RentalMngr!
+
+• Complete management of properties, rooms, and tenants
+• Financial tracking with income, expenses, and utility bills
+• Automatic PDF contract generation
+• Alerts for pending payments and expiring contracts
+• Roomie: shared expense management for housemates
+• Available in English and Spanish

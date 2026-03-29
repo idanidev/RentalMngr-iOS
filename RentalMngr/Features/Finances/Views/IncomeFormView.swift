@@ -16,14 +16,14 @@ struct IncomeFormView: View {
                 LoadingView()
             }
         }
-        .navigationTitle("Nuevo ingreso")
+        .navigationTitle(String(localized: "New income", locale: LanguageService.currentLocale, comment: "Navigation title for new income form"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Cancelar") { dismiss() }
+                Button(String(localized: "Cancel", locale: LanguageService.currentLocale, comment: "Cancel button")) { dismiss() }
             }
             ToolbarItem(placement: .confirmationAction) {
-                Button("Guardar") {
+                Button(String(localized: "Save", locale: LanguageService.currentLocale, comment: "Save button")) {
                     Task {
                         if let _ = await viewModel?.save() { dismiss() }
                     }
@@ -48,17 +48,17 @@ struct IncomeFormView: View {
     private func formContent(_ vm: IncomeViewModel) -> some View {
         Form {
             Section {
-                Picker("Habitación", selection: Binding(get: { vm.roomId }, set: { vm.roomId = $0 })) {
-                    Text("Seleccionar...").tag(nil as UUID?)
+                Picker(String(localized: "Room", locale: LanguageService.currentLocale, comment: "Room picker label"), selection: Binding(get: { vm.roomId }, set: { vm.roomId = $0 })) {
+                    Text("Select...", comment: "Picker placeholder").tag(nil as UUID?)
                     ForEach(rooms.filter { $0.roomType == .privateRoom }) { room in
                         Text(room.name).tag(room.id as UUID?)
                     }
                 }
 
-                TextField("Importe (€)", text: Binding(get: { vm.amount }, set: { vm.amount = $0 }))
+                TextField(String(localized: "Amount (€)", locale: LanguageService.currentLocale, comment: "Amount placeholder for income form"), text: Binding(get: { vm.amount }, set: { vm.amount = $0 }))
                     .keyboardType(.decimalPad)
 
-                DatePicker("Mes", selection: Binding(get: { vm.month }, set: { vm.month = $0 }), displayedComponents: .date)
+                DatePicker(String(localized: "Month", locale: LanguageService.currentLocale, comment: "Month date picker label"), selection: Binding(get: { vm.month }, set: { vm.month = $0 }), displayedComponents: .date)
             }
 
             if let error = vm.errorMessage {

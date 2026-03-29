@@ -26,10 +26,10 @@ struct AuthView: View {
                     Image(systemName: "building.2.fill")
                         .font(.system(size: 60))
                         .foregroundStyle(.tint)
-                    Text("Rental Manager")
+                    Text(String(localized: "Rental Manager", locale: LanguageService.currentLocale, comment: "App name on login screen"))
                         .font(.largeTitle)
                         .fontWeight(.bold)
-                    Text(vm.isSignUpMode ? "Crear cuenta" : "Iniciar sesión")
+                    Text(vm.isSignUpMode ? String(localized: "Create Account", locale: LanguageService.currentLocale, comment: "Auth subtitle when in sign up mode") : String(localized: "Sign In", locale: LanguageService.currentLocale, comment: "Auth subtitle when in sign in mode"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -37,7 +37,7 @@ struct AuthView: View {
 
                 // Form
                 VStack(spacing: 16) {
-                    TextField("Email", text: Binding(get: { vm.email }, set: { vm.email = $0 }))
+                    TextField(String(localized: "Email", locale: LanguageService.currentLocale, comment: "Email field placeholder"), text: Binding(get: { vm.email }, set: { vm.email = $0 }))
                         .textContentType(.emailAddress)
                         .keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never)
@@ -45,13 +45,13 @@ struct AuthView: View {
                         .padding()
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
 
-                    SecureField("Contraseña", text: Binding(get: { vm.password }, set: { vm.password = $0 }))
+                    SecureField(String(localized: "Password", locale: LanguageService.currentLocale, comment: "Password field placeholder"), text: Binding(get: { vm.password }, set: { vm.password = $0 }))
                         .textContentType(vm.isSignUpMode ? .newPassword : .password)
                         .padding()
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
 
                     if vm.isSignUpMode {
-                        SecureField("Confirmar contraseña", text: Binding(get: { vm.confirmPassword }, set: { vm.confirmPassword = $0 }))
+                        SecureField(String(localized: "Confirm Password", locale: LanguageService.currentLocale, comment: "Confirm password field placeholder"), text: Binding(get: { vm.confirmPassword }, set: { vm.confirmPassword = $0 }))
                             .textContentType(.newPassword)
                             .padding()
                             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
@@ -91,7 +91,7 @@ struct AuthView: View {
                             if vm.isLoading {
                                 ProgressView()
                             } else {
-                                Text(vm.isSignUpMode ? "Crear cuenta" : "Iniciar sesión")
+                                Text(vm.isSignUpMode ? String(localized: "Create Account", locale: LanguageService.currentLocale, comment: "Sign up button label") : String(localized: "Sign In", locale: LanguageService.currentLocale, comment: "Sign in button label"))
                             }
                         }
                         .frame(maxWidth: .infinity)
@@ -104,7 +104,7 @@ struct AuthView: View {
                         NavigationLink {
                             ResetPasswordView()
                         } label: {
-                            Text("¿Olvidaste tu contraseña?")
+                            Text(String(localized: "Forgot your password?", locale: LanguageService.currentLocale, comment: "Forgot password link"))
                                 .font(.subheadline)
                         }
                     }
@@ -116,7 +116,7 @@ struct AuthView: View {
                             vm.successMessage = nil
                         }
                     } label: {
-                        Text(vm.isSignUpMode ? "¿Ya tienes cuenta? Iniciar sesión" : "¿No tienes cuenta? Regístrate")
+                        Text(vm.isSignUpMode ? String(localized: "Already have an account? Sign In", locale: LanguageService.currentLocale, comment: "Toggle to sign in mode") : String(localized: "Don't have an account? Sign Up", locale: LanguageService.currentLocale, comment: "Toggle to sign up mode"))
                             .font(.subheadline)
                     }
                 }

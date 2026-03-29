@@ -7,7 +7,7 @@ struct ContractView: View {
     let tenant: Tenant
     let propertyId: UUID
 
-    @State private var pdfData: Data?
+    @State private var pdfURL: URL?
     @State private var property: Property?
     @State private var rooms: [Room] = []
     @State private var isLoading = true
@@ -15,19 +15,27 @@ struct ContractView: View {
     var body: some View {
         Group {
             if isLoading {
-                LoadingView(message: "Generando contrato...")
-            } else if let pdfData {
+                LoadingView(
+                    message: String(localized: "Generating contract...",
+                        locale: LanguageService.currentLocale, comment: "Loading message while generating PDF contract"))
+            } else if let pdfURL {
                 VStack {
-                    PDFKitView(data: pdfData)
+                    PDFKitView(url: pdfURL)
 
                     ShareLink(
-                        item: pdfData,
+                        item: pdfURL,
                         preview: SharePreview(
-                            "Contrato - \(tenant.fullName)", image: Image(systemName: "doc.text"))
+                            String(localized: "Contract - \(tenant.fullName)",
+                                locale: LanguageService.currentLocale, comment: "Share preview title for tenant contract"),
+                            image: Image(systemName: "doc.text"))
                     ) {
-                        Label("Compartir contrato", systemImage: "square.and.arrow.up")
-                            .frame(maxWidth: .infinity)
-                            .padding()
+                        Label(
+                            String(localized: "Share contract",
+                                locale: LanguageService.currentLocale, comment: "Button label to share contract PDF"),
+                            systemImage: "square.and.arrow.up"
+                        )
+                        .frame(maxWidth: .infinity)
+                        .padding()
                     }
                     .buttonStyle(.borderedProminent)
                     .padding()
@@ -36,15 +44,28 @@ struct ContractView: View {
                 EmptyStateView(
                     icon: "doc.text",
                     title: "Error",
-                    subtitle: "No se pudo generar el contrato"
+                    subtitle: String(localized: "Could not generate the contract",
+                        locale: LanguageService.currentLocale, comment: "Error message when contract PDF generation fails")
                 )
             }
         }
-        .navigationTitle("Contrato")
+        .navigationTitle(
+            String(localized: "Contract", locale: LanguageService.currentLocale, comment: "Navigation title for contract view")
+        )
         .navigationBarTitleDisplayMode(.inline)
         .task {
             await generatePDF()
         }
+    }
+
+    // MARK: - PDF file name (mirrors web: Contrato_Habitación_Nombre_Apellido_YYYY-MM-DD.pdf)
+
+    private var pdfFileName: String {
+        let safeName = tenant.fullName
+            .replacingOccurrences(of: " ", with: "_")
+            .folding(options: .diacriticInsensitive, locale: .current) // strip accents
+        let dateStr = Date().formatted(.iso8601.year().month().day())
+        return "Contrato_Habitacion_\(safeName)_\(dateStr).pdf"
     }
 
     private func generatePDF() async {
@@ -63,33 +84,38 @@ struct ContractView: View {
             }
 
             let generator = PDFGenerator()
-            pdfData = generator.generateContract(tenant: tenant, room: room, property: property)
+            let landlord = (try? await appState.userProfileService.getLandlordProfile()) ?? .empty
+            let pdfData = try await generator.generateContract(
+                tenant: tenant, room: room, property: property, landlord: landlord)
+
+            // Write to a named temp file so ShareLink knows the filename and type
+            let url = FileManager.default.temporaryDirectory
+                .appendingPathComponent(pdfFileName)
+            try pdfData.write(to: url)
+            pdfURL = url
         } catch {
-            // Failed to load data
+            // Failed to load data — isLoading = false shows error state
         }
         isLoading = false
     }
 }
 
+
 // MARK: - PDFKit UIViewRepresentable
 
 struct PDFKitView: UIViewRepresentable {
-    let data: Data
+    let url: URL
 
     func makeUIView(context: Context) -> PDFView {
         let pdfView = PDFView()
         pdfView.autoScales = true
         pdfView.displayMode = .singlePageContinuous
         pdfView.displayDirection = .vertical
-        if let document = PDFDocument(data: data) {
-            pdfView.document = document
-        }
+        pdfView.document = PDFDocument(url: url)
         return pdfView
     }
 
     func updateUIView(_ uiView: PDFView, context: Context) {
-        if let document = PDFDocument(data: data) {
-            uiView.document = document
-        }
+        uiView.document = PDFDocument(url: url)
     }
 }

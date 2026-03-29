@@ -1,0 +1,31 @@
+RentalMngr es la solución completa para propietarios y gestores de alquileres. Gestiona tus propiedades, habitaciones e inquilinos desde una sola app.
+
+GESTIÓN DE PROPIEDADES Y HABITACIONES
+• Añade propiedades con fotos, dirección y detalles completos
+• Gestiona habitaciones individuales con estado de ocupación
+• Inventario detallado por habitación
+• Vista de ocupación en tiempo real
+
+CONTROL DE INQUILINOS
+• Ficha completa de cada inquilino con documentos y contratos
+• Seguimiento de fechas de entrada y salida
+• Historial de pagos y deudas
+• Contrato generado automáticamente en PDF
+
+FINANZAS SIMPLIFICADAS
+• Registro de ingresos y gastos por propiedad
+• Control de recibos de suministros (luz, agua, gas)
+• Resumen financiero mensual con gráficas
+• Exportación de informes
+
+ROOMIE — GESTIÓN COMPARTIDA
+• Gastos compartidos entre compañeros de piso
+• Reglas de la casa digitales
+• Recordatorios automáticos de pagos
+• Panel de notificaciones
+
+DISEÑO MODERNO
+• Interfaz limpia e intuitiva
+• Soporte para iPhone y iPad
+• Modo oscuro incluido
+• Disponible en español e inglés

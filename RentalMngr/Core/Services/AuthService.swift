@@ -2,13 +2,12 @@ import Auth
 import Foundation
 import Supabase
 
-@Observable
-final class AuthService {
+@MainActor @Observable
+final class AuthService: AuthServiceProtocol {
     var currentSession: Session?
     var currentUser: User?
     var isAuthenticated = false
     var isLoading = true
-    var errorMessage: String?
 
     private var client: SupabaseClient { SupabaseService.shared.client }
 
@@ -71,7 +70,20 @@ final class AuthService {
         }
     }
 
+    func deleteAccount() async throws {
+        // Call the delete_account RPC which removes all user data + auth.users entry server-side
+        try await client.rpc("delete_account").execute()
+        // Clear local state
+        currentSession = nil
+        currentUser = nil
+        isAuthenticated = false
+    }
+
     var currentUserId: UUID? {
         currentUser?.id
+    }
+
+    var currentUserEmail: String? {
+        currentUser?.email
     }
 }

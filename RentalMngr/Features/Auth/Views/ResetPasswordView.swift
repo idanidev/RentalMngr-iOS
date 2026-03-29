@@ -14,16 +14,16 @@ struct ResetPasswordView: View {
                 .font(.system(size: 50))
                 .foregroundStyle(.tint)
 
-            Text("Recuperar contraseña")
+            Text(String(localized: "Reset Password", locale: LanguageService.currentLocale, comment: "Reset password screen title"))
                 .font(.title2)
                 .fontWeight(.bold)
 
-            Text("Introduce tu email y te enviaremos un enlace para restablecer tu contraseña.")
+            Text(String(localized: "Enter your email and we'll send you a link to reset your password.", locale: LanguageService.currentLocale, comment: "Reset password instructions"))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
 
-            TextField("Email", text: $email)
+            TextField(String(localized: "Email", locale: LanguageService.currentLocale, comment: "Email field placeholder"), text: $email)
                 .textContentType(.emailAddress)
                 .keyboardType(.emailAddress)
                 .textInputAutocapitalization(.never)
@@ -41,7 +41,7 @@ struct ResetPasswordView: View {
                     isLoading = true
                     do {
                         try await appState.authService.resetPassword(email: email.trimmingCharacters(in: .whitespaces))
-                        message = "Email enviado. Revisa tu bandeja de entrada."
+                        message = String(localized: "Email sent. Check your inbox.", locale: LanguageService.currentLocale, comment: "Success message after password reset email sent")
                         isError = false
                     } catch {
                         message = error.localizedDescription
@@ -54,7 +54,7 @@ struct ResetPasswordView: View {
                     if isLoading {
                         ProgressView()
                     } else {
-                        Text("Enviar enlace")
+                        Text(String(localized: "Send Link", locale: LanguageService.currentLocale, comment: "Send password reset link button"))
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -66,7 +66,7 @@ struct ResetPasswordView: View {
             Spacer()
         }
         .padding()
-        .navigationTitle("Recuperar contraseña")
+        .navigationTitle(String(localized: "Reset Password", locale: LanguageService.currentLocale, comment: "Navigation title for reset password screen"))
         .navigationBarTitleDisplayMode(.inline)
     }
 }

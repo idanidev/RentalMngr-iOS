@@ -5,7 +5,10 @@ struct TenantDetailView: View {
     @State private var tenant: Tenant
     @State private var showEditSheet = false
     @State private var showAssignSheet = false
+    @State private var showMoveSheet = false
     @State private var showRenewSheet = false
+    @State private var showDeactivateConfirmation = false
+    @State private var errorMessage: String?
 
     init(tenant: Tenant) {
         _tenant = State(initialValue: tenant)
@@ -13,110 +16,159 @@ struct TenantDetailView: View {
 
     var body: some View {
         List {
-            // Contact info
-            Section("Contacto") {
-                LabeledContent("Nombre", value: tenant.fullName)
+            // Personal Info Section
+            Section(
+                String(localized: "Personal Information",
+                    locale: LanguageService.currentLocale, comment: "Section header for tenant personal info")
+            ) {
+                LabeledContent(
+                    String(localized: "Name", locale: LanguageService.currentLocale, comment: "Label for tenant name"),
+                    value: tenant.fullName)
                 if let email = tenant.email, !email.isEmpty {
-                    LabeledContent("Email", value: email)
+                    LabeledContent(
+                        String(localized: "Email", locale: LanguageService.currentLocale, comment: "Label for tenant email"), value: email)
                 }
                 if let phone = tenant.phone, !phone.isEmpty {
-                    LabeledContent("Teléfono", value: phone)
+                    LabeledContent(
+                        String(localized: "Phone", locale: LanguageService.currentLocale, comment: "Label for tenant phone"), value: phone)
                 }
                 if let dni = tenant.dni, !dni.isEmpty {
-                    LabeledContent("DNI", value: dni)
+                    LabeledContent(
+                        String(localized: "DNI/NIE", locale: LanguageService.currentLocale, comment: "Label for tenant ID document"),
+                        value: dni)
                 }
                 if let address = tenant.currentAddress, !address.isEmpty {
-                    LabeledContent("Dirección actual", value: address)
+                    LabeledContent(
+                        String(localized: "Address", locale: LanguageService.currentLocale, comment: "Label for tenant address"),
+                        value: address)
                 }
             }
 
-            // Assigned Room
-            if let room = tenant.room {
-                Section("Habitación asignada") {
-                    LabeledContent("Habitación", value: room.name)
-                    LabeledContent("Tipo", value: room.roomType == .privateRoom ? "Privada" : "Común")
-                    LabeledContent("Renta habitación", value: formatCurrency(room.monthlyRent))
-                    if let size = room.sizeSqm {
-                        LabeledContent("Tamaño", value: "\(size) m²")
+            // Room Section
+            Section(String(localized: "Accommodation", locale: LanguageService.currentLocale, comment: "Section header in tenant detail"))
+            {
+                if let room = tenant.room {
+                    LabeledContent(
+                        String(localized: "Room", locale: LanguageService.currentLocale, comment: "Label for room name"), value: room.name)
+                    if let rent = tenant.effectiveMonthlyRent {
+                        LabeledContent(
+                            String(localized: "Monthly Rent", locale: LanguageService.currentLocale, comment: "Label for monthly rent"),
+                            value: rent.formatted(currencyCode: "EUR"))
                     }
-                }
-            } else if tenant.active {
-                Section("Habitación") {
-                    HStack {
-                        Image(systemName: "bed.double.fill")
-                            .foregroundStyle(.orange)
-                        Text("Sin habitación asignada")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Button("Asignar") {
-                            showAssignSheet = true
-                        }
-                        .buttonStyle(.bordered)
-                        .controlSize(.small)
+                    if let deposit = tenant.depositAmount {
+                        LabeledContent(
+                            String(localized: "Deposit", locale: LanguageService.currentLocale, comment: "Label for deposit amount"),
+                            value: deposit.formatted(currencyCode: "EUR"))
+                    }
+                } else {
+                    Text(
+                        String(localized: "Not assigned to any room",
+                            locale: LanguageService.currentLocale, comment: "Placeholder when no room assigned")
+                    )
+                    .foregroundStyle(.secondary)
+                    Button(
+                        String(localized: "Assign to Room",
+                            locale: LanguageService.currentLocale, comment: "Button to assign tenant to a room")
+                    ) {
+                        showAssignSheet = true
                     }
                 }
             }
 
-            // Contract
-            Section("Contrato") {
-                if let start = tenant.contractStartDate {
-                    LabeledContent("Inicio", value: start.shortFormatted)
+            // Contract Section
+            Section(
+                String(localized: "Contract Details", locale: LanguageService.currentLocale, comment: "Section header for contract details")
+            ) {
+                if let startDate = tenant.contractStartDate {
+                    LabeledContent(
+                        String(localized: "Start Date", locale: LanguageService.currentLocale, comment: "Label for contract start date"),
+                        value: startDate.formatted(date: .abbreviated, time: .omitted)
+                    )
                 }
-                if let months = tenant.contractMonths {
-                    LabeledContent("Duración", value: "\(months) meses")
-                }
-                if let end = tenant.contractEndDate {
-                    LabeledContent("Fin", value: end.shortFormatted)
-                    HStack {
-                        Text("Estado")
-                        Spacer()
+                if let endDate = tenant.contractEndDate {
+                    LabeledContent(
+                        String(localized: "End Date", locale: LanguageService.currentLocale, comment: "Label for contract end date"),
+                        value: endDate.formatted(date: .abbreviated, time: .omitted))
+                    LabeledContent {
                         contractStatusBadge(for: tenant.contractStatus)
+                    } label: {
+                        Text(String(localized: "Status", locale: LanguageService.currentLocale, comment: "Label for contract status"))
                     }
                 }
-                if let deposit = tenant.depositAmount {
-                    LabeledContent("Fianza", value: formatCurrency(deposit))
-                }
-                // Use effective rent (from room if assigned, else from tenant)
-                if let rent = tenant.effectiveMonthlyRent {
-                    LabeledContent("Renta mensual", value: formatCurrency(rent))
-                }
+                LabeledContent(
+                    String(localized: "Duration", locale: LanguageService.currentLocale, comment: "Label for contract duration"),
+                    value: "\(tenant.contractMonths ?? 0) months")
             }
 
-            // Notes
+            // Notes Section
             if let notes = tenant.notes, !notes.isEmpty {
-                Section("Notas") {
+                Section(
+                    String(localized: "General Notes", locale: LanguageService.currentLocale, comment: "Section header for general notes")
+                ) {
                     Text(notes)
                 }
             }
 
             if let contractNotes = tenant.contractNotes, !contractNotes.isEmpty {
-                Section("Notas del contrato") {
+                Section(
+                    String(localized: "Contract Notes", locale: LanguageService.currentLocale, comment: "Section header for contract notes")
+                ) {
                     Text(contractNotes)
                 }
             }
 
-            // Actions
-            Section("Acciones") {
+            // Actions Section
+            Section(String(localized: "Actions", locale: LanguageService.currentLocale, comment: "Section header for tenant actions")) {
                 Button {
                     showRenewSheet = true
                 } label: {
-                    Label("Renovar contrato", systemImage: "arrow.clockwise")
+                    Label(
+                        String(localized: "Renew Contract", locale: LanguageService.currentLocale, comment: "Button to renew tenant contract"),
+                        systemImage: "arrow.clockwise")
                 }
+                .disabled(!tenant.active)
+
+                Button {
+                    showMoveSheet = true
+                } label: {
+                    Label(
+                        String(localized: "Move Room", locale: LanguageService.currentLocale, comment: "Button to move tenant to another room"
+                        ), systemImage: "arrow.right.arrow.left")
+                }
+                .disabled(!tenant.active)
 
                 NavigationLink {
                     ContractView(tenant: tenant, propertyId: tenant.propertyId)
                 } label: {
-                    Label("Generar contrato PDF", systemImage: "doc.text")
+                    Label(
+                        String(localized: "Generate Contract PDF",
+                            locale: LanguageService.currentLocale, comment: "Button to generate contract PDF"), systemImage: "doc.text")
                 }
 
                 if tenant.active {
                     Button(role: .destructive) {
+                        showDeactivateConfirmation = true
+                    } label: {
+                        Label(
+                            String(localized: "Deactivate Tenant",
+                                locale: LanguageService.currentLocale, comment: "Button to deactivate tenant"), systemImage: "person.slash"
+                        )
+                    }
+                } else {
+                    Button {
                         Task {
-                            try? await appState.tenantService.deactivateTenant(id: tenant.id)
-                            tenant.active = false
+                            do {
+                                try await appState.tenantService.activateTenant(id: tenant.id)
+                                tenant = try await appState.tenantService.fetchTenant(id: tenant.id)
+                            } catch {
+                                errorMessage = error.localizedDescription
+                            }
                         }
                     } label: {
-                        Label("Desactivar inquilino", systemImage: "person.slash")
+                        Label(
+                            String(localized: "Reactivate Tenant",
+                                locale: LanguageService.currentLocale, comment: "Button to reactivate a deactivated tenant"),
+                            systemImage: "person.badge.shield.checkmark.fill")
                     }
                 }
             }
@@ -124,16 +176,22 @@ struct TenantDetailView: View {
         .navigationTitle(tenant.fullName)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button("Editar") { showEditSheet = true }
+                Button(String(localized: "Edit", locale: LanguageService.currentLocale, comment: "Edit button")) { showEditSheet = true }
             }
         }
         .sheet(isPresented: $showEditSheet) {
+            Task {
+                if let updated = try? await appState.tenantService.fetchTenant(id: tenant.id) {
+                    tenant = updated
+                }
+            }
+        } content: {
             NavigationStack {
                 TenantFormView(propertyId: tenant.propertyId, tenant: tenant)
             }
+            .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
         }
         .sheet(isPresented: $showAssignSheet) {
-            // Reload tenant after assign
             Task {
                 if let updated = try? await appState.tenantService.fetchTenant(id: tenant.id) {
                     tenant = updated
@@ -143,20 +201,62 @@ struct TenantDetailView: View {
             NavigationStack {
                 TenantAssignView(tenant: tenant, propertyId: tenant.propertyId)
             }
+            .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
+        }
+        .sheet(isPresented: $showMoveSheet) {
+            MoveTenantView(
+                tenant: tenant,
+                propertyId: tenant.propertyId,
+                roomService: appState.roomService,
+                tenantService: appState.tenantService
+            ) {
+                Task {
+                    if let updated = try? await appState.tenantService.fetchTenant(id: tenant.id) {
+                        tenant = updated
+                    }
+                }
+            }
+            .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
+        }
+        .sheet(isPresented: $showRenewSheet) {
+            Task {
+                if let updated = try? await appState.tenantService.fetchTenant(id: tenant.id) {
+                    tenant = updated
+                }
+            }
+        } content: {
+            RenewContractSheet(tenant: tenant) { months in
+                try await appState.tenantService.renewContract(
+                    tenantId: tenant.id, contractMonths: months, currentEndDate: tenant.contractEndDate)
+            }
+            .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
         }
         .confirmationDialog(
-            "Renovar contrato", isPresented: $showRenewSheet, titleVisibility: .visible
+            String(localized: "Deactivate Tenant?",
+                locale: LanguageService.currentLocale, comment: "Dialog title for deactivate tenant confirmation"),
+            isPresented: $showDeactivateConfirmation,
+            titleVisibility: .visible
         ) {
-            Button("Renovar 6 meses") {
-                renewContract(months: 6)
+            Button(
+                String(localized: "Deactivate", locale: LanguageService.currentLocale, comment: "Destructive button to confirm deactivation"),
+                role: .destructive
+            ) {
+                Task {
+                    do {
+                        try await appState.tenantService.deactivateTenant(id: tenant.id)
+                        tenant.active = false
+                    } catch {
+                        errorMessage = error.localizedDescription
+                    }
+                }
             }
-            Button("Renovar 1 año") {
-                renewContract(months: 12)
-            }
-            Button("Cancelar", role: .cancel) {}
+            Button(String(localized: "Cancel", locale: LanguageService.currentLocale, comment: "Cancel button"), role: .cancel) {}
         } message: {
-            Text("Selecciona la duración de la renovación")
+            Text(
+                String(localized: "This will mark the tenant as inactive.",
+                    locale: LanguageService.currentLocale, comment: "Message in deactivate tenant dialog"))
         }
+        .errorAlert($errorMessage)
     }
 
     @ViewBuilder
@@ -173,24 +273,9 @@ struct TenantDetailView: View {
         case .expiringSoon: .orange
         case .expired: .red
         case .noContract: .secondary
+        case .terminated: .secondary
         }
     }
 
-    private func renewContract(months: Int) {
-        Task {
-            // Optimistic update or fetch fresh data
-            try? await appState.tenantService.renewContract(
-                tenantId: tenant.id, contractMonths: months)
-            if let updated = try? await appState.tenantService.fetchTenant(id: tenant.id) {
-                tenant = updated
-            }
-        }
-    }
 
-    private func formatCurrency(_ value: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "EUR"
-        return formatter.string(from: value as NSDecimalNumber) ?? "€0"
-    }
 }

@@ -1,7 +1,7 @@
 import Foundation
 import PhotosUI
 
-@Observable
+@MainActor @Observable
 final class RoomFormViewModel {
     var name = ""
     var monthlyRent = ""
@@ -11,13 +11,19 @@ final class RoomFormViewModel {
     var isLoading = false
     var errorMessage: String?
 
-    let isEditing: Bool
     let propertyId: UUID
+    let isEditing: Bool
+    private let roomService: RoomServiceProtocol
     private var roomId: UUID?
-    private var existingPhotos: [String] = []
-    private let roomService: RoomService
+    private(set) var existingPhotos: [String] = []
 
-    init(propertyId: UUID, roomService: RoomService, room: Room? = nil) {
+    func deletePhoto(_ path: String) {
+        existingPhotos.removeAll { $0 == path }
+    }
+
+    init(
+        roomService: RoomServiceProtocol, propertyId: UUID, room: Room? = nil
+    ) {
         self.propertyId = propertyId
         self.roomService = roomService
         if let room {
@@ -35,15 +41,23 @@ final class RoomFormViewModel {
     }
 
     var isFormValid: Bool {
-        !name.trimmingCharacters(in: .whitespaces).isEmpty && Decimal(string: monthlyRent) != nil
+        let nameOk = !name.trimmingCharacters(in: .whitespaces).isEmpty
+        // Common areas don't require a rent value
+        let rentOk = roomType == .common || Decimal(string: monthlyRent) != nil
+        return nameOk && rentOk
     }
 
-    func save() async -> Room? {
-        guard let rent = Decimal(string: monthlyRent) else { return nil }
+    func save(newPhotos: [Data] = []) async -> Room? {
+        // Common areas can have zero/empty rent
+        let rent = Decimal(string: monthlyRent) ?? 0
         let size = Decimal(string: sizeSqm)
         isLoading = true
         errorMessage = nil
+
         do {
+            // 1. Initial Room Operation (Create or Update basic info)
+            var currentRoom: Room
+
             if isEditing, let roomId {
                 let updated = Room(
                     id: roomId, propertyId: propertyId, tenantId: nil,
@@ -54,20 +68,55 @@ final class RoomFormViewModel {
                     roomType: roomType, photos: existingPhotos,
                     createdAt: nil, updatedAt: nil
                 )
-                let result = try await roomService.updateRoom(updated)
-                isLoading = false
-                return result
+                currentRoom = try await roomService.updateRoom(updated)
             } else {
-                let result = try await roomService.createRoom(
+                currentRoom = try await roomService.createRoom(
                     propertyId: propertyId,
                     name: name.trimmingCharacters(in: .whitespaces),
                     monthlyRent: rent,
                     roomType: roomType,
                     sizeSqm: size
                 )
-                isLoading = false
-                return result
             }
+
+            // 2. Upload New Photos
+            var uploadedPaths: [String] = []
+            if !newPhotos.isEmpty {
+                for photoData in newPhotos {
+                    let path = "\(currentRoom.id)/\(UUID().uuidString).jpg"
+                    let uploadData = ImageCompressor.compress(photoData, maxSizeKB: 800, maxDimension: 1920) ?? photoData
+                    try await roomService.uploadPhoto(data: uploadData, path: path)
+                    uploadedPaths.append(path)
+                }
+            }
+
+            // 3. Update Room with new photos if needed
+            if !uploadedPaths.isEmpty {
+                var allPhotos = currentRoom.photos
+                allPhotos.append(contentsOf: uploadedPaths)
+
+                // Create a temporary room object just for the update call
+                let roomWithPhotos = Room(
+                    id: currentRoom.id,
+                    propertyId: currentRoom.propertyId,
+                    tenantId: currentRoom.tenantId,
+                    name: currentRoom.name,
+                    monthlyRent: currentRoom.monthlyRent,
+                    sizeSqm: currentRoom.sizeSqm,
+                    occupied: currentRoom.occupied,
+                    tenantName: currentRoom.tenantName,
+                    notes: currentRoom.notes,
+                    roomType: currentRoom.roomType,
+                    photos: allPhotos,
+                    createdAt: currentRoom.createdAt,
+                    updatedAt: currentRoom.updatedAt
+                )
+                currentRoom = try await roomService.updateRoom(roomWithPhotos)
+            }
+
+            isLoading = false
+            return currentRoom
+
         } catch {
             errorMessage = error.localizedDescription
             isLoading = false

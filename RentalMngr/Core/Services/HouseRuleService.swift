@@ -1,12 +1,12 @@
 import Foundation
 import Supabase
 
-final class HouseRuleService {
+final class HouseRuleService: HouseRuleServiceProtocol {
     private var client: SupabaseClient { SupabaseService.shared.client }
 
     func fetchRules(propertyId: UUID) async throws -> [HouseRule] {
         try await client
-            .from("house_rules")
+            .from(SupabaseTable.houseRules)
             .select()
             .eq("property_id", value: propertyId)
             .order("category")
@@ -24,7 +24,7 @@ final class HouseRuleService {
             let created_by: UUID
         }
         return try await client
-            .from("house_rules")
+            .from(SupabaseTable.houseRules)
             .insert(NewRule(property_id: propertyId, category: category.rawValue,
                             title: title, description: description, created_by: createdBy))
             .select()
@@ -40,7 +40,7 @@ final class HouseRuleService {
             let description: String?
         }
         return try await client
-            .from("house_rules")
+            .from(SupabaseTable.houseRules)
             .update(UpdateRule(category: rule.category.rawValue, title: rule.title, description: rule.description))
             .eq("id", value: rule.id)
             .select()
@@ -51,7 +51,7 @@ final class HouseRuleService {
 
     func deleteRule(id: UUID) async throws {
         try await client
-            .from("house_rules")
+            .from(SupabaseTable.houseRules)
             .delete()
             .eq("id", value: id)
             .execute()

@@ -1,17 +1,35 @@
 import Foundation
 
 enum SharedExpenseCategory: String, Codable, Sendable, CaseIterable {
-    case servicios
-    case compras
-    case reparaciones
-    case limpieza
-    case otro
+    case utilities = "servicios"
+    case shopping = "compras"
+    case repairs = "reparaciones"
+    case cleaning = "limpieza"
+    case other = "otro"
+
+    var displayName: String {
+        switch self {
+        case .utilities: String(localized: "Utilities", locale: LanguageService.currentLocale, comment: "Shared expense category")
+        case .shopping: String(localized: "Shopping", locale: LanguageService.currentLocale, comment: "Shared expense category")
+        case .repairs: String(localized: "Repairs", locale: LanguageService.currentLocale, comment: "Shared expense category")
+        case .cleaning: String(localized: "Cleaning", locale: LanguageService.currentLocale, comment: "Shared expense category")
+        case .other: String(localized: "Other", locale: LanguageService.currentLocale, comment: "Shared expense category")
+        }
+    }
 }
 
 enum SplitType: String, Codable, Sendable, CaseIterable {
     case equal
     case custom
     case byRoom = "by_room"
+
+    var displayName: String {
+        switch self {
+        case .equal: String(localized: "Equal Split", locale: LanguageService.currentLocale, comment: "Split type")
+        case .custom: String(localized: "Custom", locale: LanguageService.currentLocale, comment: "Split type")
+        case .byRoom: String(localized: "By Room", locale: LanguageService.currentLocale, comment: "Split type")
+        }
+    }
 }
 
 struct SharedExpense: Codable, Identifiable, Sendable, Hashable {

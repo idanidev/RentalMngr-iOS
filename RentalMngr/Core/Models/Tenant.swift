@@ -119,6 +119,7 @@ struct Tenant: Codable, Identifiable, Sendable, Hashable {
 
     /// Contract status
     var contractStatus: ContractStatus {
+        if !active { return .terminated }
         guard let endDate = contractEndDate else { return .noContract }
         if endDate.isExpired { return .expired }
         if endDate.isExpiringSoon { return .expiringSoon }
@@ -127,14 +128,15 @@ struct Tenant: Codable, Identifiable, Sendable, Hashable {
 }
 
 enum ContractStatus {
-    case active, expiringSoon, expired, noContract
+    case active, expiringSoon, expired, noContract, terminated
 
     var label: String {
         switch self {
-        case .active: "Activo"
-        case .expiringSoon: "Por vencer"
-        case .expired: "Expirado"
-        case .noContract: "Sin contrato"
+        case .active: String(localized: "Active", locale: LanguageService.currentLocale, comment: "Contract status")
+        case .expiringSoon: String(localized: "Expiring Soon", locale: LanguageService.currentLocale, comment: "Contract status")
+        case .expired: String(localized: "Expired", locale: LanguageService.currentLocale, comment: "Contract status")
+        case .noContract: String(localized: "No Contract", locale: LanguageService.currentLocale, comment: "Contract status")
+        case .terminated: String(localized: "Terminated", locale: LanguageService.currentLocale, comment: "Contract status")
         }
     }
 }

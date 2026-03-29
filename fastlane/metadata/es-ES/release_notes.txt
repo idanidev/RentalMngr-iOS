@@ -1,0 +1,8 @@
+¡Primera versión de RentalMngr!
+
+• Gestión completa de propiedades, habitaciones e inquilinos
+• Control financiero con ingresos, gastos y recibos de suministros
+• Generación automática de contratos en PDF
+• Alertas de pagos pendientes y contratos próximos a vencer
+• Roomie: gestión de gastos compartidos entre compañeros de piso
+• Disponible en español e inglés

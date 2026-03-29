@@ -1,6 +1,6 @@
 import Foundation
 
-@Observable
+@MainActor @Observable
 final class AuthViewModel {
     var email = ""
     var password = ""
@@ -11,14 +11,14 @@ final class AuthViewModel {
     var isSignUpMode = false
     var showResetPassword = false
 
-    private let authService: AuthService
+    private let authService: AuthServiceProtocol
 
-    init(authService: AuthService) {
+    init(authService: AuthServiceProtocol) {
         self.authService = authService
     }
 
     var isFormValid: Bool {
-        let emailValid = email.contains("@") && email.contains(".")
+        let emailValid = email.isValidEmail
         let passwordValid = password.count >= 6
         if isSignUpMode {
             return emailValid && passwordValid && password == confirmPassword
@@ -30,7 +30,8 @@ final class AuthViewModel {
         isLoading = true
         errorMessage = nil
         do {
-            try await authService.signIn(email: email.trimmingCharacters(in: .whitespaces), password: password)
+            try await authService.signIn(
+                email: email.trimmingCharacters(in: .whitespaces), password: password)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -41,8 +42,9 @@ final class AuthViewModel {
         isLoading = true
         errorMessage = nil
         do {
-            try await authService.signUp(email: email.trimmingCharacters(in: .whitespaces), password: password)
-            successMessage = "Cuenta creada. Revisa tu correo para confirmar."
+            try await authService.signUp(
+                email: email.trimmingCharacters(in: .whitespaces), password: password)
+            successMessage = String(localized: "Account created. Check your email to confirm.", locale: LanguageService.currentLocale, comment: "Success message after sign up")
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -54,7 +56,7 @@ final class AuthViewModel {
         errorMessage = nil
         do {
             try await authService.resetPassword(email: email.trimmingCharacters(in: .whitespaces))
-            successMessage = "Email de recuperación enviado. Revisa tu correo."
+            successMessage = String(localized: "Recovery email sent. Check your inbox.", locale: LanguageService.currentLocale, comment: "Success message after password reset request")
         } catch {
             errorMessage = error.localizedDescription
         }

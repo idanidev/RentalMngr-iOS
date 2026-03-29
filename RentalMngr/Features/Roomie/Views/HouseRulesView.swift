@@ -11,13 +11,26 @@ struct HouseRulesView: View {
             if let vm = viewModel {
                 rulesContent(vm)
             } else {
-                LoadingView()
+                // Skeleton Loading
+                List {
+                    ForEach(0..<5) { _ in
+                        VStack(alignment: .leading, spacing: 4) {
+                            SkeletonView().frame(width: 150, height: 20)
+                            SkeletonView().frame(width: 250, height: 14)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
             }
         }
-        .navigationTitle("Normas")
+        .navigationTitle(
+            String(localized: "House rules", locale: LanguageService.currentLocale, comment: "Navigation title for house rules list")
+        )
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button { showAddSheet = true } label: {
+                Button {
+                    showAddSheet = true
+                } label: {
                     Image(systemName: "plus")
                 }
             }
@@ -28,10 +41,12 @@ struct HouseRulesView: View {
             NavigationStack {
                 HouseRuleFormView(propertyId: propertyId)
             }
+            .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
         }
         .onAppear {
             if viewModel == nil {
-                viewModel = HouseRulesViewModel(propertyId: propertyId, houseRuleService: appState.houseRuleService)
+                viewModel = HouseRulesViewModel(
+                    propertyId: propertyId, houseRuleService: appState.houseRuleService)
             }
         }
         .task {
@@ -42,12 +57,20 @@ struct HouseRulesView: View {
     @ViewBuilder
     private func rulesContent(_ vm: HouseRulesViewModel) -> some View {
         if vm.rules.isEmpty {
-            EmptyStateView(icon: "list.clipboard", title: "Sin normas", subtitle: "Añade normas de convivencia",
-                           actionTitle: "Añadir norma") { showAddSheet = true }
+            EmptyStateView(
+                icon: "list.clipboard",
+                title: String(localized: "No rules", locale: LanguageService.currentLocale, comment: "Empty state title when no house rules exist"),
+                subtitle: String(localized: "Add house rules for cohabitation",
+                    locale: LanguageService.currentLocale, comment: "Empty state subtitle for house rules"),
+                actionTitle: String(localized: "Add rule", locale: LanguageService.currentLocale, comment: "Button to add a new house rule")
+            ) { showAddSheet = true }
         } else {
             List {
-                ForEach(vm.rulesByCategory.sorted(by: { $0.key.rawValue < $1.key.rawValue }), id: \.key) { category, rules in
-                    Section(category.rawValue.capitalized) {
+                ForEach(
+                    vm.rulesByCategory.sorted(by: { $0.key.displayName < $1.key.displayName }),
+                    id: \.key
+                ) { category, rules in
+                    Section(category.displayName) {
                         ForEach(rules) { rule in
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(rule.title).font(.subheadline).fontWeight(.semibold)
@@ -59,12 +82,18 @@ struct HouseRulesView: View {
                                 Button(role: .destructive) {
                                     Task { await vm.deleteRule(rule) }
                                 } label: {
-                                    Label("Eliminar", systemImage: "trash")
+                                    Label(
+                                        String(localized: "Delete",
+                                            locale: LanguageService.currentLocale, comment: "Swipe action to delete a house rule"),
+                                        systemImage: "trash")
                                 }
                             }
                         }
                     }
                 }
+            }
+            .refreshable {
+                await vm.loadRules()
             }
         }
     }

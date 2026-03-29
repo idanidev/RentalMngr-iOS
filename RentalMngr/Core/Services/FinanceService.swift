@@ -1,7 +1,7 @@
 import Foundation
 import Supabase
 
-struct FinancialSummary: Sendable {
+struct FinancialSummary: Sendable, Codable {
     let totalIncome: Decimal
     let paidIncome: Decimal
     let pendingIncome: Decimal
@@ -15,7 +15,7 @@ struct FinancialSummary: Sendable {
     }
 }
 
-final class FinanceService {
+final class FinanceService: FinanceServiceProtocol {
     private var client: SupabaseClient { SupabaseService.shared.client }
 
     /// The join select string for income with room name and tenant name
@@ -29,12 +29,12 @@ final class FinanceService {
 
     // MARK: - Expenses
 
-    func fetchExpenses(propertyId: UUID, startDate: Date? = nil, endDate: Date? = nil) async throws
-        -> [Expense]
-    {
+    func fetchExpenses(
+        propertyId: UUID, startDate: Date? = nil, endDate: Date? = nil, limit: Int?, offset: Int?
+    ) async throws -> [Expense] {
         var query =
             client
-            .from("expenses")
+            .from(SupabaseTable.expenses)
             .select("*, property:properties(name), room:rooms(name)")
             .eq("property_id", value: propertyId)
 
@@ -47,19 +47,27 @@ final class FinanceService {
             query = query.lte("date", value: dateStr)
         }
 
-        return
-            try await query
-            .order("date", ascending: false)
-            .execute()
-            .value
+        var builder = query.order("date", ascending: false)
+
+        if let limit, let offset {
+            builder = builder.range(from: offset, to: offset + limit - 1)
+        }
+
+        return try await builder.execute().value
     }
 
     /// Group expenses by category and sum amounts (matches webapp getExpensesByCategory)
     func fetchExpensesByCategory(propertyId: UUID, startDate: Date? = nil, endDate: Date? = nil)
         async throws -> [(category: String, amount: Decimal)]
     {
+        // For categories we probably want ALL expenses to calculate totals correctly,
+        // unless we want totals only for the visible page?
+        // Usually summaries are for the whole period.
+        // Keeping it without pagination for now as it reuses fetchExpenses internally but we might need to adjust if we want full period summary vs paged list.
+        // Actually fetchExpensesByCategory calls fetchExpenses. If we dont pass limit/offset it gets all (subject to default supabase limit).
+        // Let's keep it as is, calling fetchExpenses without limit/offset to get all for the period.
         let expenses = try await fetchExpenses(
-            propertyId: propertyId, startDate: startDate, endDate: endDate)
+            propertyId: propertyId, startDate: startDate, endDate: endDate, limit: nil, offset: nil)
         let grouped = Dictionary(grouping: expenses, by: \.category)
         return grouped.map {
             (category: $0.key, amount: $0.value.reduce(Decimal.zero) { $0 + $1.amount })
@@ -82,7 +90,7 @@ final class FinanceService {
         }
         return
             try await client
-            .from("expenses")
+            .from(SupabaseTable.expenses)
             .insert(
                 NewExpense(
                     property_id: propertyId, amount: amount, category: category,
@@ -104,7 +112,7 @@ final class FinanceService {
         }
         return
             try await client
-            .from("expenses")
+            .from(SupabaseTable.expenses)
             .update(
                 UpdateExpense(
                     amount: expense.amount, category: expense.category,
@@ -119,7 +127,7 @@ final class FinanceService {
 
     func deleteExpense(id: UUID) async throws {
         try await client
-            .from("expenses")
+            .from(SupabaseTable.expenses)
             .delete()
             .eq("id", value: id)
             .execute()
@@ -127,12 +135,12 @@ final class FinanceService {
 
     // MARK: - Income (WITH room join)
 
-    func fetchIncome(propertyId: UUID, startDate: Date? = nil, endDate: Date? = nil) async throws
-        -> [Income]
-    {
+    func fetchIncome(
+        propertyId: UUID, startDate: Date? = nil, endDate: Date? = nil, limit: Int?, offset: Int?
+    ) async throws -> [Income] {
         var query =
             client
-            .from("income")
+            .from(SupabaseTable.income)
             .select(incomeSelect)
             .eq("property_id", value: propertyId)
 
@@ -145,11 +153,13 @@ final class FinanceService {
             query = query.lte("month", value: dateStr)
         }
 
-        return
-            try await query
-            .order("month", ascending: false)
-            .execute()
-            .value
+        var builder = query.order("month", ascending: false)
+
+        if let limit, let offset {
+            builder = builder.range(from: offset, to: offset + limit - 1)
+        }
+
+        return try await builder.execute().value
     }
 
     /// Fetch income for ALL given properties in a date range (for global finances view)
@@ -162,7 +172,7 @@ final class FinanceService {
 
         return
             try await client
-            .from("income")
+            .from(SupabaseTable.income)
             .select(incomeSelect)
             .in("property_id", values: propertyIds.map(\.uuidString))
             .gte("month", value: startStr)
@@ -183,7 +193,7 @@ final class FinanceService {
         }
         return
             try await client
-            .from("income")
+            .from(SupabaseTable.income)
             .insert(
                 NewIncome(property_id: propertyId, room_id: roomId, amount: amount, month: month)
             )
@@ -199,7 +209,7 @@ final class FinanceService {
             let payment_date: Date
         }
         try await client
-            .from("income")
+            .from(SupabaseTable.income)
             .update(PaidUpdate(payment_date: Date()))
             .eq("id", value: incomeId)
             .execute()
@@ -211,7 +221,7 @@ final class FinanceService {
             let payment_date: Date? = nil
         }
         try await client
-            .from("income")
+            .from(SupabaseTable.income)
             .update(UnpaidUpdate())
             .eq("id", value: incomeId)
             .execute()
@@ -219,7 +229,7 @@ final class FinanceService {
 
     func deleteIncome(id: UUID) async throws {
         try await client
-            .from("income")
+            .from(SupabaseTable.income)
             .delete()
             .eq("id", value: id)
             .execute()
@@ -249,9 +259,11 @@ final class FinanceService {
         let capturedStart = startDate
         let capturedEnd = endDate
         async let expenses = fetchExpenses(
-            propertyId: propertyId, startDate: capturedStart, endDate: capturedEnd)
+            propertyId: propertyId, startDate: capturedStart, endDate: capturedEnd, limit: nil,
+            offset: nil)
         async let incomes = fetchIncome(
-            propertyId: propertyId, startDate: capturedStart, endDate: capturedEnd)
+            propertyId: propertyId, startDate: capturedStart, endDate: capturedEnd, limit: nil,
+            offset: nil)
 
         let expenseList = try await expenses
         let incomeList = try await incomes

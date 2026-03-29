@@ -1,15 +1,15 @@
 import Foundation
 
-@Observable
+@MainActor @Observable
 final class SharedExpensesViewModel {
     var sharedExpenses: [SharedExpense] = []
     var isLoading = false
     var errorMessage: String?
 
     let propertyId: UUID
-    private let sharedExpenseService: SharedExpenseService
+    private let sharedExpenseService: SharedExpenseServiceProtocol
 
-    init(propertyId: UUID, sharedExpenseService: SharedExpenseService) {
+    init(propertyId: UUID, sharedExpenseService: SharedExpenseServiceProtocol) {
         self.propertyId = propertyId
         self.sharedExpenseService = sharedExpenseService
     }

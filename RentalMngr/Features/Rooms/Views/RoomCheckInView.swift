@@ -17,8 +17,8 @@ struct RoomCheckInView: View {
             } else if availableTenants.isEmpty {
                 EmptyStateView(
                     icon: "person.crop.circle.badge.questionmark",
-                    title: "Sin inquilinos disponibles",
-                    subtitle: "Todos los inquilinos ya tienen habitación asignada o no hay inquilinos activos"
+                    title: String(localized: "No available tenants", locale: LanguageService.currentLocale, comment: "Empty state title when no tenants available for check-in"),
+                    subtitle: String(localized: "All tenants already have an assigned room or there are no active tenants", locale: LanguageService.currentLocale, comment: "Empty state subtitle for no available tenants")
                 )
             } else {
                 List(availableTenants) { tenant in
@@ -42,7 +42,7 @@ struct RoomCheckInView: View {
                                         .foregroundStyle(.secondary)
                                 }
                                 if let rent = tenant.monthlyRent {
-                                    Text(formatCurrency(rent) + "/mes")
+                                    Text(rent.formatted(currencyCode: "EUR") + String(localized: "/mo", locale: LanguageService.currentLocale, comment: "Monthly rent abbreviation suffix"))
                                         .font(.subheadline)
                                         .foregroundStyle(.secondary)
                                 }
@@ -56,11 +56,11 @@ struct RoomCheckInView: View {
                 }
             }
         }
-        .navigationTitle("Check-in: \(room.name)")
+        .navigationTitle(String(localized: "Check-in: \(room.name)", locale: LanguageService.currentLocale, comment: "Navigation title for check-in with room name"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Cancelar") { dismiss() }
+                Button(String(localized: "Cancel", locale: LanguageService.currentLocale, comment: "Button to cancel")) { dismiss() }
             }
         }
         .errorAlert($errorMessage)
@@ -74,10 +74,4 @@ struct RoomCheckInView: View {
         }
     }
 
-    private func formatCurrency(_ value: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "EUR"
-        return formatter.string(from: value as NSDecimalNumber) ?? "€0"
-    }
 }

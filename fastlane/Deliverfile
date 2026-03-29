@@ -1,0 +1,44 @@
+# Deliverfile — metadatos del App Store
+# Se usa con `fastlane deliver` o la lane `release`
+
+app_identifier "idanidev.RentalMngr"
+
+# Categoría principal de la app
+primary_category "BUSINESS"
+# secondary_category "UTILITIES"
+
+# ──────────────────────────────────────────────────────────────────
+# URLs (REEMPLAZA con tus URLs reales de GitHub Pages / hosting)
+# ──────────────────────────────────────────────────────────────────
+support_url({
+  "default" => "https://idanidev.github.io/rentalmngr-privacy/support.html",
+  "es-ES"   => "https://idanidev.github.io/rentalmngr-privacy/support.html",
+  "en-US"   => "https://idanidev.github.io/rentalmngr-privacy/support.html"
+})
+
+privacy_url({
+  "default" => "https://idanidev.github.io/rentalmngr-privacy/",
+  "es-ES"   => "https://idanidev.github.io/rentalmngr-privacy/",
+  "en-US"   => "https://idanidev.github.io/rentalmngr-privacy/"
+})
+
+# ──────────────────────────────────────────────────────────────────
+# RATING DE CONTENIDO
+# ──────────────────────────────────────────────────────────────────
+rating_config_path "./fastlane/metadata/rating_config.json"
+
+# ──────────────────────────────────────────────────────────────────
+# NOTAS PARA EL REVISOR DE APPLE
+# ──────────────────────────────────────────────────────────────────
+submission_information({
+  add_id_info_uses_idfa: false,
+  content_rights_has_rights: true,
+  content_rights_contains_third_party_content: false,
+  export_compliance_uses_encryption: false,
+  export_compliance_is_exempt: true
+})
+
+# Notas de revisión (máx. 4000 chars)
+review_information(
+  notes: "RentalMngr es una app de gestión de alquileres. Para probarla, es necesario registrarse con una cuenta de email. No existe cuenta de demo ya que los datos son privados por usuario (Row Level Security en Supabase). El flujo principal: Registro → Añadir propiedad → Añadir habitación → Añadir inquilino → Ver finanzas. La app usa autenticación Supabase (email/password). No hay compras in-app ni suscripciones."
+)

@@ -16,14 +16,14 @@ struct ExpenseFormView: View {
                 LoadingView()
             }
         }
-        .navigationTitle(expense == nil ? "Nuevo gasto" : "Editar gasto")
+        .navigationTitle(String(localized: expense == nil ? "New expense" : "Edit expense", locale: LanguageService.currentLocale, comment: "Navigation title for expense form"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Cancelar") { dismiss() }
+                Button(String(localized: "Cancel", locale: LanguageService.currentLocale, comment: "Button to cancel")) { dismiss() }
             }
             ToolbarItem(placement: .confirmationAction) {
-                Button("Guardar") {
+                Button(String(localized: "Save", locale: LanguageService.currentLocale, comment: "Button to save")) {
                     Task {
                         if let _ = await viewModel?.save() { dismiss() }
                     }
@@ -32,14 +32,17 @@ struct ExpenseFormView: View {
             }
         }
         .onAppear {
-            if viewModel == nil, let userId = appState.authService.currentUserId {
-                viewModel = ExpenseViewModel(
-                    propertyId: propertyId,
-                    financeService: appState.financeService,
-                    userId: userId,
-                    expense: expense
-                )
+            guard viewModel == nil else { return }
+            guard let userId = appState.authService.currentUserId else {
+                dismiss()   // Should never happen — user must be authenticated to reach this view
+                return
             }
+            viewModel = ExpenseViewModel(
+                propertyId: propertyId,
+                financeService: appState.financeService,
+                userId: userId,
+                expense: expense
+            )
         }
     }
 
@@ -47,18 +50,18 @@ struct ExpenseFormView: View {
     private func formContent(_ vm: ExpenseViewModel) -> some View {
         Form {
             Section {
-                TextField("Importe (€)", text: Binding(get: { vm.amount }, set: { vm.amount = $0 }))
+                TextField(String(localized: "Amount (€)", locale: LanguageService.currentLocale, comment: "Amount field placeholder for expense"), text: Binding(get: { vm.amount }, set: { vm.amount = $0 }))
                     .keyboardType(.decimalPad)
 
-                Picker("Categoría", selection: Binding(get: { vm.category }, set: { vm.category = $0 })) {
-                    ForEach(ExpenseViewModel.categories, id: \.self) { cat in
-                        Text(cat).tag(cat)
+                Picker(String(localized: "Category", locale: LanguageService.currentLocale, comment: "Expense form"), selection: Binding(get: { vm.category }, set: { vm.category = $0 })) {
+                    ForEach(ExpenseCategory.allCases) { cat in
+                        Text(cat.displayName).tag(cat.rawValue)
                     }
                 }
 
-                DatePicker("Fecha", selection: Binding(get: { vm.date }, set: { vm.date = $0 }), displayedComponents: .date)
+                DatePicker(String(localized: "Date", locale: LanguageService.currentLocale, comment: "Date picker label"), selection: Binding(get: { vm.date }, set: { vm.date = $0 }), displayedComponents: .date)
 
-                TextField("Descripción (opcional)", text: Binding(get: { vm.description }, set: { vm.description = $0 }), axis: .vertical)
+                TextField(String(localized: "Description (optional)", locale: LanguageService.currentLocale, comment: "Description field placeholder"), text: Binding(get: { vm.description }, set: { vm.description = $0 }), axis: .vertical)
                     .lineLimit(2...4)
             }
 

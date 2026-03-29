@@ -111,7 +111,7 @@ struct Income: Codable, Identifiable, Sendable, Hashable {
 
     /// Display name: room name or fallback
     var roomName: String {
-        room?.name ?? "Habitación"
+        room?.name ?? String(localized: "Room", locale: LanguageService.currentLocale, comment: "Default room name fallback")
     }
 
     /// Tenant name: prefer joined tenant full_name, fallback to denormalized tenant_name

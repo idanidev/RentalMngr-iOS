@@ -12,6 +12,10 @@ final class SupabaseService: Sendable {
             supabaseURL: SupabaseConfig.url,
             supabaseKey: SupabaseConfig.anonKey,
             options: .init(
+                db: .init(
+                    encoder: JSONEncoder.supabase,
+                    decoder: JSONDecoder.supabase
+                ),
                 auth: .init(
                     autoRefreshToken: true,
                     emitLocalSessionAsInitialSession: true

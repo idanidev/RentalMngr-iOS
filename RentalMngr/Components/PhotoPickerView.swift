@@ -9,7 +9,7 @@ struct PhotoPickerView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Fotos (\(images.count)/\(maxCount))")
+                Text("Photos (\(images.count)/\(maxCount))", comment: "Photo count label showing current and maximum")
                     .font(.headline)
                 Spacer()
                 PhotosPicker(
@@ -17,7 +17,7 @@ struct PhotoPickerView: View {
                     maxSelectionCount: maxCount - images.count,
                     matching: .images
                 ) {
-                    Label("Añadir", systemImage: "photo.badge.plus")
+                    Label(String(localized: "Add", locale: LanguageService.currentLocale, comment: "Add photo button"), systemImage: "photo.badge.plus")
                         .font(.subheadline)
                 }
                 .disabled(images.count >= maxCount)

@@ -1,17 +1,18 @@
 import UIKit
 
 enum ImageCompressor {
-    static func compress(_ data: Data, maxSizeKB: Int = 500, maxDimension: CGFloat = 1920) -> Data? {
+    static func compress(_ data: Data, maxSizeKB: Int = 1024, maxDimension: CGFloat = 2048) -> Data?
+    {
         guard let image = UIImage(data: data) else { return nil }
 
         // Resize if necessary
         let resized = resize(image, maxDimension: maxDimension)
 
         // Compress with decreasing quality
-        var compression: CGFloat = 0.85
+        var compression: CGFloat = 0.9
         var compressedData = resized.jpegData(compressionQuality: compression)
 
-        while let data = compressedData, data.count > maxSizeKB * 1024, compression > 0.1 {
+        while let data = compressedData, data.count > maxSizeKB * 1024, compression > 0.5 {
             compression -= 0.1
             compressedData = resized.jpegData(compressionQuality: compression)
         }

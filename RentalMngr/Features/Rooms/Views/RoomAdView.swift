@@ -7,25 +7,25 @@ struct RoomAdView: View {
     let room: Room
     let propertyId: UUID
 
-    @State private var pdfData: Data?
+    @State private var pdfURL: URL?
     @State private var property: Property?
     @State private var isLoading = true
-    @State private var loadingMessage = "Cargando datos..."
+    @State private var loadingMessage = String(localized: "Loading data...", locale: LanguageService.currentLocale, comment: "Loading message while fetching room ad data")
 
     var body: some View {
         Group {
             if isLoading {
                 LoadingView(message: loadingMessage)
-            } else if let pdfData {
+            } else if let pdfURL {
                 VStack {
-                    PDFKitView(data: pdfData)
+                    PDFKitView(url: pdfURL)
 
                     ShareLink(
-                        item: pdfData,
+                        item: pdfURL,
                         preview: SharePreview(
-                            "Anuncio - \(room.name)", image: Image(systemName: "doc.richtext"))
+                            String(localized: "Ad - \(room.name)", locale: LanguageService.currentLocale, comment: "Share preview title for room ad PDF"), image: Image(systemName: "doc.richtext"))
                     ) {
-                        Label("Compartir anuncio", systemImage: "square.and.arrow.up")
+                        Label(String(localized: "Share ad", locale: LanguageService.currentLocale, comment: "Button to share the room ad"), systemImage: "square.and.arrow.up")
                             .frame(maxWidth: .infinity)
                             .padding()
                     }
@@ -35,16 +35,28 @@ struct RoomAdView: View {
             } else {
                 EmptyStateView(
                     icon: "doc.richtext",
-                    title: "Error",
-                    subtitle: "No se pudo generar el anuncio"
+                    title: String(localized: "Error", locale: LanguageService.currentLocale, comment: "Error title when PDF generation fails"),
+                    subtitle: String(localized: "Could not generate the ad", locale: LanguageService.currentLocale, comment: "Error subtitle when PDF generation fails")
                 )
             }
         }
-        .navigationTitle("Anuncio")
+        .navigationTitle(String(localized: "Ad", locale: LanguageService.currentLocale, comment: "Navigation title for room ad view"))
         .navigationBarTitleDisplayMode(.inline)
         .task {
             await generatePDF()
         }
+    }
+
+    // Anuncio_<NombrePropiedad>_<NombreHabitacion>_<Fecha>.pdf
+    private var pdfFileName: String {
+        let safeProp = (property?.name ?? "Property")
+            .replacingOccurrences(of: " ", with: "_")
+            .folding(options: .diacriticInsensitive, locale: .current)
+        let safeRoom = room.name
+            .replacingOccurrences(of: " ", with: "_")
+            .folding(options: .diacriticInsensitive, locale: .current)
+        let dateStr = Date().formatted(.iso8601.year().month().day())
+        return "Anuncio_\(safeProp)_\(safeRoom)_\(dateStr).pdf"
     }
 
     private func generatePDF() async {
@@ -59,7 +71,7 @@ struct RoomAdView: View {
             }
 
             // Download room photos
-            loadingMessage = "Descargando fotos..."
+            loadingMessage = String(localized: "Downloading photos...", locale: LanguageService.currentLocale, comment: "Loading message while downloading photos")
             let roomImages = await downloadImages(from: room.photoUrls)
 
             // Download common room photos
@@ -71,9 +83,9 @@ struct RoomAdView: View {
                 }
             }
 
-            loadingMessage = "Generando PDF..."
+            loadingMessage = String(localized: "Generating PDF...", locale: LanguageService.currentLocale, comment: "Loading message while generating PDF")
             let generator = PDFGenerator()
-            pdfData = generator.generateRoomAd(
+            let pdfData = await generator.generateRoomAd(
                 room: room,
                 property: property,
                 commonRooms: commonRooms,
@@ -81,6 +93,12 @@ struct RoomAdView: View {
                 roomImages: roomImages,
                 commonRoomImages: commonRoomImages
             )
+
+            // Write to named temp file so ShareLink uses correct filename and type
+            let url = FileManager.default.temporaryDirectory
+                .appendingPathComponent(pdfFileName)
+            try pdfData.write(to: url)
+            self.pdfURL = url
         } catch {
             // Failed to load data
         }

@@ -6,6 +6,7 @@ enum LocalAlertType: String, CaseIterable {
     case contractExpiring = "contract_expiring"
     case contractExpired = "contract_expired"
     case unpaidRent = "unpaid_rent"
+    case unpaidUtility = "unpaid_utility"
 }
 
 enum AlertSeverity: Comparable {
@@ -27,6 +28,7 @@ struct LocalAlert: Identifiable {
     let relatedTenantId: UUID?
     let relatedPropertyId: UUID?
     let relatedIncomeId: UUID?
+    let relatedUtilityChargeId: UUID?
     let daysUntilExpiry: Int?  // For contract alerts
 
     var icon: String {
@@ -34,6 +36,7 @@ struct LocalAlert: Identifiable {
         case .contractExpiring: "doc.badge.clock"
         case .contractExpired: "doc.badge.ellipsis"
         case .unpaidRent: "eurosign.circle"
+        case .unpaidUtility: "bolt.circle"
         }
     }
 

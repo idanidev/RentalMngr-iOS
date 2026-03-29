@@ -1,5 +1,5 @@
-import SwiftUI
 import Auth
+import SwiftUI
 
 struct MyInvitationsView: View {
     @Environment(AppState.self) private var appState
@@ -15,8 +15,8 @@ struct MyInvitationsView: View {
             } else if invitations.isEmpty {
                 EmptyStateView(
                     icon: "envelope.open",
-                    title: "Sin invitaciones",
-                    subtitle: "No tienes invitaciones pendientes"
+                    title: String(localized: "No invitations", locale: LanguageService.currentLocale, comment: "Empty state title when no invitations"),
+                    subtitle: String(localized: "You have no pending invitations", locale: LanguageService.currentLocale, comment: "Empty state subtitle for invitations")
                 )
             } else {
                 List {
@@ -30,7 +30,7 @@ struct MyInvitationsView: View {
                 }
             }
         }
-        .navigationTitle("Mis invitaciones")
+        .navigationTitle(String(localized: "My invitations", locale: LanguageService.currentLocale, comment: "Navigation title for invitations list"))
         .errorAlert($errorMessage)
         .task {
             await loadInvitations()
@@ -41,7 +41,7 @@ struct MyInvitationsView: View {
     }
 
     private func loadInvitations() async {
-        guard let email = appState.authService.currentUser?.email else {
+        guard let email = appState.authService.currentUserEmail else {
             isLoading = false
             return
         }
@@ -56,7 +56,8 @@ struct MyInvitationsView: View {
     private func acceptInvitation(_ invitation: Invitation) async {
         guard let userId = appState.authService.currentUserId else { return }
         do {
-            try await appState.propertyService.acceptInvitation(token: invitation.token, userId: userId)
+            try await appState.propertyService.acceptInvitation(
+                token: invitation.token, userId: userId)
             invitations.removeAll { $0.id == invitation.id }
         } catch {
             errorMessage = error.localizedDescription
@@ -85,17 +86,17 @@ private struct InvitationCard: View {
                 Image(systemName: "building.2.fill")
                     .foregroundStyle(.blue)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Invitación a propiedad")
+                    Text("Property invitation", comment: "Invitation card title")
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                    Text("Rol: \(invitation.role.rawValue.capitalized)")
+                    Text("\(String(localized: "Role", locale: LanguageService.currentLocale, comment: "Invitation role label")): \(invitation.role.displayName)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
             }
 
-            Text("Expira: \(invitation.expiresAt.shortFormatted)")
+            Text("Expires: \(invitation.expiresAt.shortFormatted)", comment: "Invitation expiry date")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
 
@@ -107,7 +108,7 @@ private struct InvitationCard: View {
                         isProcessing = false
                     }
                 } label: {
-                    Text("Aceptar")
+                    Text("Accept", comment: "Accept invitation button")
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .frame(maxWidth: .infinity)
@@ -123,7 +124,7 @@ private struct InvitationCard: View {
                         isProcessing = false
                     }
                 } label: {
-                    Text("Rechazar")
+                    Text("Reject", comment: "Reject invitation button")
                         .font(.subheadline)
                         .frame(maxWidth: .infinity)
                 }

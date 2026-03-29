@@ -1,0 +1,31 @@
+RentalMngr is the complete solution for landlords and property managers. Manage your properties, rooms, and tenants from a single app.
+
+PROPERTY & ROOM MANAGEMENT
+• Add properties with photos, addresses, and full details
+• Manage individual rooms with occupancy status
+• Detailed room-by-room inventory
+• Real-time occupancy overview
+
+TENANT CONTROL
+• Complete tenant profiles with documents and contracts
+• Track move-in and move-out dates
+• Payment history and balance tracking
+• Automatically generated PDF contracts
+
+SIMPLIFIED FINANCES
+• Log income and expenses by property
+• Track utility bills (electricity, water, gas)
+• Monthly financial summary with charts
+• Export reports
+
+ROOMIE — SHARED LIVING
+• Shared expenses between housemates
+• Digital house rules
+• Automatic payment reminders
+• Notification dashboard
+
+MODERN DESIGN
+• Clean and intuitive interface
+• iPhone and iPad support
+• Dark mode included
+• Available in English and Spanish

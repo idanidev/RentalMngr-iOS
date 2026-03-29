@@ -15,30 +15,44 @@ struct SearchResults: Sendable {
     }
 }
 
-final class SearchService {
+final class SearchService: SearchServiceProtocol {
     private var client: SupabaseClient { SupabaseService.shared.client }
 
     func search(query: String) async throws -> SearchResults {
-        let pattern = "%\(query)%"
+        // Sanitize input to prevent PostgREST filter issues
+        let sanitized =
+            query
+            .replacingOccurrences(of: ".", with: "")
+            .replacingOccurrences(of: ",", with: "")
+            .replacingOccurrences(of: "(", with: "")
+            .replacingOccurrences(of: ")", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !sanitized.isEmpty else {
+            return SearchResults(properties: [], rooms: [], tenants: [])
+        }
+        let pattern = "%\(sanitized)%"
 
-        async let properties: [Property] = client
-            .from("properties")
+        async let properties: [Property] =
+            client
+            .from(SupabaseTable.properties)
             .select()
             .or("name.ilike.\(pattern),address.ilike.\(pattern)")
             .limit(5)
             .execute()
             .value
 
-        async let rooms: [Room] = client
-            .from("rooms")
+        async let rooms: [Room] =
+            client
+            .from(SupabaseTable.rooms)
             .select()
             .or("name.ilike.\(pattern),tenant_name.ilike.\(pattern)")
             .limit(5)
             .execute()
             .value
 
-        async let tenants: [Tenant] = client
-            .from("tenants")
+        async let tenants: [Tenant] =
+            client
+            .from(SupabaseTable.tenants)
             .select()
             .or("full_name.ilike.\(pattern),email.ilike.\(pattern),phone.ilike.\(pattern)")
             .limit(5)

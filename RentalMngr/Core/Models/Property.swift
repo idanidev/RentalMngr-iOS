@@ -8,6 +8,7 @@ struct Property: Codable, Identifiable, Sendable, Hashable {
     let ownerId: UUID
     let createdAt: Date
     var updatedAt: Date?
+    var contractTemplate: String?
     // Embedded rooms from join query: SELECT *, rooms(*)
     var rooms: [Room]?
 
@@ -16,6 +17,7 @@ struct Property: Codable, Identifiable, Sendable, Hashable {
         case ownerId = "owner_id"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
+        case contractTemplate = "contract_template"
     }
 
     // Computed: only private rooms

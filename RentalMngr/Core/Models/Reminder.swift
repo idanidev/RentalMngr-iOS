@@ -1,11 +1,21 @@
 import Foundation
 
 enum ReminderType: String, Codable, Sendable, CaseIterable {
-    case pago
-    case reunion
-    case limpieza
-    case evento
-    case otro
+    case payment = "pago"
+    case meeting = "reunion"
+    case cleaning = "limpieza"
+    case event = "evento"
+    case other = "otro"
+
+    var displayName: String {
+        switch self {
+        case .payment: String(localized: "Payment", locale: LanguageService.currentLocale, comment: "Reminder type")
+        case .meeting: String(localized: "Meeting", locale: LanguageService.currentLocale, comment: "Reminder type")
+        case .cleaning: String(localized: "Cleaning", locale: LanguageService.currentLocale, comment: "Reminder type")
+        case .event: String(localized: "Event", locale: LanguageService.currentLocale, comment: "Reminder type")
+        case .other: String(localized: "Other", locale: LanguageService.currentLocale, comment: "Reminder type")
+        }
+    }
 }
 
 struct Reminder: Codable, Identifiable, Sendable, Hashable {
