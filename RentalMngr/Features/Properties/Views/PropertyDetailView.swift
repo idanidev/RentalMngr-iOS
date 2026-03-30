@@ -225,9 +225,9 @@ struct PropertyDetailView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background {
             LinearGradient(
-                colors: [.orange.opacity(0.85), .orange.opacity(0.3), .clear],
-                startPoint: .top,
-                endPoint: .bottom
+                colors: [Color(red: 0.95, green: 0.45, blue: 0.05), Color(red: 0.98, green: 0.62, blue: 0.15)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
         }
     }
