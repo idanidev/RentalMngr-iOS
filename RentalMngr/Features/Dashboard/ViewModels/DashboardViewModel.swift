@@ -78,7 +78,7 @@ final class DashboardViewModel {
             collectedIncome = allIncome.filter { $0.paid }.reduce(Decimal.zero) { $0 + $1.amount }
 
             expiringContracts = try await tenantService.getExpiringContracts(daysAhead: 30)
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             isLoading = false
             return

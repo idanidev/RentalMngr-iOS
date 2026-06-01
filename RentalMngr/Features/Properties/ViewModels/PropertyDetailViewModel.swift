@@ -83,7 +83,7 @@ final class PropertyDetailViewModel {
 
         do {
             try await fetchAndMap(refreshProperty: false)
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             isLoading = false
             return
@@ -97,7 +97,7 @@ final class PropertyDetailViewModel {
         isLoading = true
         do {
             try await fetchAndMap(refreshProperty: true)
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             isLoading = false
             return

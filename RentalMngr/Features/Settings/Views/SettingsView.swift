@@ -9,6 +9,7 @@ struct SettingsView: View {
     @State private var showDeleteAccountConfirmation = false
     @State private var isDeletingAccount = false
     @State private var errorMessage: String?
+    @State private var showPaywall = false
 
     var body: some View {
         List {
@@ -33,6 +34,11 @@ struct SettingsView: View {
                             locale: LanguageService.currentLocale, comment: "Label for navigating to edit landlord profile"),
                         systemImage: "person.text.rectangle")
                 }
+            }
+
+            // Premium / Suscripción
+            Section("Suscripción") {
+                premiumRow
             }
 
             // Appearance
@@ -81,6 +87,29 @@ struct SettingsView: View {
                         String(localized: "Notification Settings",
                             locale: LanguageService.currentLocale, comment: "Label for navigating to notification settings"),
                         systemImage: "bell.badge")
+                }
+            }
+
+            // Security
+            if appState.appLockManager.isBiometricAvailable {
+                Section {
+                    Toggle(isOn: Binding(
+                        get: { appState.appLockManager.isBiometricEnabled },
+                        set: { _ in
+                            Task {
+                                _ = await appState.appLockManager.toggleBiometric()
+                            }
+                        }
+                    )) {
+                        Label(
+                            String(localized: "Bloqueo con \(appState.appLockManager.biometryTypeName)", locale: LanguageService.currentLocale),
+                            systemImage: "lock.shield"
+                        )
+                    }
+                } header: {
+                    Text(String(localized: "Security", locale: LanguageService.currentLocale, comment: "Settings section header for security options"))
+                } footer: {
+                    Text(String(localized: "Solicita autenticación biométrica tras 30 segundos en segundo plano", locale: LanguageService.currentLocale))
                 }
             }
 
@@ -210,5 +239,100 @@ struct SettingsView: View {
                     locale: LanguageService.currentLocale, comment: "Confirmation message for permanent account deletion"))
         }
         .errorAlert($errorMessage)
+        .sheet(isPresented: $showPaywall) {
+            PaywallView()
+                .environment(appState.entitlementService)
+        }
+        .task {
+            // Refresh tier when entering Settings
+            if let uid = appState.authService.currentUser?.id {
+                await appState.entitlementService.refresh(userId: uid)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var premiumRow: some View {
+        let entitlement = appState.entitlementService
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Text(tierLabel(entitlement.tier))
+                            .font(.headline)
+                        if entitlement.isPremium {
+                            PremiumBadge()
+                        }
+                    }
+                    Text(tierSubtitle(entitlement))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                if !entitlement.isPremium {
+                    Button("Hazte Premium") { showPaywall = true }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.small)
+                } else {
+                    Button("Ver beneficios") { showPaywall = true }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                }
+            }
+            HStack(spacing: 8) {
+                Button {
+                    Task { await forceRefreshTier() }
+                } label: {
+                    Label(
+                        entitlement.isLoading ? "Comprobando..." : "Refrescar estado",
+                        systemImage: "arrow.clockwise"
+                    )
+                    .font(.caption)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.mini)
+                .disabled(entitlement.isLoading)
+
+                if let err = entitlement.lastError {
+                    Text(err)
+                        .font(.caption2)
+                        .foregroundStyle(.red)
+                        .lineLimit(2)
+                }
+            }
+        }
+    }
+
+    private func forceRefreshTier() async {
+        guard let uid = appState.authService.currentUser?.id
+            ?? appState.authService.currentUserId else {
+            return
+        }
+        await appState.entitlementService.refresh(userId: uid)
+        if let sub = appState.entitlementService.subscription {
+            print("[Entitlement] tier=\(sub.tier.rawValue) expires=\(sub.expiresAt?.description ?? "nil") provider=\(sub.provider ?? "nil")")
+        } else {
+            print("[Entitlement] subscription is nil — query returned no rows")
+        }
+    }
+
+    private func tierLabel(_ t: SubscriptionTier) -> String {
+        switch t {
+        case .free: "Plan gratuito"
+        case .premium: "Plan Premium"
+        case .admin: "Cuenta Admin"
+        }
+    }
+
+    private func tierSubtitle(_ e: EntitlementService) -> String {
+        switch e.tier {
+        case .admin: "Acceso total · de por vida"
+        case .premium:
+            if let exp = e.subscription?.expiresAt {
+                "Renueva el \(exp.formatted(date: .abbreviated, time: .omitted))"
+            } else { "Activo · sin caducidad" }
+        case .free:
+            "1 propiedad · 2 habitaciones · sin generación de PDF"
+        }
     }
 }

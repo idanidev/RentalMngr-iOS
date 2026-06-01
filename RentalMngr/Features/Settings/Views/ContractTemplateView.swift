@@ -11,22 +11,14 @@ struct ContractTemplateView: View {
 
     private let templateService = ContractTemplateService()
     private let textViewRef = ContractTextEditor.TextViewRef()
+    @State private var customVariables: [ContractVariable] = []
 
     private var variables: [(key: String, icon: String, displayName: String)] {
-        [
-            ("{{tenant_name}}", "person", "Nombre inquilino (tenant name)"),
-            ("{{tenant_dni}}", "creditcard", "DNI inquilino (tenant ID)"),
-            ("{{tenant_address}}", "house", "Domicilio inquilino (tenant address)"),
-            ("{{landlord_name}}", "person.badge.key", "Nombre arrendador (landlord name)"),
-            ("{{landlord_dni}}", "creditcard.fill", "DNI arrendador (landlord ID)"),
-            ("{{property_address}}", "mappin", "Dirección inmueble (property address)"),
-            ("{{start_date}}", "calendar", "Inicio contrato (start date)"),
-            ("{{end_date}}", "calendar.badge.checkmark", "Fin contrato (end date)"),
-            ("{{rent}}", "eurosign", "Renta mensual (rent)"),
-            ("{{deposit}}", "banknote", "Depósito (deposit)"),
-            ("{{deposit_words}}", "textformat.123", "Depósito en letras (deposit words)"),
-            ("{{date}}", "clock", "Fecha (date)"),
-        ]
+        var all: [(key: String, icon: String, displayName: String)] = ContractVariable.builtIn.map { ($0.key, $0.icon, $0.label) }
+        for v in customVariables {
+            all.append((v.templateKey, "chevron.left.forwardslash.chevron.right", v.label))
+        }
+        return all
     }
 
     var body: some View {
@@ -81,6 +73,7 @@ struct ContractTemplateView: View {
             }
         }
         .task { await loadTemplate() }
+        .task { customVariables = (try? await ContractVariableService().fetchVariables()) ?? [] }
         .errorAlert($errorMessage)
     }
 
@@ -174,7 +167,7 @@ struct ContractTemplateView: View {
     // MARK: - Helpers
 
     private var renderedPreview: AttributedString {
-        let preview =
+        var preview =
             templateText
             .replacingOccurrences(of: "{{tenant_name}}", with: "Ana García López")
             .replacingOccurrences(of: "{{tenant_dni}}", with: "12345678A")
@@ -189,6 +182,11 @@ struct ContractTemplateView: View {
             .replacingOccurrences(of: "{{deposit_words}}", with: "MIL QUINIENTOS EUROS")
             .replacingOccurrences(
                 of: "{{date}}", with: Date().formatted(date: .long, time: .omitted))
+
+        // Replace custom variables with their default values
+        for variable in customVariables {
+            preview = preview.replacingOccurrences(of: variable.templateKey, with: variable.defaultValue)
+        }
 
         if let attributed = try? AttributedString(
             markdown: preview,

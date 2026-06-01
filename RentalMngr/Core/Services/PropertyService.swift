@@ -26,10 +26,14 @@ final class PropertyService: PropertyServiceProtocol {
 
         // Step 2: Get properties WITH rooms (joined)
         do {
+            // List view only needs room count/occupancy — exclude heavy `photos`
+            // array and `notes` from the embedded join. Detail view re-fetches
+            // full rooms via RoomService.
+            let roomCols = "id,property_id,tenant_id,name,monthly_rent,size_sqm,occupied,tenant_name,room_type,created_at,updated_at"
             let properties: [Property] =
                 try await client
                 .from(SupabaseTable.properties)
-                .select("*, rooms(*)")
+                .select("*, rooms(\(roomCols))")
                 .in("id", values: propertyIds)
                 .order("created_at", ascending: false)
                 .execute()

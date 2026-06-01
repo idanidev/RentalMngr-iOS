@@ -73,7 +73,7 @@ final class TenantListViewModel {
             logger.info(
                 "Loaded \(self.tenants.count) tenants, active: \(self.tenants.filter(\.active).count)"
             )
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             isLoading = false
             return
@@ -101,7 +101,7 @@ final class TenantListViewModel {
             tenants.append(contentsOf: newTenants)
             offset += newTenants.count
             hasMoreData = newTenants.count == limit
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             isLoadingMore = false
             return
@@ -116,7 +116,7 @@ final class TenantListViewModel {
         do {
             try await tenantService.deactivateTenant(id: tenant.id)
             await refreshData()
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
@@ -128,7 +128,7 @@ final class TenantListViewModel {
         do {
             try await tenantService.activateTenant(id: tenant.id)
             await refreshData()
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
@@ -140,7 +140,7 @@ final class TenantListViewModel {
         do {
             try await tenantService.assignToRoom(tenantId: tenantId, roomId: roomId)
             await refreshData()
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
@@ -152,7 +152,7 @@ final class TenantListViewModel {
         do {
             try await tenantService.unassignFromRoom(roomId: roomId)
             await refreshData()
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
@@ -164,7 +164,7 @@ final class TenantListViewModel {
         do {
             try await tenantService.renewContract(tenantId: tenant.id, contractMonths: months, currentEndDate: tenant.contractEndDate)
             await refreshData()
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {

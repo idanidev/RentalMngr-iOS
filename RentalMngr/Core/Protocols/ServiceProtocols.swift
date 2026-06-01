@@ -116,6 +116,8 @@ protocol AuthServiceProtocol: Sendable {
     func signIn(email: String, password: String) async throws
     func signOut() async throws
     func resetPassword(email: String) async throws
+    /// Verifies the 6-digit recovery OTP from email and atomically sets a new password.
+    func verifyPasswordResetOTP(email: String, token: String, newPassword: String) async throws
     func observeAuthState() async
     /// Permanently deletes the account and all associated data via the delete_account RPC.
     func deleteAccount() async throws

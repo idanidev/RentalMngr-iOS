@@ -6,11 +6,13 @@ private let logger = Logger(subsystem: "com.rentalmngr", category: "ContentView"
 
 struct ContentView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.scenePhase) private var scenePhase
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @AppStorage("hasCompletedSetup") private var hasCompletedSetup = false
     /// Prevents setup screen from flashing while we check if the user has existing properties.
     @State private var setupCheckComplete = false
     @State private var welcomeMessage: String?
+    @State private var showJailbreakAlert = false
 
     var body: some View {
         Group {
@@ -42,8 +44,18 @@ struct ContentView: View {
         .task(id: appState.authService.isAuthenticated) {
             guard appState.authService.isAuthenticated else {
                 setupCheckComplete = false
+                appState.entitlementService.clear()
                 return
             }
+
+            // Refresh subscription tier — controls premium gates app-wide.
+            if let userId = appState.authService.currentUser?.id {
+                await appState.entitlementService.refresh(userId: userId)
+            }
+
+            // Load StoreKit products + sync any existing entitlements (handles re-installs / new devices)
+            await appState.purchaseManager.loadProducts()
+            await appState.purchaseManager.refreshActiveSubscriptions()
 
             // Resolve setup state BEFORE showing any screen — avoids flashing the
             // setup wizard for existing users who already have properties.
@@ -88,6 +100,35 @@ struct ContentView: View {
             if let msg = welcomeMessage {
                 Text(msg)
             }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            switch newPhase {
+            case .background:
+                appState.appLockManager.sceneDidEnterBackground()
+            case .active:
+                appState.appLockManager.sceneWillEnterForeground()
+            default:
+                break
+            }
+        }
+        .overlay {
+            if appState.appLockManager.isLocked {
+                AppLockOverlay()
+            }
+        }
+        .task {
+            let report = DeviceIntegrity.check()
+            if report.isCompromised {
+                showJailbreakAlert = true
+            }
+        }
+        .alert(
+            String(localized: "Dispositivo comprometido", locale: LanguageService.currentLocale),
+            isPresented: $showJailbreakAlert
+        ) {
+            Button("OK") {}
+        } message: {
+            Text(String(localized: "Se han detectado modificaciones de seguridad en este dispositivo. Algunas funciones pueden no estar disponibles.", locale: LanguageService.currentLocale))
         }
     }
 

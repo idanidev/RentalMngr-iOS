@@ -82,7 +82,7 @@ struct FinanceSummaryView: View {
                                     vm.selectedSection == section ? Color.white : Color.clear
                                 )
                                 .foregroundStyle(
-                                    vm.selectedSection == section ? .black : .white
+                                    vm.selectedSection == section ? .black : .primary
                                 )
                                 .clipShape(Capsule())
                         }
@@ -405,13 +405,13 @@ private struct FinanceStatCard: View {
                 Text(value)
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                     .minimumScaleFactor(0.8)
                     .lineLimit(1)
 
                 Text(title)
                     .font(.caption2)
-                    .foregroundStyle(.white.opacity(0.6))
+                    .foregroundStyle(.secondary)
                     .textCase(.uppercase)
             }
         }

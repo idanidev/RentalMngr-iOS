@@ -21,3 +21,27 @@ enum AppError: LocalizedError {
     }
 
 }
+
+// MARK: - Cancellation detection (URLError.cancelled, CancellationError, etc.)
+
+extension Error {
+    /// Whether this error represents a task/request cancellation — should be silently ignored.
+    var isCancellation: Bool {
+        self is CancellationError
+            || (self as? URLError)?.code == .cancelled
+            || localizedDescription.contains("cancelled")
+            || localizedDescription.contains("cancelada")
+    }
+}
+
+// MARK: - Safe error messages for UI (never leak internals)
+
+extension Error {
+    var safeUserMessage: String {
+        if let appError = self as? AppError {
+            return appError.errorDescription ?? String(localized: "Ha ocurrido un error", locale: LanguageService.currentLocale)
+        }
+        // Never expose raw system errors to the user
+        return String(localized: "Ha ocurrido un error inesperado. Inténtalo de nuevo.", locale: LanguageService.currentLocale)
+    }
+}

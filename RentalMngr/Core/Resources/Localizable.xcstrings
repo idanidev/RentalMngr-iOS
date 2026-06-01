@@ -123,6 +123,12 @@
         }
       }
     },
+    "%@ es obligatorio" : {
+
+    },
+    "%@ fuera de rango" : {
+
+    },
     "%@ in %@" : {
       "comment" : "Alert message for expiring contract with tenant name and room",
       "localizations" : {
@@ -136,6 +142,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ en %2$@"
+          }
+        }
+      }
+    },
+    "%@ no puede superar %lld caracteres" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ no puede superar %2$lld caracteres"
           }
         }
       }
@@ -811,7 +827,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Todos los documentos del inquilino en un lugar"
+            "value" : "Todos los documentos del inquilino en un solo lugar"
           }
         }
       }
@@ -968,6 +984,15 @@
         }
       }
     },
+    "Autenticación biométrica fallida" : {
+
+    },
+    "Autenticación cancelada" : {
+
+    },
+    "Autenticación fallida" : {
+
+    },
     "Availability" : {
       "comment" : "PDF room ad availability label",
       "localizations" : {
@@ -1023,6 +1048,12 @@
           }
         }
       }
+    },
+    "Biometría no disponible en este dispositivo" : {
+
+    },
+    "Bloqueo con %@" : {
+
     },
     "Broken" : {
       "comment" : "Inventory condition broken",
@@ -1084,6 +1115,9 @@
           }
         }
       }
+    },
+    "Cancelar" : {
+
     },
     "Category" : {
       "comment" : "Expense form\nLabel for house rule category picker\nLabel for shared expense category picker",
@@ -1289,6 +1323,9 @@
           }
         }
       }
+    },
+    "Confirma tu identidad para activar el bloqueo biométrico" : {
+
     },
     "Contact" : {
       "comment" : "Section header for landlord contact information",
@@ -1862,10 +1899,16 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fianzas y mensualidades controladas"
+            "value" : "Fianzas y mensualidades al día"
           }
         }
       }
+    },
+    "Desbloquea para acceder a RentalMngr" : {
+
+    },
+    "Desbloquear con %@" : {
+
     },
     "Description" : {
       "comment" : "Inventory form description placeholder\nPlaceholder for house rule description field\nPlaceholder for shared expense description",
@@ -1933,6 +1976,9 @@
           }
         }
       }
+    },
+    "Dispositivo comprometido" : {
+
     },
     "Distribute and assign the different household tasks. This way, you will avoid arguments as much as possible. Leaving it to each person's goodwill does not work." : {
       "comment" : "PDF house rule 1",
@@ -2142,6 +2188,9 @@
           }
         }
       }
+    },
+    "El archivo supera el límite de %lld MB" : {
+
     },
     "Electricity" : {
       "comment" : "Utility type",
@@ -2647,6 +2696,9 @@
         }
       }
     },
+    "Formato de email no válido" : {
+
+    },
     "Full Address" : {
       "comment" : "Placeholder for landlord full address field",
       "localizations" : {
@@ -2852,6 +2904,12 @@
           }
         }
       }
+    },
+    "Ha ocurrido un error" : {
+
+    },
+    "Ha ocurrido un error inesperado. Inténtalo de nuevo." : {
+
     },
     "Heating" : {
       "comment" : "Utility type",
@@ -3225,10 +3283,19 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sabe exactamente cuánto generan tus propiedades"
+            "value" : "Conoce exactamente cuánto generan tus propiedades"
           }
         }
       }
+    },
+    "La app está bloqueada" : {
+
+    },
+    "La duración no puede superar %lld años" : {
+
+    },
+    "La fecha de inicio debe ser anterior a la de fin" : {
+
     },
     "Landlord Details" : {
       "extractionState" : "manual",
@@ -3920,6 +3987,9 @@
         }
       }
     },
+    "No hay biometría configurada. Actívala en Ajustes." : {
+
+    },
     "No income" : {
       "comment" : "Empty state title when no income recorded",
       "localizations" : {
@@ -4256,6 +4326,9 @@
       }
     },
     "Notificaciones" : {
+
+    },
+    "Notificaciones, %lld pendientes" : {
 
     },
     "Notification sent" : {
@@ -5359,6 +5432,9 @@
         }
       }
     },
+    "Se han detectado modificaciones de seguridad en este dispositivo. Algunas funciones pueden no estar disponibles." : {
+
+    },
     "Search" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5380,6 +5456,9 @@
           }
         }
       }
+    },
+    "Security" : {
+      "comment" : "Settings section header for security options"
     },
     "Selecciona una propiedad" : {
 
@@ -5687,6 +5766,9 @@
         }
       }
     },
+    "Solicita autenticación biométrica tras 30 segundos en segundo plano" : {
+
+    },
     "SPECIAL CONDITIONS" : {
       "comment" : "PDF contract special conditions header",
       "localizations" : {
@@ -5970,7 +6052,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Inquilinos, contratos y fianzas controlados"
+            "value" : "Gestiona inquilinos, contratos y fianzas"
           }
         }
       }
@@ -6063,6 +6145,9 @@
           }
         }
       }
+    },
+    "Tipo de archivo no permitido" : {
+
     },
     "Title *" : {
       "comment" : "Placeholder for house rule title field\nPlaceholder for shared expense title field",
@@ -6230,6 +6315,9 @@
           }
         }
       }
+    },
+    "Usar código" : {
+
     },
     "Users with access" : {
       "comment" : "Section header for users who have access",

@@ -36,6 +36,23 @@ final class AuthService: AuthServiceProtocol {
         try await client.auth.resetPasswordForEmail(email)
     }
 
+    /// Verify the 6-digit recovery code that Supabase emails after `resetPasswordForEmail`,
+    /// then immediately update the password. Requires Supabase email template to send
+    /// `{{ .Token }}` instead of `{{ .ConfirmationURL }}`.
+    func verifyPasswordResetOTP(email: String, token: String, newPassword: String) async throws {
+        try await client.auth.verifyOTP(
+            email: email,
+            token: token,
+            type: .recovery
+        )
+        try await client.auth.update(user: UserAttributes(password: newPassword))
+        // Force re-login with new password
+        try await client.auth.signOut()
+        currentSession = nil
+        currentUser = nil
+        isAuthenticated = false
+    }
+
     func observeAuthState() async {
         for await (event, session) in client.auth.authStateChanges {
             guard [.initialSession, .signedIn, .signedOut, .tokenRefreshed].contains(event) else {

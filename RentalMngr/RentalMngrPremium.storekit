@@ -1,0 +1,58 @@
+{
+  "identifier" : "RentalMngrPremium",
+  "nonRenewingSubscriptions" : [],
+  "products" : [],
+  "settings" : {
+    "_applicationInternalID" : "0",
+    "_developerTeamID" : "",
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 0,
+    "_locale" : "es_ES",
+    "_storefront" : "ESP",
+    "_storeKitErrors" : [],
+    "_subscriptionGracePeriodDays" : 0,
+    "_subscriptionRenewalRate" : 0,
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21567892",
+      "localizations" : [
+        {
+          "description" : "Suscripción Premium mensual",
+          "displayName" : "RentalMngr Premium",
+          "locale" : "es_ES"
+        }
+      ],
+      "name" : "RentalMngr Premium",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "5.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "1A2B3C4D",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Acceso ilimitado a todas las funciones premium",
+              "displayName" : "Premium Mensual",
+              "locale" : "es_ES"
+            }
+          ],
+          "productID" : "idanidev.RentalMngr.premium.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Premium Monthly",
+          "subscriptionGroupID" : "21567892",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : []
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

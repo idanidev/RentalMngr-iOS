@@ -7,6 +7,8 @@ struct ResetPasswordView: View {
     @State private var isLoading = false
     @State private var message: String?
     @State private var isError = false
+    @State private var navigateToNewPassword = false
+    private var trimmedEmail: String { email.trimmingCharacters(in: .whitespaces) }
 
     var body: some View {
         VStack(spacing: 24) {
@@ -40,9 +42,12 @@ struct ResetPasswordView: View {
                 Task {
                     isLoading = true
                     do {
-                        try await appState.authService.resetPassword(email: email.trimmingCharacters(in: .whitespaces))
-                        message = String(localized: "Email sent. Check your inbox.", locale: LanguageService.currentLocale, comment: "Success message after password reset email sent")
+                        try await appState.authService.resetPassword(email: trimmedEmail)
+                        message = String(localized: "Te enviamos un código de 6 dígitos a tu email.", locale: LanguageService.currentLocale, comment: "Success message after password reset email sent")
                         isError = false
+                        // Brief pause so user sees confirmation, then navigate to OTP entry
+                        try? await Task.sleep(for: .milliseconds(700))
+                        navigateToNewPassword = true
                     } catch {
                         message = error.localizedDescription
                         isError = true
@@ -68,5 +73,8 @@ struct ResetPasswordView: View {
         .padding()
         .navigationTitle(String(localized: "Reset Password", locale: LanguageService.currentLocale, comment: "Navigation title for reset password screen"))
         .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(isPresented: $navigateToNewPassword) {
+            NewPasswordView(email: trimmedEmail)
+        }
     }
 }

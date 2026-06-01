@@ -11,6 +11,23 @@ platform :ios do
   EXPORT_OPTS   = "exportOptions.plist"
 
   # ──────────────────────────────────────────────────────────────────
+  # API KEY — App Store Connect
+  # Provee credenciales vía variables de entorno (NO hardcodear):
+  #   ASC_KEY_ID     = Key ID  (8 chars, App Store Connect → Users → Keys)
+  #   ASC_ISSUER_ID  = Issuer ID (UUID, misma pantalla)
+  #   ASC_KEY_PATH   = ruta al .p8  (ej. ~/Downloads/AuthKey_XXXX.p8)
+  # ──────────────────────────────────────────────────────────────────
+  def asc_api_key
+    app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_filepath: File.expand_path(ENV.fetch("ASC_KEY_PATH")),
+      duration: 1200,
+      in_house: false
+    )
+  end
+
+  # ──────────────────────────────────────────────────────────────────
   # LANE: tests  →  ejecuta todos los tests
   # ──────────────────────────────────────────────────────────────────
   desc "Ejecuta los tests unitarios y de UI"
@@ -27,18 +44,38 @@ platform :ios do
   # ──────────────────────────────────────────────────────────────────
   desc "Compila la app y exporta el .ipa"
   lane :build do
+    api_key = asc_api_key
+
     increment_build_number(
-      build_number: latest_testflight_build_number + 1
+      build_number: latest_testflight_build_number(api_key: api_key) + 1
     )
 
     build_app(
       scheme: SCHEME,
       project: PROJECT,
-      export_options: EXPORT_OPTS,
+      export_method: "app-store",
       output_directory: "./build",
       output_name: "RentalMngr.ipa",
       clean: true,
-      silent: false
+      silent: false,
+      xcargs: "-allowProvisioningUpdates"
+    )
+  end
+
+  # ──────────────────────────────────────────────────────────────────
+  # LANE: setup_app  →  crea el registro de la app en App Store Connect
+  # (solo la primera vez; el IAP de suscripción se crea a mano, ver README)
+  # ──────────────────────────────────────────────────────────────────
+  desc "Crea la app en App Store Connect (idempotente)"
+  lane :setup_app do
+    asc_api_key   # sets Spaceship context for produce
+    produce(
+      app_identifier: BUNDLE_ID,
+      app_name: "RentalMngr",
+      language: "Spanish",
+      app_version: "1.0",
+      sku: "rentalmngr-ios",
+      team_id: "AXK73U74AC"
     )
   end
 
@@ -50,8 +87,8 @@ platform :ios do
     build
 
     upload_to_testflight(
-      skip_waiting_for_build_processing: true,
-      apple_id: BUNDLE_ID
+      api_key: asc_api_key,
+      skip_waiting_for_build_processing: true
     )
 
     UI.success "✅ Build subido a TestFlight correctamente"
@@ -60,17 +97,32 @@ platform :ios do
   # ──────────────────────────────────────────────────────────────────
   # LANE: release  →  sube a App Store para revisión
   # ──────────────────────────────────────────────────────────────────
+  desc "Sube SOLO screenshots (sin metadata ni binario)"
+  lane :upload_screenshots do
+    upload_to_app_store(
+      api_key: asc_api_key,
+      skip_binary_upload: true,
+      skip_metadata: true,
+      skip_screenshots: false,
+      overwrite_screenshots: true,
+      submit_for_review: false,
+      force: true,
+      precheck_include_in_app_purchases: false,
+      run_precheck_before_submit: false
+    )
+  end
+
   desc "Sube la app al App Store para revisión de Apple"
   lane :release do
-    ensure_git_status_clean
-
     build
 
     upload_to_app_store(
+      api_key: asc_api_key,
       skip_screenshots: false,
       skip_metadata: false,
-      submit_for_review: false,   # ponlo en true para enviar a revisión automáticamente
-      automatic_release: false,   # ponlo en true para liberar automáticamente tras aprobación
+      submit_for_review: false,   # true = envía a revisión automáticamente
+      automatic_release: false,   # true = libera al aprobarse
+      precheck_include_in_app_purchases: false,
       force: true
     )
 

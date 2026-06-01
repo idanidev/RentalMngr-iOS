@@ -25,7 +25,10 @@ final class AppState {
     let documentService: DocumentServiceProtocol
     let inventoryService: InventoryServiceProtocol
     let utilityService: UtilityServiceProtocol
+    let entitlementService = EntitlementService()
+    let purchaseManager = PurchaseManager()
     let languageService = LanguageService()
+    let appLockManager = AppLockManager()
 
     // Theme Persistence
     var userInterfaceStyle: AppTheme = .system {
@@ -64,6 +67,9 @@ final class AppState {
         #else
             self.systemNotificationService = SystemNotificationService.shared
         #endif
+
+        // Wire purchase manager to entitlement service so successful buys refresh tier
+        self.purchaseManager.bind(entitlementService: self.entitlementService)
     }
 }
 

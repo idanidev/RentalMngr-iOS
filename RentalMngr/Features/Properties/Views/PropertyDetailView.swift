@@ -178,7 +178,7 @@ struct PropertyDetailView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(vm.property.address)
                         .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.75))
+                        .foregroundStyle(.white.opacity(0.9))
                         .lineLimit(1)
 
                     if vm.property.monthlyRevenue > 0 {
@@ -188,7 +188,7 @@ struct PropertyDetailView: View {
                                 .foregroundStyle(.white)
                             Text("/ mes")
                                 .font(.caption)
-                                .foregroundStyle(.white.opacity(0.6))
+                                .foregroundStyle(.white.opacity(0.8))
                         }
                     }
                 }
@@ -241,7 +241,7 @@ struct PropertyDetailView: View {
             .foregroundStyle(color)
             Text(label)
                 .font(.caption2)
-                .foregroundStyle(.white.opacity(0.65))
+                .foregroundStyle(.white.opacity(0.8))
         }
         .frame(maxWidth: .infinity)
     }
@@ -266,7 +266,7 @@ struct PropertyDetailView: View {
                             .opacity(vm.selectedTab == tab ? 1.0 : 0.6)
                     }
                     .frame(maxWidth: .infinity)
-                    .foregroundStyle(vm.selectedTab == tab ? Color.orange : Color.gray.opacity(0.8))
+                    .foregroundStyle(vm.selectedTab == tab ? Color.orange : .secondary)
                     .padding(.vertical, 12)
                 }
             }

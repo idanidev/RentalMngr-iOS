@@ -47,16 +47,17 @@ struct RoomAdView: View {
         }
     }
 
-    // Anuncio_<NombrePropiedad>_<NombreHabitacion>_<Fecha>.pdf
+    // Anuncio_<TipoHabitacion>_<Direccion>_<Fecha>.pdf
     private var pdfFileName: String {
-        let safeProp = (property?.name ?? "Property")
-            .replacingOccurrences(of: " ", with: "_")
-            .folding(options: .diacriticInsensitive, locale: .current)
-        let safeRoom = room.name
-            .replacingOccurrences(of: " ", with: "_")
-            .folding(options: .diacriticInsensitive, locale: .current)
+        func slug(_ s: String) -> String {
+            s.replacingOccurrences(of: " ", with: "_")
+                .folding(options: .diacriticInsensitive, locale: .current)
+        }
+        let roomLabel = room.roomType == .privateRoom ? "Habitacion" : "Zona_comun"
+        let addr = slug(property?.address ?? "")
         let dateStr = Date().formatted(.iso8601.year().month().day())
-        return "Anuncio_\(safeProp)_\(safeRoom)_\(dateStr).pdf"
+        let parts = ["Anuncio", roomLabel, addr.isEmpty ? nil : addr, dateStr].compactMap { $0 }
+        return parts.joined(separator: "_") + ".pdf"
     }
 
     private func generatePDF() async {

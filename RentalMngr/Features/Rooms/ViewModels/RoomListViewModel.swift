@@ -42,7 +42,7 @@ final class RoomListViewModel {
                 }
             }
             rooms = fetchedRooms
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             isLoading = false
             return
@@ -62,7 +62,7 @@ final class RoomListViewModel {
         do {
             try await roomService.deleteRoom(id: room.id)
             rooms.removeAll { $0.id == room.id }
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
@@ -74,7 +74,7 @@ final class RoomListViewModel {
         do {
             try await roomService.toggleOccupancy(roomId: room.id, occupied: !room.occupied)
             await refresh()
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {

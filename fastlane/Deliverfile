@@ -25,7 +25,7 @@ privacy_url({
 # ──────────────────────────────────────────────────────────────────
 # RATING DE CONTENIDO
 # ──────────────────────────────────────────────────────────────────
-rating_config_path "./fastlane/metadata/rating_config.json"
+app_rating_config_path "./fastlane/metadata/rating_config.json"
 
 # ──────────────────────────────────────────────────────────────────
 # NOTAS PARA EL REVISOR DE APPLE
@@ -39,6 +39,6 @@ submission_information({
 })
 
 # Notas de revisión (máx. 4000 chars)
-review_information(
-  notes: "RentalMngr es una app de gestión de alquileres. Para probarla, es necesario registrarse con una cuenta de email. No existe cuenta de demo ya que los datos son privados por usuario (Row Level Security en Supabase). El flujo principal: Registro → Añadir propiedad → Añadir habitación → Añadir inquilino → Ver finanzas. La app usa autenticación Supabase (email/password). No hay compras in-app ni suscripciones."
+app_review_information(
+  notes: "RentalMngr es una app de gestión de alquileres. Para probarla es necesario registrarse con una cuenta de email; no existe cuenta demo porque los datos son privados por usuario (Row Level Security en Supabase). Flujo principal: Registro → Añadir propiedad → Añadir habitación → Añadir inquilino → Ver finanzas. Autenticación Supabase (email/password). COMPRAS IN-APP: la app incluye una suscripción auto-renovable Premium (idanidev.RentalMngr.premium.monthly, 5,99 EUR/mes) que desbloquea propiedades y habitaciones ilimitadas, generación de contratos PDF y funciones avanzadas. El plan gratuito permite 1 propiedad y 2 habitaciones. Para probar la compra usar el usuario sandbox proporcionado en los campos de credenciales de revisión. La restauracion de compras esta en Ajustes → Suscripcion → Restaurar compra."
 )

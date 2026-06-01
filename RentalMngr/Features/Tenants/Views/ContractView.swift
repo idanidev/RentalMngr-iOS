@@ -11,6 +11,7 @@ struct ContractView: View {
     @State private var property: Property?
     @State private var rooms: [Room] = []
     @State private var isLoading = true
+    @State private var showPaywall = false
 
     var body: some View {
         Group {
@@ -56,6 +57,10 @@ struct ContractView: View {
         .task {
             await generatePDF()
         }
+        .sheet(isPresented: $showPaywall, onDismiss: { /* user dismissed paywall */ }) {
+            PaywallView(highlightedFeature: .contractPdf)
+                .environment(appState.entitlementService)
+        }
     }
 
     // MARK: - PDF file name (mirrors web: Contrato_Habitación_Nombre_Apellido_YYYY-MM-DD.pdf)
@@ -69,6 +74,12 @@ struct ContractView: View {
     }
 
     private func generatePDF() async {
+        // Premium gate: contract PDF is a paid feature
+        guard appState.entitlementService.isPremium else {
+            isLoading = false
+            showPaywall = true
+            return
+        }
         do {
             property = try await appState.propertyService.fetchProperty(id: propertyId)
             rooms = try await appState.roomService.fetchRooms(propertyId: propertyId)
@@ -85,8 +96,10 @@ struct ContractView: View {
 
             let generator = PDFGenerator()
             let landlord = (try? await appState.userProfileService.getLandlordProfile()) ?? .empty
+            let customVars = (try? await ContractVariableService().fetchVariables()) ?? []
             let pdfData = try await generator.generateContract(
-                tenant: tenant, room: room, property: property, landlord: landlord)
+                tenant: tenant, room: room, property: property, landlord: landlord,
+                customVariables: customVars)
 
             // Write to a named temp file so ShareLink knows the filename and type
             let url = FileManager.default.temporaryDirectory

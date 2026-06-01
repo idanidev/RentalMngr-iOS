@@ -5,4 +5,5 @@
 • Generación automática de contratos en PDF
 • Alertas de pagos pendientes y contratos próximos a vencer
 • Roomie: gestión de gastos compartidos entre compañeros de piso
+• Plan gratuito + Premium con funciones ilimitadas
 • Disponible en español e inglés

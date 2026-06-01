@@ -4,6 +4,7 @@ struct PropertyListView: View {
     @Environment(AppState.self) private var appState
     @State private var viewModel: PropertyListViewModel?
     @State private var showAddSheet = false
+    @State private var showPaywall = false
     @State private var propertyToDelete: Property?
 
     var body: some View {
@@ -18,11 +19,21 @@ struct PropertyListView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
-                    showAddSheet = true
+                    // Free tier: max 1 property. Show paywall when limit reached.
+                    let count = viewModel?.properties.count ?? 0
+                    if !appState.entitlementService.isPremium && count >= FreeTierLimits.maxProperties {
+                        showPaywall = true
+                    } else {
+                        showAddSheet = true
+                    }
                 } label: {
                     Image(systemName: "plus")
                 }
             }
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView(highlightedFeature: .unlimitedProperties)
+                .environment(appState.entitlementService)
         }
         .sheet(isPresented: $showAddSheet) {
             if let vm = viewModel {
@@ -95,7 +106,7 @@ struct PropertyListView: View {
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                 Button(String(localized: "Retry", locale: LanguageService.currentLocale, comment: "Retry loading button")) {
-                    Task { await vm.loadProperties() }
+                    Task { await vm.refresh() }
                 }
                 .buttonStyle(.borderedProminent)
             }
@@ -130,7 +141,7 @@ struct PropertyListView: View {
                 }
             }
             .refreshable {
-                await vm.loadProperties()
+                await vm.refresh()
             }
         }
     }

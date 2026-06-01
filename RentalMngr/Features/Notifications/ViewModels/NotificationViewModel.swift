@@ -88,7 +88,7 @@ final class NotificationViewModel {
             let unpaidCount = localAlerts.filter { $0.type == .unpaidRent || $0.type == .unpaidUtility }.count
             systemNotificationService?.updatePaymentReminders(pendingCount: unpaidCount)
 
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             isLoading = false
             return
@@ -139,7 +139,7 @@ final class NotificationViewModel {
                 notifications[index].read = true
                 unreadCount = max(0, unreadCount - 1)
             }
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
@@ -155,7 +155,7 @@ final class NotificationViewModel {
                 notifications[i].read = true
             }
             unreadCount = 0
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
@@ -170,7 +170,7 @@ final class NotificationViewModel {
             if !notification.read {
                 unreadCount = max(0, unreadCount - 1)
             }
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {

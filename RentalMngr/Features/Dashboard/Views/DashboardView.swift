@@ -139,11 +139,25 @@ struct DashboardView: View {
     private func bellButton(vm: DashboardViewModel?) -> some View {
         let alertCount = (vm?.pendingPayments ?? 0) + (vm?.expiringContracts.count ?? 0)
         Button { showNotifications = true } label: {
-            Image(systemName: alertCount > 0 ? "bell.badge.fill" : "bell.fill")
-                .symbolRenderingMode(.hierarchical)
-                .foregroundStyle(alertCount > 0 ? .orange : .primary)
+            ZStack(alignment: .topTrailing) {
+                Image(systemName: "bell.fill")
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(alertCount > 0 ? .orange : .primary)
+                    .font(.system(size: 20))
+                    .frame(width: 32, height: 32)
+
+                if alertCount > 0 {
+                    Text(alertCount > 99 ? "99+" : "\(alertCount)")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(minWidth: 18, minHeight: 18)
+                        .padding(.horizontal, 3)
+                        .background(.red, in: Capsule())
+                        .offset(x: 6, y: -4)
+                }
+            }
         }
-        .accessibilityLabel("Notificaciones")
+        .accessibilityLabel("Notificaciones, \(alertCount) pendientes")
     }
 
     // MARK: - Greeting helpers

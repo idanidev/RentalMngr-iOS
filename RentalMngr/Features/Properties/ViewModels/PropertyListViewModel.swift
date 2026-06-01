@@ -43,13 +43,13 @@ final class PropertyListViewModel {
 
         do {
             properties = try await propertyService.fetchProperties()
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // La tarea fue cancelada por navegación — no es un error real.
             // isLoaded queda false para que el próximo .task reintente.
             isLoading = false
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isLoaded = true
         isLoading = false

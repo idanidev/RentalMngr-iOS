@@ -17,7 +17,7 @@ final class PDFGenerator {
 
     func generateContract(
         tenant: Tenant, room: Room, property: Property, landlord: LandlordProfile,
-        template: String? = nil
+        template: String? = nil, customVariables: [ContractVariable] = []
     )
         async throws -> Data
     {
@@ -95,6 +95,11 @@ final class PDFGenerator {
             var bodyText = templateBody
             for (key, value) in replacements {
                 bodyText = bodyText.replacingOccurrences(of: key, with: value)
+            }
+
+            // 3. Process custom variables (user-defined)
+            for variable in customVariables {
+                bodyText = bodyText.replacingOccurrences(of: variable.templateKey, with: variable.defaultValue)
             }
 
             // 3. Render paragraphs
@@ -341,32 +346,40 @@ final class PDFGenerator {
             drawRect(
                 at: CGRect(x: 0, y: 0, width: pageWidth, height: 90), color: navy, context: context)
 
-            // Status badge
+            // Status badge — text vertically centered within the pill
             let badgeText = String(localized: "FOR RENT", locale: LanguageService.currentLocale, comment: "PDF room ad status badge")
+            let badgeFont = UIFont.boldSystemFont(ofSize: 10)
             let badgeWidth: CGFloat = 110
             let badgeRect = CGRect(x: margin, y: 15, width: badgeWidth, height: 24)
             drawRect(at: badgeRect, color: emerald, context: context, cornerRadius: 12)
             drawColoredText(
-                badgeText, at: CGPoint(x: margin + 8, y: 19),
-                font: .boldSystemFont(ofSize: 10), color: .white, maxWidth: badgeWidth - 16)
+                badgeText,
+                at: CGPoint(x: margin + 8, y: badgeRect.midY - badgeFont.lineHeight / 2),
+                font: badgeFont, color: .white, maxWidth: badgeWidth - 16)
 
-            // Price badge
+            // Price badge — text vertically centered within the pill
             let perMonth = String(localized: "/mo", locale: LanguageService.currentLocale, comment: "Per month abbreviation for rent")
             let priceText = "\(room.monthlyRent.formatted(currencyCode: "EUR"))\(perMonth)"
+            let priceFont = UIFont.boldSystemFont(ofSize: 11)
             let priceWidth: CGFloat = 120
             let priceRect = CGRect(
                 x: pageWidth - margin - priceWidth, y: 15, width: priceWidth, height: 24)
             drawRect(at: priceRect, color: gold, context: context, cornerRadius: 12)
             drawColoredText(
-                priceText, at: CGPoint(x: pageWidth - margin - priceWidth + 8, y: 19),
-                font: .boldSystemFont(ofSize: 11), color: .white, maxWidth: priceWidth - 16)
+                priceText,
+                at: CGPoint(x: pageWidth - margin - priceWidth + 8, y: priceRect.midY - priceFont.lineHeight / 2),
+                font: priceFont, color: .white, maxWidth: priceWidth - 16, alignment: .center)
 
-            // Title in header
+            // Title in header — generic room type (e.g. "Habitación"), not the
+            // owner's internal room name. Address shown below.
+            let titleText = room.roomType == .privateRoom
+                ? String(localized: "Habitación", locale: LanguageService.currentLocale, comment: "PDF room ad title for private room")
+                : String(localized: "Zona común", locale: LanguageService.currentLocale, comment: "PDF room ad title for common area")
             drawColoredText(
-                room.name, at: CGPoint(x: margin, y: 50),
+                titleText, at: CGPoint(x: margin, y: 50),
                 font: .boldSystemFont(ofSize: 22), color: .white, maxWidth: contentWidth)
             drawColoredText(
-                "\(property.name) · \(property.address)", at: CGPoint(x: margin, y: 73),
+                property.address, at: CGPoint(x: margin, y: 73),
                 font: .systemFont(ofSize: 11), color: UIColor.white.withAlphaComponent(0.8),
                 maxWidth: contentWidth)
 

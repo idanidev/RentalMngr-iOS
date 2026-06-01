@@ -184,7 +184,7 @@ final class ExpenseViewModel {
                 isLoading = false
                 return result
             }
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             isLoading = false
             return nil

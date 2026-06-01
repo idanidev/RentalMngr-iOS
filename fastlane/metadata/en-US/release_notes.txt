@@ -5,4 +5,5 @@ First release of RentalMngr!
 • Automatic PDF contract generation
 • Alerts for pending payments and expiring contracts
 • Roomie: shared expense management for housemates
+• Free plan + Premium with unlimited features
 • Available in English and Spanish

@@ -19,4 +19,6 @@ enum SupabaseTable {
     static let propertyUtilities = "property_utilities"
     static let utilityCharges = "utility_charges"
     static let landlordProfiles = "landlord_profiles"
+    static let contractVariables = "contract_variables"
+    static let userSubscriptions = "user_subscriptions"
 }

@@ -19,14 +19,7 @@ final class SearchService: SearchServiceProtocol {
     private var client: SupabaseClient { SupabaseService.shared.client }
 
     func search(query: String) async throws -> SearchResults {
-        // Sanitize input to prevent PostgREST filter issues
-        let sanitized =
-            query
-            .replacingOccurrences(of: ".", with: "")
-            .replacingOccurrences(of: ",", with: "")
-            .replacingOccurrences(of: "(", with: "")
-            .replacingOccurrences(of: ")", with: "")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let sanitized = InputValidator.sanitizeSearch(query)
         guard !sanitized.isEmpty else {
             return SearchResults(properties: [], rooms: [], tenants: [])
         }

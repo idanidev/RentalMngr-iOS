@@ -11,6 +11,7 @@ struct PropertyContractView: View {
     @State private var templateText: String = ""
     @State private var isLoading = false
     @State private var showEditor = false
+    @State private var customVariables: [ContractVariable] = []
 
     var body: some View {
         Group {
@@ -24,6 +25,7 @@ struct PropertyContractView: View {
             }
         }
         .task { await loadTemplate() }
+        .task { customVariables = (try? await ContractVariableService().fetchVariables()) ?? [] }
         .sheet(isPresented: $showEditor) {
             Task { await loadTemplate() }  // refresh after editing
         } content: {
@@ -44,7 +46,7 @@ struct PropertyContractView: View {
                     } label: {
                         Label(
                             String(
-                                localized: "Edit", locale: LanguageService.currentLocale,
+                                localized: "Editar", locale: LanguageService.currentLocale,
                                 comment: "Edit contract template button"),
                             systemImage: "pencil"
                         )
@@ -72,14 +74,14 @@ struct PropertyContractView: View {
         ContentUnavailableView {
             Label(
                 String(
-                    localized: "No contract template", locale: LanguageService.currentLocale,
+                    localized: "Sin plantilla de contrato", locale: LanguageService.currentLocale,
                     comment: "Empty state title for contract tab"),
                 systemImage: "doc.text"
             )
         } description: {
             Text(
                 String(
-                    localized: "Tap Edit to write the contract template for this property.",
+                    localized: "Pulsa Editar para escribir la plantilla de contrato de esta propiedad.",
                     locale: LanguageService.currentLocale,
                     comment: "Empty state description for contract tab"))
         } actions: {
@@ -89,7 +91,7 @@ struct PropertyContractView: View {
                 } label: {
                     Text(
                         String(
-                            localized: "Edit template", locale: LanguageService.currentLocale,
+                            localized: "Editar plantilla", locale: LanguageService.currentLocale,
                             comment: "Empty state action button"))
                 }
                 .buttonStyle(.borderedProminent)
@@ -100,7 +102,7 @@ struct PropertyContractView: View {
     // MARK: - Rendered preview with placeholder values
 
     private var renderedPreview: AttributedString {
-        let preview =
+        var preview =
             templateText
             .replacingOccurrences(of: "{{tenant_name}}", with: "Ana García López")
             .replacingOccurrences(of: "{{tenant_dni}}", with: "12345678A")
@@ -115,6 +117,10 @@ struct PropertyContractView: View {
             .replacingOccurrences(of: "{{deposit_words}}", with: "MIL QUINIENTOS EUROS")
             .replacingOccurrences(
                 of: "{{date}}", with: Date().formatted(date: .long, time: .omitted))
+
+        for variable in customVariables {
+            preview = preview.replacingOccurrences(of: variable.templateKey, with: variable.defaultValue)
+        }
 
         if let attributed = try? AttributedString(
             markdown: preview,
@@ -178,23 +184,18 @@ struct ContractEditorSheet: View {
     @State private var showSaved = false
     @State private var errorMessage: String?
     @State private var showLoadGlobalConfirmation = false
+    @State private var showVariablesSheet = false
 
     private let textViewRef = ContractTextEditor.TextViewRef()
+    @State private var customVariables: [ContractVariable] = []
 
-    private let variables: [(key: String, icon: String, displayName: String)] = [
-        ("{{tenant_name}}", "person", "Nombre inquilino (tenant name)"),
-        ("{{tenant_dni}}", "creditcard", "DNI inquilino (tenant ID)"),
-        ("{{tenant_address}}", "house", "Domicilio inquilino (tenant address)"),
-        ("{{landlord_name}}", "person.badge.key", "Nombre arrendador (landlord name)"),
-        ("{{landlord_dni}}", "creditcard.fill", "DNI arrendador (landlord ID)"),
-        ("{{property_address}}", "mappin", "Dirección inmueble (property address)"),
-        ("{{start_date}}", "calendar", "Inicio contrato (start date)"),
-        ("{{end_date}}", "calendar.badge.checkmark", "Fin contrato (end date)"),
-        ("{{rent}}", "eurosign", "Renta mensual (rent)"),
-        ("{{deposit}}", "banknote", "Depósito (deposit)"),
-        ("{{deposit_words}}", "textformat.123", "Depósito en letras (deposit words)"),
-        ("{{date}}", "clock", "Fecha (date)"),
-    ]
+    private var variables: [(key: String, icon: String, displayName: String)] {
+        var all: [(key: String, icon: String, displayName: String)] = ContractVariable.builtIn.map { ($0.key, $0.icon, $0.label) }
+        for v in customVariables {
+            all.append((v.templateKey, "chevron.left.forwardslash.chevron.right", v.label))
+        }
+        return all
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -210,7 +211,7 @@ struct ContractEditorSheet: View {
         }
         .navigationTitle(
             String(
-                localized: "Edit Contract", locale: LanguageService.currentLocale,
+                localized: "Editar contrato", locale: LanguageService.currentLocale,
                 comment: "Title for contract editor sheet")
         )
         .navigationBarTitleDisplayMode(.inline)
@@ -218,7 +219,7 @@ struct ContractEditorSheet: View {
             ToolbarItem(placement: .cancellationAction) {
                 Button(
                     String(
-                        localized: "Cancel", locale: LanguageService.currentLocale,
+                        localized: "Cancelar", locale: LanguageService.currentLocale,
                         comment: "Cancel button")
                 ) {
                     dismiss()
@@ -236,7 +237,7 @@ struct ContractEditorSheet: View {
                     } else {
                         Text(
                             String(
-                                localized: "Save", locale: LanguageService.currentLocale,
+                                localized: "Guardar", locale: LanguageService.currentLocale,
                                 comment: "Save button")
                         )
                         .fontWeight(.semibold)
@@ -250,24 +251,38 @@ struct ContractEditorSheet: View {
                 } label: {
                     Label(
                         String(
-                            localized: "Load global template",
+                            localized: "Cargar plantilla global",
                             locale: LanguageService.currentLocale,
                             comment: "Load global template button"),
                         systemImage: "arrow.down.doc"
                     )
                 }
             }
+            ToolbarItem(placement: .secondaryAction) {
+                Button {
+                    showVariablesSheet = true
+                } label: {
+                    Label(
+                        String(
+                            localized: "Gestionar variables",
+                            locale: LanguageService.currentLocale,
+                            comment: "Manage contract variables button"),
+                        systemImage: "chevron.left.forwardslash.chevron.right"
+                    )
+                }
+            }
         }
         .onAppear { templateText = initialText }
+        .task { customVariables = (try? await ContractVariableService().fetchVariables()) ?? [] }
         .confirmationDialog(
             String(
-                localized: "Load global template?", locale: LanguageService.currentLocale,
+                localized: "¿Cargar plantilla global?", locale: LanguageService.currentLocale,
                 comment: "Confirmation title"),
             isPresented: $showLoadGlobalConfirmation
         ) {
             Button(
                 String(
-                    localized: "Load and replace", locale: LanguageService.currentLocale,
+                    localized: "Cargar y reemplazar", locale: LanguageService.currentLocale,
                     comment: "Confirm load global"), role: .destructive
             ) {
                 Task { await loadGlobalTemplate() }
@@ -275,8 +290,16 @@ struct ContractEditorSheet: View {
         } message: {
             Text(
                 String(
-                    localized: "This will replace the current template with the global one.",
+                    localized: "Se reemplazará la plantilla actual por la global.",
                     locale: LanguageService.currentLocale, comment: "Confirmation message"))
+        }
+        .sheet(isPresented: $showVariablesSheet) {
+            Task { customVariables = (try? await ContractVariableService().fetchVariables()) ?? [] }
+        } content: {
+            NavigationStack {
+                ContractVariablesView()
+            }
+            .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
         }
         .errorAlert($errorMessage)
     }
@@ -289,7 +312,7 @@ struct ContractEditorSheet: View {
             HStack {
                 Text(
                     String(
-                        localized: "Insert variable", locale: LanguageService.currentLocale,
+                        localized: "Insertar variable", locale: LanguageService.currentLocale,
                         comment: "Variable bar label")
                 )
                 .font(.caption2)
@@ -297,6 +320,15 @@ struct ContractEditorSheet: View {
                 .padding(.horizontal, 12)
                 .padding(.top, 6)
                 Spacer()
+                Button {
+                    showVariablesSheet = true
+                } label: {
+                    Image(systemName: "gear")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.horizontal, 12)
+                .padding(.top, 6)
             }
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {

@@ -38,7 +38,7 @@ final class DocumentListViewModel {
             } else {
                 documents = try await documentService.fetchDocuments(propertyId: propertyId)
             }
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             isLoading = false
             return
@@ -81,7 +81,7 @@ final class DocumentListViewModel {
 
             documents.insert(newDoc, at: 0)
             onSuccess()
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             isUploading = false
             return
@@ -104,7 +104,7 @@ final class DocumentListViewModel {
                 uploadedBy: userId
             )
             documents.insert(newDoc, at: 0)
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             isUploading = false
             return
@@ -118,7 +118,7 @@ final class DocumentListViewModel {
         do {
             try await documentService.deleteDocument(document)
             documents.removeAll { $0.id == document.id }
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {

@@ -140,11 +140,6 @@ final class TenantService: TenantServiceProtocol {
                 contract_notes: tenant.contractNotes, active: tenant.active
             )
 
-            if let data = try? JSONEncoder.supabase.encode(updatePayload) {
-                logger.debug(
-                    "UPDATE PAYLOAD: \(String(data: data, encoding: .utf8) ?? "unable to read")")
-            }
-
             let response =
                 try await client
                 .from(SupabaseTable.tenants)

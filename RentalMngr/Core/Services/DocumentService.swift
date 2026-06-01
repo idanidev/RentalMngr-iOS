@@ -33,15 +33,25 @@ final class DocumentService: DocumentServiceProtocol {
         data: Data, name: String, fileType: String, propertyId: UUID, tenantId: UUID?,
         uploadedBy: UUID
     ) async throws -> Document {
+        // Validate file: magic bytes + size limit (10 MB)
+        let validatedType = try InputValidator.validateFile(data: data, maxSizeMB: 10)
+
         // 1. Upload to Storage
-        let ext = fileType == "application/pdf" ? "pdf" : "jpg"  // Simple extension logic
+        let ext: String
+        switch validatedType {
+        case .pdf:  ext = "pdf"
+        case .jpeg: ext = "jpg"
+        case .png:  ext = "png"
+        case .heic: ext = "heic"
+        }
+        let detectedMime = validatedType.mimeType
         let path = "\(propertyId)/\(UUID().uuidString).\(ext)"
 
         _ = try await storageService.uploadFile(
             bucket: SupabaseConfig.documentsBucket,
             path: path,
             data: data,
-            contentType: fileType
+            contentType: detectedMime
         )
 
         // 2. Insert into Database

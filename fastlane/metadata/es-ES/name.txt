@@ -1,1 +1,1 @@
-RentalMngr - Gestión de Alquileres
+RentalMngr: Alquileres

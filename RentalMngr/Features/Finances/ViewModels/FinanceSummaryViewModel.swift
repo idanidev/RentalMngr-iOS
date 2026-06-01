@@ -128,7 +128,7 @@ final class FinanceSummaryViewModel {
         do {
             try await fetchData()
             isLoaded = true
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             isLoading = false
             return
@@ -182,7 +182,7 @@ final class FinanceSummaryViewModel {
             case .summary:
                 break
             }
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             isLoadingMore = false
             return
@@ -197,7 +197,7 @@ final class FinanceSummaryViewModel {
         do {
             try await financeService.deleteExpense(id: expense.id)
             expenses.removeAll { $0.id == expense.id }
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
@@ -212,7 +212,7 @@ final class FinanceSummaryViewModel {
             } else {
                 try await financeService.markAsPaid(incomeId: item.id)
             }
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
@@ -227,7 +227,7 @@ final class FinanceSummaryViewModel {
             } else {
                 try await utilityService.markUtilityPaid(chargeId: charge.id)
             }
-        } catch is CancellationError {
+        } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
