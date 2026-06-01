@@ -342,59 +342,27 @@ final class PDFGenerator {
             context.beginPage()
             var y: CGFloat = 0
 
-            // Header bar (navy)
-            drawRect(
-                at: CGRect(x: 0, y: 0, width: pageWidth, height: 90), color: navy, context: context)
-
-            // Status badge — text vertically centered within the pill
-            let badgeText = String(localized: "FOR RENT", locale: LanguageService.currentLocale, comment: "PDF room ad status badge")
-            let badgeFont = UIFont.boldSystemFont(ofSize: 10)
-            let badgeWidth: CGFloat = 110
-            let badgeRect = CGRect(x: margin, y: 15, width: badgeWidth, height: 24)
-            drawRect(at: badgeRect, color: emerald, context: context, cornerRadius: 12)
-            drawColoredText(
-                badgeText,
-                at: CGPoint(x: margin + 8, y: badgeRect.midY - badgeFont.lineHeight / 2),
-                font: badgeFont, color: .white, maxWidth: badgeWidth - 16)
-
-            // Price badge — text vertically centered within the pill
+            // Hero header — full-bleed photo with gradient, status/price pills,
+            // generic room-type title and address overlaid.
             let perMonth = String(localized: "/mo", locale: LanguageService.currentLocale, comment: "Per month abbreviation for rent")
             let priceText = "\(room.monthlyRent.formatted(currencyCode: "EUR"))\(perMonth)"
-            let priceFont = UIFont.boldSystemFont(ofSize: 11)
-            let priceWidth: CGFloat = 120
-            let priceRect = CGRect(
-                x: pageWidth - margin - priceWidth, y: 15, width: priceWidth, height: 24)
-            drawRect(at: priceRect, color: gold, context: context, cornerRadius: 12)
-            drawColoredText(
-                priceText,
-                at: CGPoint(x: pageWidth - margin - priceWidth + 8, y: priceRect.midY - priceFont.lineHeight / 2),
-                font: priceFont, color: .white, maxWidth: priceWidth - 16, alignment: .center)
-
-            // Title in header — generic room type (e.g. "Habitación"), not the
-            // owner's internal room name. Address shown below.
+            let badgeText = String(localized: "FOR RENT", locale: LanguageService.currentLocale, comment: "PDF room ad status badge")
             let titleText = room.roomType == .privateRoom
                 ? String(localized: "Habitación", locale: LanguageService.currentLocale, comment: "PDF room ad title for private room")
                 : String(localized: "Zona común", locale: LanguageService.currentLocale, comment: "PDF room ad title for common area")
-            drawColoredText(
-                titleText, at: CGPoint(x: margin, y: 50),
-                font: .boldSystemFont(ofSize: 22), color: .white, maxWidth: contentWidth)
-            drawColoredText(
-                property.address, at: CGPoint(x: margin, y: 73),
-                font: .systemFont(ofSize: 11), color: UIColor.white.withAlphaComponent(0.8),
-                maxWidth: contentWidth)
+            y = drawHeroHeader(
+                heroImage: roomImages.first, title: titleText, address: property.address,
+                priceText: priceText, badgeText: badgeText, context: context)
 
-            // Gold accent line
-            drawRect(
-                at: CGRect(x: margin, y: 92, width: contentWidth, height: 3), color: gold,
-                context: context)
-            y = 110
-
-            // Quick features bar (amenities auto-detected from common rooms)
-            let amenities = detectAmenities(commonRooms: commonRooms, room: room)
-            if !amenities.isEmpty {
-                y = drawAmenitiesBar(amenities, at: y, contentWidth: contentWidth, context: context)
-                y += 15
-            }
+            // Spec chips — type + size
+            let typeChipText = room.roomType == .privateRoom
+                ? String(localized: "Private room", locale: LanguageService.currentLocale, comment: "PDF room type private")
+                : String(localized: "Common area", locale: LanguageService.currentLocale, comment: "PDF room type common")
+            var specChips: [(icon: String, text: String)] = [
+                (room.roomType == .privateRoom ? "bed.double.fill" : "sofa.fill", typeChipText)
+            ]
+            if let size = room.sizeSqm { specChips.append(("ruler.fill", "\(size) m²")) }
+            y = drawSpecChips(specChips, at: y, contentWidth: contentWidth, context: context) + 18
 
             // Financial info boxes (3-column)
             let boxWidth = (contentWidth - 20) / 3
@@ -402,20 +370,23 @@ final class PDFGenerator {
             let depositLabel = String(localized: "Deposit", locale: LanguageService.currentLocale, comment: "PDF room ad deposit label")
             let availabilityLabel = String(localized: "Availability", locale: LanguageService.currentLocale, comment: "PDF room ad availability label")
             let immediateValue = String(localized: "Immediate", locale: LanguageService.currentLocale, comment: "PDF room ad immediate availability")
-            drawInfoBox(
-                title: rentLabel,
+            drawInfoBoxPro(
+                icon: "eurosign.circle.fill", title: rentLabel,
                 value: "\(room.monthlyRent.formatted(currencyCode: "EUR"))\(perMonth)",
-                at: CGRect(x: margin, y: y, width: boxWidth, height: 50), context: context)
+                accent: gold,
+                at: CGRect(x: margin, y: y, width: boxWidth, height: 62), context: context)
             let deposit = depositAmount ?? room.monthlyRent
-            drawInfoBox(
-                title: depositLabel, value: deposit.formatted(currencyCode: "EUR"),
-                at: CGRect(x: margin + boxWidth + 10, y: y, width: boxWidth, height: 50),
+            drawInfoBoxPro(
+                icon: "banknote.fill", title: depositLabel,
+                value: deposit.formatted(currencyCode: "EUR"), accent: navy,
+                at: CGRect(x: margin + boxWidth + 10, y: y, width: boxWidth, height: 62),
                 context: context)
-            drawInfoBox(
-                title: availabilityLabel, value: immediateValue,
-                at: CGRect(x: margin + (boxWidth + 10) * 2, y: y, width: boxWidth, height: 50),
+            drawInfoBoxPro(
+                icon: "calendar.badge.checkmark", title: availabilityLabel, value: immediateValue,
+                accent: emerald,
+                at: CGRect(x: margin + (boxWidth + 10) * 2, y: y, width: boxWidth, height: 62),
                 context: context)
-            y += 70
+            y += 82
 
             // Room details section
             let detailsTitle = String(localized: "DETAILS", locale: LanguageService.currentLocale, comment: "PDF room ad details section title")
@@ -433,6 +404,15 @@ final class PDFGenerator {
             }
             y += 10
 
+            // What's included — auto-detected amenities (excluding the m² entry)
+            let includes = detectAmenities(commonRooms: commonRooms, room: room)
+                .filter { !$0.contains("m²") }
+            if !includes.isEmpty {
+                let includesTitle = String(localized: "WHAT'S INCLUDED", locale: LanguageService.currentLocale, comment: "PDF room ad includes section title")
+                y = drawPremiumSectionTitle(includesTitle, at: y)
+                y = drawIncludesList(includes, at: y, contentWidth: contentWidth, context: context) + 18
+            }
+
             // Description
             if let notes = room.notes, !notes.isEmpty {
                 let descTitle = String(localized: "DESCRIPTION", locale: LanguageService.currentLocale, comment: "PDF room ad description section title")
@@ -444,15 +424,17 @@ final class PDFGenerator {
                         font: .systemFont(ofSize: 11), color: charcoal, maxWidth: contentWidth) + 15
             }
 
-            // Room photos section — actual embedded images
-            if !roomImages.isEmpty {
-                if y > pageHeight - 200 {
+            // Room photos — magazine mosaic. First image is already in the hero,
+            // so the gallery shows the remaining ones.
+            let galleryImages = Array(roomImages.dropFirst())
+            if !galleryImages.isEmpty {
+                if y > pageHeight - 240 {
                     context.beginPage()
                     y = margin
                 }
                 let photosTitle = String(localized: "ROOM PHOTOS", locale: LanguageService.currentLocale, comment: "PDF room ad photos section title")
                 y = drawPremiumSectionTitle(photosTitle, at: y)
-                y = drawPhotoGrid(roomImages, at: y, contentWidth: contentWidth, context: context)
+                y = drawPhotoMosaic(galleryImages, at: y, contentWidth: contentWidth, context: context)
                 y += 15
             }
 
@@ -710,6 +692,216 @@ final class PDFGenerator {
             "\(footerText) · \(dateStr)", at: CGPoint(x: margin, y: footerY),
             font: .italicSystemFont(ofSize: 8), color: .gray, maxWidth: contentWidth,
             alignment: .center)
+    }
+
+    // MARK: - Pro Ad Components
+
+    /// Renders an SF Symbol centered (aspect-fit) inside `rect`.
+    private func drawSymbol(_ name: String, in rect: CGRect, color: UIColor) {
+        let cfg = UIImage.SymbolConfiguration(pointSize: rect.height, weight: .semibold)
+        guard let img = UIImage(systemName: name, withConfiguration: cfg)?
+            .withTintColor(color, renderingMode: .alwaysOriginal) else { return }
+        let aspect = img.size.width / max(img.size.height, 1)
+        let h = rect.height
+        let w = h * aspect
+        img.draw(in: CGRect(x: rect.midX - w / 2, y: rect.minY, width: w, height: h))
+    }
+
+    /// Full-bleed hero: photo with bottom navy gradient + status/price pills +
+    /// title and address overlaid. Falls back to a solid navy band with no photo.
+    /// Returns the Y just below the hero.
+    private func drawHeroHeader(
+        heroImage: UIImage?, title: String, address: String, priceText: String,
+        badgeText: String, context: UIGraphicsPDFRendererContext
+    ) -> CGFloat {
+        let ctx = context.cgContext
+        let heroH: CGFloat = heroImage != nil ? 300 : 96
+        let heroRect = CGRect(x: 0, y: 0, width: pageWidth, height: heroH)
+
+        if let img = heroImage {
+            // Aspect-fill the hero rect
+            ctx.saveGState()
+            ctx.addRect(heroRect)
+            ctx.clip()
+            let aspect = img.size.width / max(img.size.height, 1)
+            let rectAspect = pageWidth / heroH
+            var drawRect = heroRect
+            if aspect > rectAspect {
+                let w = heroH * aspect
+                drawRect = CGRect(x: (pageWidth - w) / 2, y: 0, width: w, height: heroH)
+            } else {
+                let h = pageWidth / aspect
+                drawRect = CGRect(x: 0, y: (heroH - h) / 2, width: pageWidth, height: h)
+            }
+            img.draw(in: drawRect)
+            // Bottom gradient for text legibility
+            let colors = [UIColor.clear.cgColor, navy.withAlphaComponent(0.9).cgColor] as CFArray
+            if let grad = CGGradient(
+                colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors,
+                locations: [0.35, 1.0])
+            {
+                ctx.drawLinearGradient(
+                    grad, start: CGPoint(x: 0, y: heroH * 0.45),
+                    end: CGPoint(x: 0, y: heroH), options: [])
+            }
+            ctx.restoreGState()
+        } else {
+            drawRect(at: heroRect, color: navy, context: context)
+        }
+
+        // Status pill (emerald) top-left
+        let pillFont = UIFont.boldSystemFont(ofSize: 10)
+        let badgeW = badgeText.size(withAttributes: [.font: pillFont]).width + 24
+        let badgeRect = CGRect(x: margin, y: 18, width: badgeW, height: 24)
+        drawRect(at: badgeRect, color: emerald, context: context, cornerRadius: 12)
+        drawColoredText(
+            badgeText, at: CGPoint(x: badgeRect.minX, y: badgeRect.midY - pillFont.lineHeight / 2),
+            font: pillFont, color: .white, maxWidth: badgeW, alignment: .center)
+
+        // Price pill (gold) top-right
+        let priceFont = UIFont.boldSystemFont(ofSize: 12)
+        let priceW = priceText.size(withAttributes: [.font: priceFont]).width + 24
+        let priceRect = CGRect(x: pageWidth - margin - priceW, y: 18, width: priceW, height: 24)
+        drawRect(at: priceRect, color: gold, context: context, cornerRadius: 12)
+        drawColoredText(
+            priceText, at: CGPoint(x: priceRect.minX, y: priceRect.midY - priceFont.lineHeight / 2),
+            font: priceFont, color: .white, maxWidth: priceW, alignment: .center)
+
+        // Title + address overlaid bottom-left
+        let titleY = heroH - (heroImage != nil ? 64 : 52)
+        drawColoredText(
+            title, at: CGPoint(x: margin, y: titleY),
+            font: .boldSystemFont(ofSize: 28), color: .white, maxWidth: pageWidth - margin * 2)
+        drawColoredText(
+            address, at: CGPoint(x: margin, y: titleY + 34),
+            font: .systemFont(ofSize: 12), color: UIColor.white.withAlphaComponent(0.9),
+            maxWidth: pageWidth - margin * 2)
+
+        // Gold accent line at the very bottom of the hero
+        drawRect(
+            at: CGRect(x: 0, y: heroH - 3, width: pageWidth, height: 3), color: gold,
+            context: context)
+        return heroH + 18
+    }
+
+    /// Financial/spec box with an SF Symbol icon above label + value.
+    private func drawInfoBoxPro(
+        icon: String, title: String, value: String, accent: UIColor,
+        at rect: CGRect, context: UIGraphicsPDFRendererContext
+    ) {
+        drawRect(at: rect, color: lightGray, context: context, cornerRadius: 8)
+        drawSymbol(
+            icon, in: CGRect(x: rect.minX + 12, y: rect.minY + 10, width: 16, height: 16),
+            color: accent)
+        drawColoredText(
+            title, at: CGPoint(x: rect.minX + 12, y: rect.minY + 30),
+            font: .systemFont(ofSize: 8.5), color: .gray, maxWidth: rect.width - 20)
+        drawColoredText(
+            value, at: CGPoint(x: rect.minX + 12, y: rect.minY + 42),
+            font: .boldSystemFont(ofSize: 14), color: navy, maxWidth: rect.width - 20)
+    }
+
+    /// Row of icon+text spec chips (m², type, floor…). Returns Y below the row.
+    private func drawSpecChips(
+        _ specs: [(icon: String, text: String)], at y: CGFloat, contentWidth: CGFloat,
+        context: UIGraphicsPDFRendererContext
+    ) -> CGFloat {
+        var x = margin
+        var currentY = y
+        let h: CGFloat = 26
+        let font = UIFont.systemFont(ofSize: 10, weight: .medium)
+        for spec in specs {
+            let textW = spec.text.size(withAttributes: [.font: font]).width
+            let chipW = textW + 38
+            if x + chipW > margin + contentWidth {
+                x = margin
+                currentY += h + 6
+            }
+            let chip = CGRect(x: x, y: currentY, width: chipW, height: h)
+            drawRect(at: chip, color: navy.withAlphaComponent(0.06), context: context, cornerRadius: 13)
+            drawSymbol(
+                spec.icon, in: CGRect(x: x + 10, y: currentY + 6, width: 13, height: 13),
+                color: navy)
+            drawColoredText(
+                spec.text, at: CGPoint(x: x + 28, y: currentY + (h - font.lineHeight) / 2),
+                font: font, color: navy, maxWidth: textW + 4)
+            x += chipW + 8
+        }
+        return currentY + h
+    }
+
+    /// Magazine-style gallery: 1 large left + up to 2 stacked right. Falls back to
+    /// the uniform grid for a single image.
+    private func drawPhotoMosaic(
+        _ images: [UIImage], at startY: CGFloat, contentWidth: CGFloat,
+        context: UIGraphicsPDFRendererContext
+    ) -> CGFloat {
+        guard images.count >= 3 else {
+            return drawPhotoGrid(images, at: startY, contentWidth: contentWidth, context: context)
+        }
+        let spacing: CGFloat = 8
+        let bigW = (contentWidth - spacing) * 0.62
+        let smallW = contentWidth - spacing - bigW
+        let totalH: CGFloat = 220
+        let smallH = (totalH - spacing) / 2
+        var y = startY
+        if y + totalH > pageHeight - 60 {
+            context.beginPage()
+            y = margin
+        }
+        drawClippedImage(images[0], in: CGRect(x: margin, y: y, width: bigW, height: totalH), context: context)
+        drawClippedImage(images[1], in: CGRect(x: margin + bigW + spacing, y: y, width: smallW, height: smallH), context: context)
+        drawClippedImage(images[2], in: CGRect(x: margin + bigW + spacing, y: y + smallH + spacing, width: smallW, height: smallH), context: context)
+        return y + totalH
+    }
+
+    /// Aspect-fill an image into a rounded rect with a hairline border.
+    private func drawClippedImage(
+        _ image: UIImage, in rect: CGRect, context: UIGraphicsPDFRendererContext
+    ) {
+        let ctx = context.cgContext
+        let imageAspect = image.size.width / max(image.size.height, 1)
+        let rectAspect = rect.width / rect.height
+        var draw: CGRect
+        if imageAspect > rectAspect {
+            let w = rect.height * imageAspect
+            draw = CGRect(x: rect.midX - w / 2, y: rect.minY, width: w, height: rect.height)
+        } else {
+            let h = rect.width / imageAspect
+            draw = CGRect(x: rect.minX, y: rect.midY - h / 2, width: rect.width, height: h)
+        }
+        ctx.saveGState()
+        let clip = UIBezierPath(roundedRect: rect, cornerRadius: 8)
+        ctx.addPath(clip.cgPath)
+        ctx.clip()
+        image.draw(in: draw)
+        ctx.restoreGState()
+        ctx.setStrokeColor(UIColor.lightGray.withAlphaComponent(0.3).cgColor)
+        ctx.setLineWidth(0.5)
+        ctx.addPath(clip.cgPath)
+        ctx.strokePath()
+    }
+
+    /// "What's included" checklist with emerald check marks (2 columns).
+    private func drawIncludesList(
+        _ items: [String], at startY: CGFloat, contentWidth: CGFloat,
+        context: UIGraphicsPDFRendererContext
+    ) -> CGFloat {
+        let colW = (contentWidth - 20) / 2
+        let rowH: CGFloat = 22
+        var y = startY
+        for (i, item) in items.enumerated() {
+            let col = i % 2
+            let x = margin + CGFloat(col) * (colW + 20)
+            if col == 0 && i > 0 { y += rowH }
+            drawSymbol(
+                "checkmark.circle.fill",
+                in: CGRect(x: x, y: y + 2, width: 14, height: 14), color: emerald)
+            drawColoredText(
+                item, at: CGPoint(x: x + 20, y: y + 1),
+                font: .systemFont(ofSize: 11), color: charcoal, maxWidth: colW - 24)
+        }
+        return y + rowH
     }
 
     // MARK: - Core Drawing
