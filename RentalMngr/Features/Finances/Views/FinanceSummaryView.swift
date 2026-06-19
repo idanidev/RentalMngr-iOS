@@ -28,6 +28,7 @@ struct FinanceSummaryView: View {
                     } label: {
                         Image(systemName: "plus")
                     }
+                    .accessibilityLabel(String(localized: "Añadir", locale: LanguageService.currentLocale, comment: "Accessibility label for add button"))
                 }
             }
         }

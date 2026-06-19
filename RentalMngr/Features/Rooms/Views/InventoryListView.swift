@@ -67,6 +67,7 @@ struct InventoryListView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel(String(localized: "Añadir artículo", locale: LanguageService.currentLocale, comment: "Accessibility label for add inventory item button"))
             }
         }
         .task {

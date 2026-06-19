@@ -92,7 +92,12 @@ final class PDFGenerator {
             ]
 
             // 2. Process replacements
+            // Normalize line endings first: templates saved from the web app may use
+            // CRLF (\r\n) or lone CR (\r), which leave stray carriage returns that
+            // print as spurious line breaks / boxes on some printers.
             var bodyText = templateBody
+                .replacingOccurrences(of: "\r\n", with: "\n")
+                .replacingOccurrences(of: "\r", with: "\n")
             for (key, value) in replacements {
                 bodyText = bodyText.replacingOccurrences(of: key, with: value)
             }
@@ -315,6 +320,84 @@ final class PDFGenerator {
             return margin
         }
         return y
+    }
+
+    // MARK: - Annual Tax Report
+
+    func generateAnnualReport(
+        year: Int, rows: [PropertyAnnualSummary],
+        totalCollected: Decimal, totalPending: Decimal,
+        totalExpenses: Decimal, totalNet: Decimal
+    ) async -> Data {
+        let pageRect = CGRect(x: 0, y: 0, width: pageWidth, height: pageHeight)
+        let contentWidth = pageWidth - margin * 2
+
+        return await Task.detached(priority: .userInitiated) { [self] in
+            let renderer = UIGraphicsPDFRenderer(bounds: pageRect)
+            return renderer.pdfData { context in
+                context.beginPage()
+
+                // Header band
+                drawRect(at: CGRect(x: 0, y: 0, width: pageWidth, height: 70), color: navy, context: context)
+                let title = String(localized: "Informe anual", locale: LanguageService.currentLocale, comment: "Annual report PDF title")
+                drawColoredText(
+                    "\(title) \(year)", at: CGPoint(x: margin, y: 22),
+                    font: .boldSystemFont(ofSize: 22), color: .white, maxWidth: contentWidth)
+                let df = DateFormatter()
+                df.dateStyle = .long
+                df.locale = LanguageService.currentLocale
+                drawColoredText(
+                    df.string(from: Date()), at: CGPoint(x: margin, y: 50),
+                    font: .systemFont(ofSize: 10), color: UIColor.white.withAlphaComponent(0.8),
+                    maxWidth: contentWidth)
+                drawRect(at: CGRect(x: margin, y: 70, width: contentWidth, height: 3), color: gold, context: context)
+
+                var y: CGFloat = 92
+
+                // Column headers
+                let col2 = margin + contentWidth * 0.46
+                let col3 = margin + contentWidth * 0.68
+                let col4 = margin + contentWidth * 0.86
+                func headerCell(_ t: String, x: CGFloat, align: NSTextAlignment) {
+                    drawColoredText(t, at: CGPoint(x: x, y: y), font: .boldSystemFont(ofSize: 9), color: .gray, maxWidth: contentWidth * 0.18, alignment: align)
+                }
+                drawColoredText(String(localized: "Propiedad", locale: LanguageService.currentLocale, comment: "Property column"), at: CGPoint(x: margin, y: y), font: .boldSystemFont(ofSize: 9), color: .gray, maxWidth: contentWidth * 0.44)
+                headerCell(String(localized: "Cobrado", locale: LanguageService.currentLocale, comment: "Collected column"), x: col2, align: .right)
+                headerCell(String(localized: "Gastos", locale: LanguageService.currentLocale, comment: "Expenses column"), x: col3, align: .right)
+                headerCell(String(localized: "Neto", locale: LanguageService.currentLocale, comment: "Net column"), x: col4, align: .right)
+                y += 18
+                drawRect(at: CGRect(x: margin, y: y, width: contentWidth, height: 0.5), color: .lightGray, context: context)
+                y += 8
+
+                // Rows
+                for row in rows {
+                    if y > pageHeight - 120 { context.beginPage(); y = margin }
+                    drawColoredText(row.name, at: CGPoint(x: margin, y: y), font: .systemFont(ofSize: 11), color: charcoal, maxWidth: contentWidth * 0.44)
+                    drawColoredText(row.collected.formatted(currencyCode: "EUR", showDecimals: true), at: CGPoint(x: col2, y: y), font: .systemFont(ofSize: 11), color: emerald, maxWidth: contentWidth * 0.18, alignment: .right)
+                    drawColoredText(row.expenses.formatted(currencyCode: "EUR", showDecimals: true), at: CGPoint(x: col3, y: y), font: .systemFont(ofSize: 11), color: UIColor.systemRed, maxWidth: contentWidth * 0.18, alignment: .right)
+                    drawColoredText(row.net.formatted(currencyCode: "EUR", showDecimals: true), at: CGPoint(x: col4, y: y), font: .boldSystemFont(ofSize: 11), color: navy, maxWidth: contentWidth * 0.18, alignment: .right)
+                    y += 22
+                }
+
+                // Totals box
+                y += 6
+                drawRect(at: CGRect(x: margin, y: y, width: contentWidth, height: 1), color: gold, context: context)
+                y += 12
+                func totalLine(_ label: String, _ value: Decimal, color: UIColor, bold: Bool) {
+                    drawColoredText(label, at: CGPoint(x: margin, y: y), font: bold ? .boldSystemFont(ofSize: 12) : .systemFont(ofSize: 11), color: charcoal, maxWidth: contentWidth * 0.6)
+                    drawColoredText(value.formatted(currencyCode: "EUR", showDecimals: true), at: CGPoint(x: col4 - contentWidth * 0.1, y: y), font: bold ? .boldSystemFont(ofSize: 13) : .systemFont(ofSize: 11), color: color, maxWidth: contentWidth * 0.28, alignment: .right)
+                    y += bold ? 24 : 20
+                }
+                totalLine(String(localized: "Total cobrado", locale: LanguageService.currentLocale, comment: "Total collected"), totalCollected, color: emerald, bold: false)
+                if totalPending > 0 {
+                    totalLine(String(localized: "Total pendiente", locale: LanguageService.currentLocale, comment: "Total pending"), totalPending, color: UIColor.systemOrange, bold: false)
+                }
+                totalLine(String(localized: "Total gastos", locale: LanguageService.currentLocale, comment: "Total expenses"), totalExpenses, color: UIColor.systemRed, bold: false)
+                totalLine(String(localized: "Resultado neto", locale: LanguageService.currentLocale, comment: "Net result"), totalNet, color: navy, bold: true)
+
+                drawPremiumFooter(context: context)
+            }
+        }.value
     }
 
     // MARK: - Number to Words

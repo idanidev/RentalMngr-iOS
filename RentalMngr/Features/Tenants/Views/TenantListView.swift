@@ -28,6 +28,7 @@ struct TenantListView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel(String(localized: "Añadir inquilino", locale: LanguageService.currentLocale, comment: "Accessibility label for add tenant button"))
             }
         }
         .sheet(isPresented: $showAddSheet) {

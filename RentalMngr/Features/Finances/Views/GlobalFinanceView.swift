@@ -16,6 +16,17 @@ struct GlobalFinanceView: View {
         .navigationTitle(
             String(localized: "Finances", locale: LanguageService.currentLocale, comment: "Navigation title for finances view")
         )
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                NavigationLink {
+                    AnnualReportView(appState: appState)
+                } label: {
+                    Label(
+                        String(localized: "Informe anual", locale: LanguageService.currentLocale, comment: "Annual report toolbar button"),
+                        systemImage: "doc.text.magnifyingglass")
+                }
+            }
+        }
         .task {
             if viewModel == nil {
                 viewModel = GlobalFinanceViewModel(

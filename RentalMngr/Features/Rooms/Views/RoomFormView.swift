@@ -104,6 +104,7 @@ struct RoomFormView: View {
                                             .font(.caption)
                                             .foregroundStyle(.white, .red)
                                     }
+                                    .accessibilityLabel(String(localized: "Eliminar foto", locale: LanguageService.currentLocale, comment: "Accessibility label for delete photo button"))
                                     .offset(x: 4, y: -4)
                                 }
                             }

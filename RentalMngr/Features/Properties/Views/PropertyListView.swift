@@ -29,6 +29,7 @@ struct PropertyListView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel(String(localized: "Añadir propiedad", locale: LanguageService.currentLocale, comment: "Accessibility label for add property button"))
             }
         }
         .sheet(isPresented: $showPaywall) {

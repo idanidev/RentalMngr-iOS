@@ -327,6 +327,7 @@ struct ContractEditorSheet: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+                .accessibilityLabel(String(localized: "Gestionar variables", locale: LanguageService.currentLocale, comment: "Accessibility label for manage variables button"))
                 .padding(.horizontal, 12)
                 .padding(.top, 6)
             }

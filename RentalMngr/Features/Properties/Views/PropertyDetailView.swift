@@ -124,6 +124,7 @@ struct PropertyDetailView: View {
         } label: {
             Image(systemName: "ellipsis.circle")
         }
+        .accessibilityLabel(String(localized: "Más opciones", locale: LanguageService.currentLocale, comment: "Accessibility label for actions menu button"))
     }
 
     // MARK: - Detail Content

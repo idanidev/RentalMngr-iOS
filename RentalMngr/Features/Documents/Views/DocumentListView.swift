@@ -52,38 +52,24 @@ struct DocumentListView: View {
                 )
                 .padding(.top, 40)
             } else {
-                ForEach(viewModel.documents) { doc in
+                // Grouped by year — useful for tax/annual review (contracts, invoices).
+                ForEach(documentsByYear, id: \.year) { group in
                     HStack {
-                        Image(systemName: iconName(for: doc.fileType))
-                            .foregroundStyle(.blue)
-                            .font(.title2)
-
-                        VStack(alignment: .leading) {
-                            Text(doc.name)
-                                .font(.headline)
-                                .lineLimit(1)
-                            Text(doc.createdAt.formatted(date: .abbreviated, time: .shortened))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
+                        Text(verbatim: String(group.year))
+                            .font(.title3.bold())
                         Spacer()
-
-                        Menu {
-                            Button(String(localized: "View", locale: LanguageService.currentLocale, comment: "Button to view document"), systemImage: "eye") {
-                                openDocument(doc)
-                            }
-                            Button(String(localized: "Delete", locale: LanguageService.currentLocale, comment: "Button to delete document"), systemImage: "trash", role: .destructive) {
-                                Task { await viewModel.deleteDocument(doc) }
-                            }
-                        } label: {
-                            Image(systemName: "ellipsis.circle")
-                                .padding(8)
-                        }
+                        Text("\(group.docs.count)")
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 8).padding(.vertical, 2)
+                            .background(.quaternary, in: Capsule())
                     }
-                    .padding()
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
                     .padding(.horizontal)
+                    .padding(.top, 4)
+
+                    ForEach(group.docs) { doc in
+                        documentRow(doc)
+                    }
                 }
             }
         }
@@ -114,6 +100,7 @@ struct DocumentListView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel(String(localized: "Añadir documento", locale: LanguageService.currentLocale, comment: "Accessibility label for add document menu"))
                 .disabled(viewModel.isUploading)
             }
         }
@@ -161,6 +148,52 @@ struct DocumentListView: View {
         } message: {
             Text(viewModel.uploadError ?? "")
         }
+    }
+
+    /// Documents grouped by calendar year, newest year first.
+    private var documentsByYear: [(year: Int, docs: [Document])] {
+        let groups = Dictionary(grouping: viewModel.documents) {
+            Calendar.current.component(.year, from: $0.createdAt)
+        }
+        return groups
+            .map { (year: $0.key, docs: $0.value.sorted { $0.createdAt > $1.createdAt }) }
+            .sorted { $0.year > $1.year }
+    }
+
+    @ViewBuilder
+    private func documentRow(_ doc: Document) -> some View {
+        HStack {
+            Image(systemName: iconName(for: doc.fileType))
+                .foregroundStyle(.blue)
+                .font(.title2)
+
+            VStack(alignment: .leading) {
+                Text(doc.name)
+                    .font(.headline)
+                    .lineLimit(1)
+                Text(doc.createdAt.formatted(date: .abbreviated, time: .shortened))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+
+            Menu {
+                Button(String(localized: "View", locale: LanguageService.currentLocale, comment: "Button to view document"), systemImage: "eye") {
+                    openDocument(doc)
+                }
+                Button(String(localized: "Delete", locale: LanguageService.currentLocale, comment: "Button to delete document"), systemImage: "trash", role: .destructive) {
+                    Task { await viewModel.deleteDocument(doc) }
+                }
+            } label: {
+                Image(systemName: "ellipsis.circle")
+                    .padding(8)
+            }
+            .accessibilityLabel(String(localized: "Más opciones", locale: LanguageService.currentLocale, comment: "Accessibility label for document options menu"))
+        }
+        .padding()
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(.horizontal)
     }
 
     private func iconName(for fileType: String) -> String {

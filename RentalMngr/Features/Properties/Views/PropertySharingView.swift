@@ -93,6 +93,7 @@ struct PropertySharingView: View {
                                     Image(systemName: "xmark.circle.fill")
                                         .foregroundStyle(.red)
                                 }
+                                .accessibilityLabel(String(localized: "Quitar acceso", locale: LanguageService.currentLocale, comment: "Accessibility label for remove access button"))
                             }
                         }
                     }
@@ -119,6 +120,7 @@ struct PropertySharingView: View {
                                 Image(systemName: "xmark.circle.fill")
                                     .foregroundStyle(.red)
                             }
+                            .accessibilityLabel(String(localized: "Revocar invitación", locale: LanguageService.currentLocale, comment: "Accessibility label for revoke invitation button"))
                         }
                     }
                 }

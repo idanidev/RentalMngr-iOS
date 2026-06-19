@@ -23,6 +23,7 @@ struct RoomListView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .accessibilityLabel(String(localized: "Añadir habitación", locale: LanguageService.currentLocale, comment: "Accessibility label for add room button"))
             }
         }
         .sheet(isPresented: $showAddSheet) {
@@ -101,6 +102,7 @@ struct RoomListView: View {
                             NavigationLink(value: room) {
                                 RoomRow(room: room)
                                     .equatable()
+                                    .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                             .contextMenu {
@@ -160,6 +162,7 @@ struct RoomListView: View {
                             NavigationLink(value: room) {
                                 RoomRow(room: room)
                                     .equatable()
+                                    .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                             .contextMenu {
