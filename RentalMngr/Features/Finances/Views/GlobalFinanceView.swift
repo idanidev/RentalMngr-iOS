@@ -286,7 +286,7 @@ private struct FinanceSummaryCard: View {
                 Spacer()
             }
             Text(amount.formatted(currencyCode: "EUR"))
-                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .font(.system(.subheadline, design: .rounded, weight: .bold))
                 .foregroundStyle(color)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)

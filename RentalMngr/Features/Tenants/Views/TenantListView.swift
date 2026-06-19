@@ -298,7 +298,7 @@ private struct TenantRow: View, Equatable {
                         .fill(statusColor.opacity(0.15))
                         .frame(width: 44, height: 44)
                     Text(initials)
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .font(.system(.callout, design: .rounded, weight: .bold))
                         .foregroundStyle(statusColor)
                 }
 

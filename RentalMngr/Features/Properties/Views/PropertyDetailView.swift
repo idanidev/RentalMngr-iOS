@@ -185,7 +185,7 @@ struct PropertyDetailView: View {
                     if vm.property.monthlyRevenue > 0 {
                         HStack(alignment: .firstTextBaseline, spacing: 4) {
                             Text(vm.property.monthlyRevenue.formatted(currencyCode: "EUR"))
-                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                                .font(.system(.title, design: .rounded, weight: .bold))
                                 .foregroundStyle(.white)
                             Text("/ mes")
                                 .font(.caption)
@@ -237,7 +237,7 @@ struct PropertyDetailView: View {
         VStack(spacing: 4) {
             HStack(spacing: 4) {
                 Image(systemName: icon).font(.caption2)
-                Text(value).font(.system(size: 16, weight: .bold, design: .rounded))
+                Text(value).font(.system(.callout, design: .rounded, weight: .bold))
             }
             .foregroundStyle(color)
             Text(label)

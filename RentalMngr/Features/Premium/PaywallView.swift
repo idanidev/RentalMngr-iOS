@@ -102,7 +102,7 @@ struct PaywallView: View {
         VStack(spacing: 12) {
             VStack(spacing: 4) {
                 Text(purchaseManager.monthlyPriceFormatted)
-                    .font(.system(size: 36, weight: .bold, design: .rounded))
+                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
                 Text("al mes · cancela cuando quieras")
                     .font(.caption)
                     .foregroundStyle(.secondary)

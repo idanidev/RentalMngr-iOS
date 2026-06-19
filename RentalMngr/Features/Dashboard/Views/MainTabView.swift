@@ -37,5 +37,7 @@ struct MainTabView: View {
                 }
             }
         }
+        // iPhone: tab bar normal. iPad/Mac: sidebar adaptable automático.
+        .tabViewStyle(.sidebarAdaptable)
     }
 }

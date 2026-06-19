@@ -232,7 +232,7 @@ private struct OnboardingPageView: View {
             VStack(spacing: 20) {
                 VStack(spacing: 10) {
                     Text(page.title)
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .font(.system(.title, design: .rounded, weight: .bold))
                         .multilineTextAlignment(.center)
                         .offset(y: appeared ? 0 : 20)
                         .opacity(appeared ? 1 : 0)

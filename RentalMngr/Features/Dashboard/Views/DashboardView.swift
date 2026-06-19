@@ -127,7 +127,7 @@ struct DashboardView: View {
                     .fill(Color.accentColor.opacity(0.15))
                     .frame(width: 32, height: 32)
                 Text(initial)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.footnote.weight(.semibold))
                     .foregroundStyle(Color.accentColor)
             }
         }
@@ -148,7 +148,7 @@ struct DashboardView: View {
 
                 if alertCount > 0 {
                     Text(alertCount > 99 ? "99+" : "\(alertCount)")
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.caption.weight(.bold))
                         .foregroundStyle(.white)
                         .frame(minWidth: 18, minHeight: 18)
                         .padding(.horizontal, 3)
@@ -202,7 +202,7 @@ struct DashboardView: View {
 
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text(vm.totalMonthlyIncome, format: .currency(code: "EUR"))
-                        .font(.system(size: 34, weight: .bold, design: .rounded))
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
                         .foregroundStyle(.white)
 
                     if vm.pendingPayments > 0 {
@@ -263,7 +263,7 @@ struct DashboardView: View {
     private func heroStat(value: String, label: String) -> some View {
         VStack(spacing: 3) {
             Text(value)
-                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .font(.system(.subheadline, design: .rounded, weight: .bold))
                 .foregroundStyle(.white)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)

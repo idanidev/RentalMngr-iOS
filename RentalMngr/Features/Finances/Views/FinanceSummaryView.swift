@@ -222,7 +222,7 @@ struct FinanceSummaryView: View {
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                         Text(String(format: "%.1f%%", summary.profitMargin))
-                            .font(.system(size: 38, weight: .bold, design: .rounded))
+                            .font(.system(.largeTitle, design: .rounded, weight: .bold))
                             .foregroundStyle(summary.profitMargin >= 0 ? .green : .red)
                     }
                     Spacer()
