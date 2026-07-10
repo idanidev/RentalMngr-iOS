@@ -1,6 +1,237 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Ask" : {
+      "comment" : "PDF room ad deposit value when unknown",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consultar"
+          }
+        }
+      }
+    },
+    "Contact" : {
+      "comment" : "PDF room ad contact label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contacto"
+          }
+        }
+      }
+    },
+    "A flat fee that replaces tracking individual utilities. Set the amount and what it includes." : {
+      "comment" : "Footer explaining community fees replace individual utilities",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una cuota fija que sustituye el seguimiento de suministros individuales. Indica el importe y qué incluye."
+          }
+        }
+      }
+    },
+    "Use a flat monthly fee" : {
+      "comment" : "Toggle to enable community fees instead of individual utilities",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usar una cuota fija mensual"
+          }
+        }
+      }
+    },
+    "Monthly amount" : {
+      "comment" : "Community fees monthly amount label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importe mensual"
+          }
+        }
+      }
+    },
+    "Add another service…" : {
+      "comment" : "Placeholder to add a custom community fees service",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir otro servicio…"
+          }
+        }
+      }
+    },
+    "Cleaning" : {
+      "comment" : "Community fees included service: cleaning",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limpieza"
+          }
+        }
+      }
+    },
+    "Common expenses:" : {
+      "comment" : "PDF room ad common expenses label",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gastos comunes:"
+          }
+        }
+      }
+    },
+    "These common expenses include:" : {
+      "comment" : "Label above community fees included-services chips",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estos gastos comunes incluyen:"
+          }
+        }
+      }
+    },
+    "Switch property" : {
+      "comment" : "Title for property switcher dialog",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambiar de propiedad"
+          }
+        }
+      }
+    },
+    "Refresh" : {
+      "comment" : "Refresh finances toolbar button",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualizar"
+          }
+        }
+      }
+    },
+    "%lld room(s) available to rent" : {
+      "comment" : "Notification body counting vacant rooms",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld habitación(es) disponible(s) para alquilar"
+          }
+        }
+      }
+    },
+    "%lld tenant(s) without a registered deposit" : {
+      "comment" : "Notification body counting tenants missing a deposit",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld inquilino(s) sin fianza registrada"
+          }
+        }
+      }
+    },
+    "Deposit pending" : {
+      "comment" : "Notification title for pending deposit reminder",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fianza pendiente"
+          }
+        }
+      }
+    },
+    "Deposit reminder" : {
+      "comment" : "Toggle title for deposit reminder notifications",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aviso de fianza"
+          }
+        }
+      }
+    },
+    "Rent reminder" : {
+      "comment" : "Toggle title for monthly rent reminder notifications",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recordatorio de renta"
+          }
+        }
+      }
+    },
+    "Reminder on the 1st of each month to review rent payments" : {
+      "comment" : "Subtitle for rent reminder toggle",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aviso el día 1 de cada mes para revisar los cobros"
+          }
+        }
+      }
+    },
+    "Vacant room" : {
+      "comment" : "Toggle title for vacant room notifications",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitación vacante"
+          }
+        }
+      }
+    },
+    "Vacant rooms" : {
+      "comment" : "Notification title for vacant rooms reminder",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Habitaciones vacantes"
+          }
+        }
+      }
+    },
+    "When a room is unoccupied and available to rent" : {
+      "comment" : "Subtitle for vacant room toggle",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando una habitación está libre y disponible para alquilar"
+          }
+        }
+      }
+    },
+    "When an active tenant has no deposit recorded" : {
+      "comment" : "Subtitle for deposit reminder toggle",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando un inquilino activo no tiene fianza registrada"
+          }
+        }
+      }
+    },
     "" : {
       "localizations" : {
         "es" : {
@@ -1275,7 +1506,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cuotas de comunidad"
+            "value" : "Gastos comunes"
           }
         }
       }
@@ -1523,6 +1754,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Plantilla de Contrato"
+          }
+        }
+      }
+    },
+    "Contract template" : {
+      "comment" : "Label for navigating to the global contract template editor",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plantilla de contrato"
+          }
+        }
+      }
+    },
+    "Contract variables" : {
+      "comment" : "Label for navigating to contract variables editor",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Variables de contrato"
           }
         }
       }
@@ -2042,6 +2295,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿No tienes cuenta? Regístrate"
+          }
+        }
+      }
+    },
+    "Done" : {
+      "comment" : "Button to close a sheet",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hecho"
           }
         }
       }

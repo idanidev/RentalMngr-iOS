@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RoomDetailView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.horizontalSizeClass) private var hSize
     @State private var room: Room
     @State private var showEditSheet = false
     @State private var showPhotos = false
@@ -22,8 +23,8 @@ struct RoomDetailView: View {
                 Section {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
-                            ForEach(room.stripThumbnailUrls, id: \.absoluteString) { url in
-                                AsyncImageView(url: url, contentMode: .fill, targetSize: CGSize(width: 120, height: 90))
+                            ForEach(room.photos, id: \.self) { path in
+                                AsyncImageView(bucket: SupabaseConfig.storageBucket, path: path, contentMode: .fill, targetSize: CGSize(width: 120, height: 90))
                                     .frame(width: 120, height: 90)
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                                     .onTapGesture { showPhotos = true }
@@ -137,7 +138,7 @@ struct RoomDetailView: View {
                                     roomId: room.id, occupied: !room.occupied)
                                 await refreshRoom()
                             } catch {
-                                errorMessage = error.localizedDescription
+                                errorMessage = error.safeUserMessage
                             }
                         }
                     } label: {
@@ -200,6 +201,13 @@ struct RoomDetailView: View {
         .sheet(isPresented: $showPhotos) {
             NavigationStack {
                 RoomPhotosView(photos: room.photos)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button(String(localized: "Done", locale: LanguageService.currentLocale, comment: "Button to close the photos screen")) {
+                                showPhotos = false
+                            }
+                        }
+                    }
             }
             .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
         }
@@ -216,7 +224,7 @@ struct RoomDetailView: View {
                         try await appState.tenantService.unassignFromRoom(roomId: room.id)
                         await refreshRoom()
                     } catch {
-                        errorMessage = error.localizedDescription
+                        errorMessage = error.safeUserMessage
                     }
                 }
             }

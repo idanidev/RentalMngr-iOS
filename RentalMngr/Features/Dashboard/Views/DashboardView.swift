@@ -4,6 +4,7 @@ private enum QuickActionTarget { case tenant, expense, income }
 
 struct DashboardView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.horizontalSizeClass) private var hSize
     @State private var viewModel: DashboardViewModel?
     @State private var showSettings = false
     @State private var showNotifications = false
@@ -37,6 +38,8 @@ struct DashboardView: View {
             .padding(.horizontal, 20)
             .padding(.top, 8)
             .padding(.bottom, 40)
+            .frame(maxWidth: 1600)
+            .frame(maxWidth: .infinity)
         }
         .scrollIndicators(.hidden)
         .navigationTitle("RentalMngr")
@@ -339,10 +342,26 @@ struct DashboardView: View {
                 }
             }
 
-            ForEach(vm.properties) { property in
-                PropertyDashboardCard(property: property) {
-                    appState.propertiesNavigationPath = NavigationPath([property])
-                    appState.selectedTab = .properties
+            if hSize == .regular {
+                // Wide screens (Mac / iPad): rich multi-column cards with room breakdown.
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 360), spacing: 14, alignment: .top)], spacing: 14) {
+                    ForEach(vm.properties) { property in
+                        Button {
+                            appState.propertiesNavigationPath = NavigationPath([property])
+                            appState.selectedTab = .properties
+                        } label: {
+                            PropertyRichCard(property: property)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            } else {
+                // iPhone: compact summary cards (unchanged).
+                ForEach(vm.properties) { property in
+                    PropertyDashboardCard(property: property) {
+                        appState.propertiesNavigationPath = NavigationPath([property])
+                        appState.selectedTab = .properties
+                    }
                 }
             }
         }
@@ -354,7 +373,7 @@ struct DashboardView: View {
     private func alertsSection(_ vm: DashboardViewModel) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             Label("Contratos por vencer", systemImage: "exclamationmark.triangle.fill")
-            .font(.headline)
+            .font(.title3)
             .foregroundStyle(.orange)
 
             ForEach(vm.expiringContracts) { tenant in
@@ -419,6 +438,8 @@ private struct QuickActionButton: View {
         }
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity)
+        .contentShape(RoundedRectangle(cornerRadius: 14))
+        .macCardHover()
     }
 }
 
@@ -566,6 +587,16 @@ private struct PropertyPickerSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            // Top bar with explicit close (Mac sheets have no swipe-to-dismiss)
+            HStack {
+                Button(String(localized: "Cancel", locale: LanguageService.currentLocale, comment: "Cancel button")) {
+                    onCancel()
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 14)
+
             // Header
             VStack(spacing: 8) {
                 Image(systemName: actionIcon)

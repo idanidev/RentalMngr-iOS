@@ -24,6 +24,7 @@ final class RoomListViewModel {
     func loadRooms() async {
         guard !isLoaded else { return }
         isLoading = true
+        errorMessage = nil
         do {
             var fetchedRooms = try await roomService.fetchRooms(propertyId: propertyId)
             let activeTenants = try await tenantService.fetchActiveTenants(propertyId: propertyId)
@@ -47,7 +48,7 @@ final class RoomListViewModel {
             isLoading = false
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isLoaded = true
         isLoading = false
@@ -66,7 +67,7 @@ final class RoomListViewModel {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 
@@ -78,7 +79,7 @@ final class RoomListViewModel {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 

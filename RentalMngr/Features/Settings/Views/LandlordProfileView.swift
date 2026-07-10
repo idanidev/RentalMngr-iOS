@@ -88,7 +88,7 @@ struct LandlordProfileView: View {
             do {
                 profile = try await appState.userProfileService.getLandlordProfile()
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.safeUserMessage
             }
         }
         .toolbar {
@@ -109,6 +109,7 @@ struct LandlordProfileView: View {
                 .disabled(isSaving)
             }
         }
+        .errorAlert($errorMessage)
     }
 
     private func save() async {
@@ -129,7 +130,7 @@ struct LandlordProfileView: View {
             try? await Task.sleep(for: .seconds(1))
             dismiss()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isSaving = false
     }

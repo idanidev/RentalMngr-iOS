@@ -2,11 +2,15 @@ import SwiftUI
 
 struct PropertyDetailView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.horizontalSizeClass) private var hSize
     @State private var currentProperty: Property
     @State private var viewModel: PropertyDetailViewModel?
-    @State private var allProperties: [Property] = []
     @State private var showEditSheet = false
     @State private var showSharingSheet = false
+    @State private var showContractPreview = false
+    // Section tab lives in the View (not the VM) so it survives VM recreation /
+    // realtime refreshes — editing a room or contract no longer resets it to Rooms.
+    @State private var selectedTab: PropertyTab = .rooms
 
     init(property: Property) {
         _currentProperty = State(initialValue: property)
@@ -20,18 +24,18 @@ struct PropertyDetailView: View {
                 loadingSkeleton
             }
         }
-        .navigationTitle("")
+        .navigationTitle(viewModel?.property.name ?? currentProperty.name)
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.hidden, for: .navigationBar)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbar {
-            ToolbarItem(placement: .principal) {
-                propertySwitcherButton
-            }
             ToolbarItem(placement: .primaryAction) {
                 actionsMenu
             }
         }
+        .errorAlert(Binding(
+            get: { viewModel?.errorMessage },
+            set: { viewModel?.errorMessage = $0 }))
         .sheet(isPresented: $showEditSheet) {
             if let vm = viewModel { Task { await vm.refreshData() } }
         } content: {
@@ -46,6 +50,12 @@ struct PropertyDetailView: View {
             }
             .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
         }
+        .sheet(isPresented: $showContractPreview) {
+            NavigationStack {
+                ContractPreviewView(property: viewModel?.property ?? currentProperty)
+            }
+            .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
+        }
         .onAppear { appState.selectedProperty = currentProperty }
         .onDisappear {
             if appState.selectedProperty?.id == currentProperty.id {
@@ -53,51 +63,25 @@ struct PropertyDetailView: View {
             }
         }
         .task(id: currentProperty.id) {
-            viewModel = nil
-            let vm = PropertyDetailViewModel(
-                property: currentProperty,
-                currentUserId: appState.authService.currentUserId,
-                propertyService: appState.propertyService,
-                roomService: appState.roomService,
-                tenantService: appState.tenantService,
-                realtimeService: appState.realtimeService
-            )
-            viewModel = vm
-            await vm.loadData()
-
-            if allProperties.isEmpty {
-                allProperties = (try? await appState.propertyService.fetchProperties()) ?? []
+            // Only rebuild the VM when the property actually changed. A bare
+            // re-appearance (returning from a pushed room, a realtime-driven
+            // refresh, etc.) keeps the existing VM and the selected tab.
+            if viewModel?.property.id != currentProperty.id {
+                viewModel = nil
+                selectedTab = .rooms
+                let vm = PropertyDetailViewModel(
+                    property: currentProperty,
+                    currentUserId: appState.authService.currentUserId,
+                    propertyService: appState.propertyService,
+                    roomService: appState.roomService,
+                    tenantService: appState.tenantService,
+                    realtimeService: appState.realtimeService
+                )
+                viewModel = vm
+                await vm.loadData()
+            } else {
+                await viewModel?.refreshData()
             }
-        }
-    }
-
-    // MARK: - Toolbar: Property Switcher
-
-    private var propertySwitcherButton: some View {
-        Menu {
-            ForEach(allProperties) { p in
-                Button {
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        currentProperty = p
-                        appState.selectedProperty = p
-                    }
-                } label: {
-                    Label(p.name, systemImage: p.id == currentProperty.id ? "checkmark" : "building.2")
-                }
-            }
-        } label: {
-            HStack(spacing: 4) {
-                Text(currentProperty.name)
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                Image(systemName: "chevron.up.chevron.down")
-                    .font(.caption2)
-                    .foregroundStyle(.white.opacity(0.7))
-                    .opacity(allProperties.count > 1 ? 1 : 0)
-            }
-            .frame(maxWidth: 220)
         }
     }
 
@@ -121,6 +105,15 @@ struct PropertyDetailView: View {
                     systemImage: "person.badge.plus"
                 )
             }
+
+            Button {
+                showContractPreview = true
+            } label: {
+                Label(
+                    String(localized: "Vista previa del contrato", locale: LanguageService.currentLocale, comment: "Preview contract PDF action"),
+                    systemImage: "doc.text.magnifyingglass"
+                )
+            }
         } label: {
             Image(systemName: "ellipsis.circle")
         }
@@ -139,7 +132,7 @@ struct PropertyDetailView: View {
                     propertyHeroHeader(vm)
 
                     VStack(spacing: 0) {
-                        switch vm.selectedTab {
+                        switch selectedTab {
                         case .rooms:
                             RoomListView(propertyId: currentProperty.id, rooms: vm.rooms)
                         case .tenants:
@@ -159,37 +152,38 @@ struct PropertyDetailView: View {
                             )
                         }
                     }
+                    .padding(.top, 18)
                     .padding(.bottom, 100)
                 }
             }
             .scrollIndicators(.hidden)
             .refreshable { await vm.refreshData() }
 
-            // Floating Tab Bar
-            floatingTabBar(vm)
+            // Floating section bar
+            floatingTabBar()
         }
     }
 
     // MARK: - Hero Header
 
     private func propertyHeroHeader(_ vm: PropertyDetailViewModel) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 16) {
             // Address + Revenue
             HStack(alignment: .top, spacing: 0) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(vm.property.address)
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.9))
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.95))
                         .lineLimit(1)
 
                     if vm.property.monthlyRevenue > 0 {
                         HStack(alignment: .firstTextBaseline, spacing: 4) {
                             Text(vm.property.monthlyRevenue.formatted(currencyCode: "EUR"))
-                                .font(.system(.title, design: .rounded, weight: .bold))
+                                .font(.system(.largeTitle, design: .rounded, weight: .bold))
                                 .foregroundStyle(.white)
                             Text("/ mes")
-                                .font(.caption)
-                                .foregroundStyle(.white.opacity(0.8))
+                                .font(.subheadline)
+                                .foregroundStyle(.white.opacity(0.85))
                         }
                     }
                 }
@@ -221,7 +215,7 @@ struct PropertyDetailView: View {
             }
         }
         .padding(.horizontal, 20)
-        .padding(.top, 16)
+        .padding(.top, 12)
         .padding(.bottom, 20)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background {
@@ -235,39 +229,39 @@ struct PropertyDetailView: View {
 
     private func heroStat(value: String, label: String, icon: String, color: Color) -> some View {
         VStack(spacing: 4) {
-            HStack(spacing: 4) {
-                Image(systemName: icon).font(.caption2)
-                Text(value).font(.system(.callout, design: .rounded, weight: .bold))
+            HStack(spacing: 5) {
+                Image(systemName: icon).font(.subheadline)
+                Text(value).font(.system(.title3, design: .rounded, weight: .bold))
             }
             .foregroundStyle(color)
             Text(label)
-                .font(.caption2)
-                .foregroundStyle(.white.opacity(0.8))
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.85))
         }
         .frame(maxWidth: .infinity)
     }
 
     // MARK: - Floating Tab Bar
 
-    private func floatingTabBar(_ vm: PropertyDetailViewModel) -> some View {
+    private func floatingTabBar() -> some View {
         HStack(spacing: 0) {
             ForEach(PropertyTab.allCases, id: \.self) { tab in
                 Button {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        vm.selectedTab = tab
+                        selectedTab = tab
                     }
                 } label: {
                     VStack(spacing: 4) {
                         Image(systemName: tab.icon)
-                            .font(.system(size: 18, weight: vm.selectedTab == tab ? .bold : .medium))
-                            .symbolEffect(.bounce, value: vm.selectedTab == tab)
+                            .font(.system(size: 18, weight: selectedTab == tab ? .bold : .medium))
+                            .symbolEffect(.bounce, value: selectedTab == tab)
                         Text(tab.displayName)
                             .font(.caption2)
-                            .fontWeight(vm.selectedTab == tab ? .bold : .regular)
-                            .opacity(vm.selectedTab == tab ? 1.0 : 0.6)
+                            .fontWeight(selectedTab == tab ? .bold : .regular)
+                            .opacity(selectedTab == tab ? 1.0 : 0.6)
                     }
                     .frame(maxWidth: .infinity)
-                    .foregroundStyle(vm.selectedTab == tab ? Color.orange : .secondary)
+                    .foregroundStyle(selectedTab == tab ? Color.orange : .secondary)
                     .padding(.vertical, 12)
                 }
             }
@@ -276,7 +270,8 @@ struct PropertyDetailView: View {
         .background(.ultraThinMaterial)
         .clipShape(Capsule())
         .shadow(color: .black.opacity(0.3), radius: 20, x: 0, y: 10)
-        .padding(.horizontal, 24)
+        .frame(maxWidth: hSize == .regular ? .infinity : 520)
+        .padding(.horizontal, hSize == .regular ? 20 : 24)
         .padding(.bottom, 8)
     }
 

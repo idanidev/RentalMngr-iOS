@@ -64,7 +64,14 @@ extension URLSession {
 /// - Uses a dedicated URLSession with HTTP disk caching.
 /// - Downscales to `targetSize` off the main thread via CGImageSource.
 struct AsyncImageView: View {
-    let url: URL?
+    /// Where the image comes from: a ready URL, or a private-bucket object path
+    /// that must be resolved to a signed URL on demand.
+    private enum Source: Equatable {
+        case url(URL?)
+        case storage(bucket: String, path: String)
+    }
+
+    private let source: Source
     let contentMode: ContentMode
     let targetSize: CGSize?
 
@@ -72,9 +79,26 @@ struct AsyncImageView: View {
     @State private var isLoading = false
 
     init(url: URL?, contentMode: ContentMode = .fill, targetSize: CGSize? = nil) {
-        self.url = url
+        self.source = .url(url)
         self.contentMode = contentMode
         self.targetSize = targetSize
+    }
+
+    /// Loads a private-bucket object by path, resolving a signed URL on demand and
+    /// caching the decoded image by the stable `bucket/path` key (never the signed
+    /// URL, whose token rotates on every sign).
+    init(bucket: String, path: String, contentMode: ContentMode = .fill, targetSize: CGSize? = nil) {
+        self.source = .storage(bucket: bucket, path: path)
+        self.contentMode = contentMode
+        self.targetSize = targetSize
+    }
+
+    /// Stable cache key independent of any signed-URL token.
+    private var stableKey: String? {
+        switch source {
+        case .url(let u): return u?.absoluteString
+        case .storage(let bucket, let path): return "\(bucket)/\(path)"
+        }
     }
 
     var body: some View {
@@ -91,15 +115,15 @@ struct AsyncImageView: View {
                 Color.gray.opacity(0.1)
             }
         }
-        .task(id: url) {
-            guard let url else {
+        .task(id: source) {
+            guard let stableKey else {
                 image = nil
                 isLoading = false
                 return
             }
 
             let cacheKey =
-                "\(url.absoluteString)_\(Int(targetSize?.width ?? 0))x\(Int(targetSize?.height ?? 0))"
+                "\(stableKey)_\(Int(targetSize?.width ?? 0))x\(Int(targetSize?.height ?? 0))"
 
             // Serve from memory cache — no async work needed
             if let cached = ImageCache.shared.get(cacheKey) {
@@ -111,6 +135,19 @@ struct AsyncImageView: View {
             image = nil
             isLoading = true
             defer { isLoading = false }
+
+            // Resolve the actual URL to fetch — sign private-bucket paths on demand.
+            let url: URL
+            switch source {
+            case .url(let u):
+                guard let u else { return }
+                url = u
+            case .storage(let bucket, let path):
+                guard let signed = try? await SignedURLCache.shared.url(bucket: bucket, path: path)
+                else { return }
+                url = signed
+            }
+            guard !Task.isCancelled else { return }
 
             let ts = targetSize
             #if os(iOS)

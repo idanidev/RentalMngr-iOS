@@ -57,6 +57,10 @@ struct ContractView: View {
         .task {
             await generatePDF()
         }
+        .onDisappear {
+            // The contract PDF embeds tenant + landlord DNI/names — don't leave it in temp.
+            if let pdfURL { try? FileManager.default.removeItem(at: pdfURL) }
+        }
         .sheet(isPresented: $showPaywall, onDismiss: { /* user dismissed paywall */ }) {
             PaywallView(highlightedFeature: .contractPdf)
                 .environment(appState.entitlementService)
@@ -84,22 +88,31 @@ struct ContractView: View {
             property = try await appState.propertyService.fetchProperty(id: propertyId)
             rooms = try await appState.roomService.fetchRooms(propertyId: propertyId)
 
-            // Find the tenant's room
-            let tenantRoom =
-                rooms.first { $0.tenantId == tenant.id }
-                ?? rooms.first  // Fallback to first room
-
-            guard let property, let room = tenantRoom else {
+            guard let property else {
                 isLoading = false
                 return
             }
 
+            // Use the tenant's assigned room. If the tenant isn't assigned to any
+            // room, a blank room leaves the room/rent fields empty in the contract
+            // (a fill-in line) instead of borrowing the first room's data.
+            let room = rooms.first { $0.tenantId == tenant.id }
+                ?? Room(
+                    id: UUID(), propertyId: property.id, tenantId: tenant.id,
+                    name: "", monthlyRent: 0, sizeSqm: nil, occupied: false,
+                    tenantName: tenant.fullName, notes: nil, roomType: .privateRoom,
+                    photos: [], createdAt: nil, updatedAt: nil)
+
             let generator = PDFGenerator()
             let landlord = (try? await appState.userProfileService.getLandlordProfile()) ?? .empty
             let customVars = (try? await ContractVariableService().fetchVariables()) ?? []
+            let utilities = (try? await appState.utilityService.fetchPropertyUtilities(propertyId: propertyId)) ?? []
+            let communityUtility = utilities.first { $0.type == .communityFees }
             let pdfData = try await generator.generateContract(
                 tenant: tenant, room: room, property: property, landlord: landlord,
-                customVariables: customVars)
+                customVariables: customVars,
+                communityFeesIncludes: communityUtility?.includedServices ?? [],
+                communityFeesAmount: communityUtility?.monthlyAmount)
 
             // Write to a named temp file so ShareLink knows the filename and type
             let url = FileManager.default.temporaryDirectory

@@ -28,7 +28,7 @@ struct TenantAssignView: View {
                                 try await appState.tenantService.assignToRoom(tenantId: tenant.id, roomId: room.id)
                                 dismiss()
                             } catch {
-                                errorMessage = error.localizedDescription
+                                errorMessage = error.safeUserMessage
                             }
                         }
                     } label: {
@@ -55,7 +55,7 @@ struct TenantAssignView: View {
             do {
                 rooms = try await appState.roomService.fetchRooms(propertyId: propertyId)
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = error.safeUserMessage
             }
             isLoading = false
         }

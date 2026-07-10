@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TenantDetailView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.horizontalSizeClass) private var hSize
     @State private var tenant: Tenant
     @State private var showEditSheet = false
     @State private var showAssignSheet = false
@@ -125,6 +126,8 @@ struct TenantDetailView: View {
                     Label(
                         String(localized: "Renew Contract", locale: LanguageService.currentLocale, comment: "Button to renew tenant contract"),
                         systemImage: "arrow.clockwise")
+                    .frame(maxWidth: hSize == .regular ? .infinity : nil, alignment: .leading)
+                    .contentShape(Rectangle())
                 }
                 .disabled(!tenant.active)
 
@@ -134,6 +137,8 @@ struct TenantDetailView: View {
                     Label(
                         String(localized: "Move Room", locale: LanguageService.currentLocale, comment: "Button to move tenant to another room"
                         ), systemImage: "arrow.right.arrow.left")
+                    .frame(maxWidth: hSize == .regular ? .infinity : nil, alignment: .leading)
+                    .contentShape(Rectangle())
                 }
                 .disabled(!tenant.active)
 
@@ -143,6 +148,8 @@ struct TenantDetailView: View {
                     Label(
                         String(localized: "Generate Contract PDF",
                             locale: LanguageService.currentLocale, comment: "Button to generate contract PDF"), systemImage: "doc.text")
+                    .frame(maxWidth: hSize == .regular ? .infinity : nil, alignment: .leading)
+                    .contentShape(Rectangle())
                 }
 
                 if tenant.active {
@@ -153,6 +160,8 @@ struct TenantDetailView: View {
                             String(localized: "Deactivate Tenant",
                                 locale: LanguageService.currentLocale, comment: "Button to deactivate tenant"), systemImage: "person.slash"
                         )
+                        .frame(maxWidth: hSize == .regular ? .infinity : nil, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
                 } else {
                     Button {
@@ -161,7 +170,7 @@ struct TenantDetailView: View {
                                 try await appState.tenantService.activateTenant(id: tenant.id)
                                 tenant = try await appState.tenantService.fetchTenant(id: tenant.id)
                             } catch {
-                                errorMessage = error.localizedDescription
+                                errorMessage = error.safeUserMessage
                             }
                         }
                     } label: {
@@ -169,10 +178,14 @@ struct TenantDetailView: View {
                             String(localized: "Reactivate Tenant",
                                 locale: LanguageService.currentLocale, comment: "Button to reactivate a deactivated tenant"),
                             systemImage: "person.badge.shield.checkmark.fill")
+                        .frame(maxWidth: hSize == .regular ? .infinity : nil, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
                 }
             }
         }
+        .frame(maxWidth: hSize == .regular ? 720 : .infinity)
+        .frame(maxWidth: .infinity)
         .navigationTitle(tenant.fullName)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -246,7 +259,7 @@ struct TenantDetailView: View {
                         try await appState.tenantService.deactivateTenant(id: tenant.id)
                         tenant.active = false
                     } catch {
-                        errorMessage = error.localizedDescription
+                        errorMessage = error.safeUserMessage
                     }
                 }
             }
@@ -262,7 +275,7 @@ struct TenantDetailView: View {
     @ViewBuilder
     private func contractStatusBadge(for status: ContractStatus) -> some View {
         Text(status.label)
-            .font(.subheadline)
+            .font(.subheadline.bold())
             .fontWeight(.semibold)
             .foregroundStyle(contractStatusColor(status))
     }

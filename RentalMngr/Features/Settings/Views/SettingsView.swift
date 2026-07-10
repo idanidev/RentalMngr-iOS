@@ -2,7 +2,12 @@ import Auth
 import SwiftUI
 
 struct SettingsView: View {
+    /// Whether to show the "Done" close button. True when presented as a sheet
+    /// (avatar), false when shown as the "More" tab (nothing to dismiss).
+    var showsDoneButton: Bool = true
     @Environment(AppState.self) private var appState
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.horizontalSizeClass) private var hSize
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @AppStorage("hasCompletedSetup") private var hasCompletedSetup = false
     @State private var showSignOutConfirmation = false
@@ -87,6 +92,20 @@ struct SettingsView: View {
                         String(localized: "Notification Settings",
                             locale: LanguageService.currentLocale, comment: "Label for navigating to notification settings"),
                         systemImage: "bell.badge")
+                }
+            }
+
+            // Contracts
+            Section(
+                String(localized: "Contracts", locale: LanguageService.currentLocale, comment: "Settings section header for contracts")
+            ) {
+                NavigationLink {
+                    ContractVariablesView()
+                } label: {
+                    Label(
+                        String(localized: "Contract variables",
+                            locale: LanguageService.currentLocale, comment: "Label for navigating to contract variables editor"),
+                        systemImage: "curlybraces")
                 }
             }
 
@@ -185,6 +204,15 @@ struct SettingsView: View {
         .navigationTitle(
             String(localized: "More", locale: LanguageService.currentLocale, comment: "Navigation title for settings/more screen")
         )
+        .toolbar {
+            if showsDoneButton {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(String(localized: "Done", locale: LanguageService.currentLocale, comment: "Button to close the settings screen")) {
+                        dismiss()
+                    }
+                }
+            }
+        }
         .confirmationDialog(
             String(localized: "Sign Out Confirmation Title", defaultValue: "Sign out?",
                 locale: LanguageService.currentLocale, comment: "Confirmation dialog title for sign out"),
@@ -198,7 +226,7 @@ struct SettingsView: View {
                     do {
                         try await appState.authService.signOut()
                     } catch {
-                        errorMessage = error.localizedDescription
+                        errorMessage = error.safeUserMessage
                     }
                 }
             }
@@ -223,7 +251,7 @@ struct SettingsView: View {
                     do {
                         try await appState.authService.deleteAccount()
                     } catch {
-                        errorMessage = error.localizedDescription
+                        errorMessage = error.safeUserMessage
                         isDeletingAccount = false
                     }
                 }
@@ -301,6 +329,18 @@ struct SettingsView: View {
                 }
             }
         }
+        .frame(maxWidth: hSize == .regular ? .infinity : nil, alignment: .leading)
+        .padding(hSize == .regular ? 16 : 0)
+        .background(hSize == .regular ? AnyShapeStyle(.background.secondary) : AnyShapeStyle(.clear))
+        .overlay {
+            if hSize == .regular {
+                RoundedRectangle(cornerRadius: 18)
+                    .strokeBorder(.quaternary, lineWidth: 0.5)
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: hSize == .regular ? 18 : 0))
+        .contentShape(RoundedRectangle(cornerRadius: 18))
+        .macCardHover()
     }
 
     private func forceRefreshTier() async {
@@ -309,11 +349,13 @@ struct SettingsView: View {
             return
         }
         await appState.entitlementService.refresh(userId: uid)
+        #if DEBUG
         if let sub = appState.entitlementService.subscription {
             print("[Entitlement] tier=\(sub.tier.rawValue) expires=\(sub.expiresAt?.description ?? "nil") provider=\(sub.provider ?? "nil")")
         } else {
             print("[Entitlement] subscription is nil — query returned no rows")
         }
+        #endif
     }
 
     private func tierLabel(_ t: SubscriptionTier) -> String {

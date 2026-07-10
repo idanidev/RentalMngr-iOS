@@ -33,7 +33,7 @@ final class AuthViewModel {
             try await authService.signIn(
                 email: email.trimmingCharacters(in: .whitespaces), password: password)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isLoading = false
     }
@@ -46,7 +46,7 @@ final class AuthViewModel {
                 email: email.trimmingCharacters(in: .whitespaces), password: password)
             successMessage = String(localized: "Account created. Check your email to confirm.", locale: LanguageService.currentLocale, comment: "Success message after sign up")
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isLoading = false
     }
@@ -58,7 +58,7 @@ final class AuthViewModel {
             try await authService.resetPassword(email: email.trimmingCharacters(in: .whitespaces))
             successMessage = String(localized: "Recovery email sent. Check your inbox.", locale: LanguageService.currentLocale, comment: "Success message after password reset request")
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isLoading = false
     }

@@ -172,7 +172,7 @@ protocol DocumentServiceProtocol: Sendable {
         uploadedBy: UUID
     ) async throws -> Document
     func deleteDocument(_ document: Document) async throws
-    func getDocumentURL(_ document: Document) throws -> URL
+    func getDocumentURL(_ document: Document) async throws -> URL
 }
 
 protocol RealtimeServiceProtocol: Sendable {
@@ -231,7 +231,7 @@ protocol UtilityServiceProtocol: Sendable {
     func fetchAllUtilityCharges(
         propertyIds: [UUID], startDate: Date, endDate: Date
     ) async throws -> [UtilityCharge]
-    func generateMonthlyUtilityCharges(properties: [Property]) async throws
+    func generateMonthlyUtilityCharges(properties: [Property], month: Date) async throws
 }
 
 extension UtilityServiceProtocol {

@@ -19,7 +19,7 @@ final class SharedExpensesViewModel {
         do {
             sharedExpenses = try await sharedExpenseService.fetchSharedExpenses(propertyId: propertyId)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isLoading = false
     }
@@ -29,7 +29,7 @@ final class SharedExpensesViewModel {
             try await sharedExpenseService.deleteSharedExpense(id: expense.id)
             sharedExpenses.removeAll { $0.id == expense.id }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 }

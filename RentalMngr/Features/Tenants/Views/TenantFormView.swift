@@ -47,6 +47,7 @@ struct TenantFormView: View {
                 )
             }
         }
+        .errorAlert(Binding(get: { viewModel?.errorMessage }, set: { viewModel?.errorMessage = $0 }))
     }
 
     @ViewBuilder

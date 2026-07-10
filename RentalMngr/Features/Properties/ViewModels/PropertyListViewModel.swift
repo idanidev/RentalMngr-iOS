@@ -75,7 +75,7 @@ final class PropertyListViewModel {
             try await propertyService.deleteProperty(id: property.id)
             properties.removeAll { $0.id == property.id }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 }

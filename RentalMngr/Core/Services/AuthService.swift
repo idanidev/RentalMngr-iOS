@@ -26,6 +26,9 @@ final class AuthService: AuthServiceProtocol {
     }
 
     func signOut() async throws {
+        // Remove this device's push token while still authenticated (RLS needs the session),
+        // so the signed-out user stops receiving the prior account's notifications.
+        await PushManager.shared?.clearOnSignOut()
         try await client.auth.signOut()
         currentSession = nil
         currentUser = nil
@@ -88,9 +91,13 @@ final class AuthService: AuthServiceProtocol {
     }
 
     func deleteAccount() async throws {
+        // Remove this device's push token while still authenticated (RLS needs the session).
+        await PushManager.shared?.clearOnSignOut()
         // Call the delete_account RPC which removes all user data + auth.users entry server-side
         try await client.rpc("delete_account").execute()
-        // Clear local state
+        // Purge the persisted session too — otherwise `emitLocalSessionAsInitialSession`
+        // re-authenticates the now-deleted account into the app on next launch.
+        try? await client.auth.signOut(scope: .local)
         currentSession = nil
         currentUser = nil
         isAuthenticated = false

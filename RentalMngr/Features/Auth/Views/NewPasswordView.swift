@@ -121,7 +121,7 @@ struct NewPasswordView: View {
                             try await appState.authService.resetPassword(email: email)
                             errorMessage = nil
                         } catch {
-                            errorMessage = error.localizedDescription
+                            errorMessage = error.safeUserMessage
                         }
                     }
                 } label: {
@@ -160,7 +160,7 @@ struct NewPasswordView: View {
             )
             showSuccess = true
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 }

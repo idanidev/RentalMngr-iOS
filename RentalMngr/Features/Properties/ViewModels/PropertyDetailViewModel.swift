@@ -27,7 +27,6 @@ enum PropertyTab: String, CaseIterable {
 @MainActor @Observable
 final class PropertyDetailViewModel {
     var property: Property
-    var selectedTab: PropertyTab = .rooms
     var rooms: [Room] = []
     var tenants: [Tenant] = []
     var currentUserRole: AccessRole = .viewer
@@ -41,6 +40,7 @@ final class PropertyDetailViewModel {
     private let tenantService: TenantServiceProtocol
     private let realtimeService: RealtimeServiceProtocol
     private let currentUserId: UUID?
+    private var isRefreshing = false
 
     @ObservationIgnored
     nonisolated(unsafe) private var realtimeTask: Task<Void, Never>?
@@ -88,21 +88,27 @@ final class PropertyDetailViewModel {
             isLoading = false
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isLoading = false
     }
 
-    func refreshData() async {
+    func refreshData(surfaceErrors: Bool = true) async {
+        guard !isRefreshing else { return }
+        isRefreshing = true
+        defer { isRefreshing = false }
+
         isLoading = true
         do {
-            try await fetchAndMap(refreshProperty: true)
+            try await fetchAndMap(refreshProperty: true, surfaceErrors: surfaceErrors)
         } catch where error.isCancellation || Task.isCancelled {
             // Tarea cancelada por navegación — no es un error real
             isLoading = false
             return
         } catch {
-            errorMessage = error.localizedDescription
+            if surfaceErrors {
+                errorMessage = error.safeUserMessage
+            }
         }
         isLoading = false
     }
@@ -111,7 +117,9 @@ final class PropertyDetailViewModel {
 
     /// Single source of truth for fetching rooms + tenants + members.
     /// Optionally re-fetches property metadata (name, address, description).
-    private func fetchAndMap(refreshProperty: Bool) async throws {
+    /// `surfaceErrors` es false en refrescos en segundo plano (realtime) para
+    /// no mostrar alertas sorpresa al usuario.
+    private func fetchAndMap(refreshProperty: Bool, surfaceErrors: Bool = true) async throws {
         async let fetchedRoomsTask = roomService.fetchRooms(propertyId: property.id)
         async let fetchedTenantsTask = tenantService.fetchTenants(
             propertyId: property.id, limit: nil, offset: nil)
@@ -119,7 +127,18 @@ final class PropertyDetailViewModel {
 
         var fetchedRooms = try await fetchedRoomsTask
         let fetchedTenants = try await fetchedTenantsTask
-        let members = (try? await membersTask) ?? []
+        var members: [PropertyMember] = []
+        do {
+            members = try await membersTask
+        } catch where error.isCancellation {
+            // Tarea cancelada por navegación — no es un error real
+        } catch {
+            // Un fallo transitorio no debe degradar silenciosamente a viewer;
+            // conservamos [] para el rol pero informamos al usuario del error.
+            if surfaceErrors {
+                errorMessage = error.safeUserMessage
+            }
+        }
 
         if refreshProperty,
             let refreshed = try? await propertyService.fetchProperty(id: property.id)
@@ -152,12 +171,12 @@ final class PropertyDetailViewModel {
 
     /// Debounces realtime-triggered refreshes to avoid a request storm when
     /// multiple tables fire simultaneously (e.g. rooms + tenants on tenant move).
-    private nonisolated func scheduleRefresh() {
+    private func scheduleRefresh() {
         refreshDebounceTask?.cancel()
         refreshDebounceTask = Task { [weak self] in
             try? await Task.sleep(for: .milliseconds(400))
             guard !Task.isCancelled, let self else { return }
-            await self.refreshData()
+            await self.refreshData(surfaceErrors: false)
         }
     }
 
@@ -169,13 +188,13 @@ final class PropertyDetailViewModel {
 
         await withTaskGroup(of: Void.self) { group in
             group.addTask {
-                for await _ in propertiesStream { self.scheduleRefresh() }
+                for await _ in propertiesStream { await self.scheduleRefresh() }
             }
             group.addTask {
-                for await _ in roomsStream { self.scheduleRefresh() }
+                for await _ in roomsStream { await self.scheduleRefresh() }
             }
             group.addTask {
-                for await _ in tenantsStream { self.scheduleRefresh() }
+                for await _ in tenantsStream { await self.scheduleRefresh() }
             }
         }
     }

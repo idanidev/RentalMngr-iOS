@@ -68,8 +68,13 @@ struct Income: Codable, Identifiable, Sendable, Hashable {
         paid = try container.decode(Bool.self, forKey: .paid)
         notes = try container.decodeIfPresent(String.self, forKey: .notes)
 
-        // month may come as "2026-02-01" (date only) from Supabase
-        month = try Self.decodeFlexibleDate(container: container, key: .month) ?? Date()
+        // month may come as "2026-02-01" (date only) from Supabase. It's REQUIRED — never
+        // silently default to today (that would mis-bucket the row into the current month).
+        guard let parsedMonth = try Self.decodeFlexibleDate(container: container, key: .month) else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .month, in: container, debugDescription: "Unparseable income month")
+        }
+        month = parsedMonth
         paymentDate = try Self.decodeFlexibleDate(container: container, key: .paymentDate)
         createdAt = try Self.decodeFlexibleDate(container: container, key: .createdAt)
         updatedAt = try Self.decodeFlexibleDate(container: container, key: .updatedAt)

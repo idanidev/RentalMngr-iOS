@@ -2,11 +2,15 @@ import SwiftUI
 
 struct FinanceSummaryView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.horizontalSizeClass) private var hSize
     @State private var viewModel: FinanceSummaryViewModel?
     @State private var showAddExpense = false
     @State private var showAddIncome = false
 
     let propertyId: UUID
+
+    /// Single content gutter for the screen (MAC_DESIGN §1): regular 20, compact 16.
+    private var gutter: CGFloat { hSize == .regular ? 20 : 16 }
 
     var body: some View {
         Group {
@@ -93,7 +97,7 @@ struct FinanceSummaryView: View {
                 .background(.ultraThinMaterial)
                 .clipShape(Capsule())
             }
-            .padding(.horizontal)
+            .padding(.horizontal, gutter)
             .padding(.top, 16)
 
             switch vm.selectedSection {
@@ -250,7 +254,12 @@ struct FinanceSummaryView: View {
                 )
 
                 // Key stats grid
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                LazyVGrid(
+                    columns: hSize == .regular
+                        ? [GridItem(.adaptive(minimum: 360), spacing: 16, alignment: .top)]
+                        : [GridItem(.flexible()), GridItem(.flexible())],
+                    spacing: 16
+                ) {
                     FinanceStatCard(
                         title: String(localized: "Income", locale: LanguageService.currentLocale, comment: "Finance stat card title for income"),
                         value: summary.totalIncome.formatted(currencyCode: "EUR"),
@@ -313,7 +322,7 @@ struct FinanceSummaryView: View {
                             startPoint: .topLeading, endPoint: .bottomTrailing)
                     )
                     .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .clipShape(RoundedRectangle(cornerRadius: 18))
                 }
 
                 // Expenses by category breakdown
@@ -353,13 +362,15 @@ struct FinanceSummaryView: View {
                                 }
                                 .padding()
                                 .background(.ultraThinMaterial)
-                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                                .clipShape(RoundedRectangle(cornerRadius: 18))
+                                .contentShape(RoundedRectangle(cornerRadius: 18))
+                                .macCardHover()
                             }
                         }
                     }
                 }
             }
-            .padding(.horizontal)
+            .padding(.horizontal, gutter)
         } else {
             EmptyStateView(
                 icon: "chart.bar",
@@ -433,9 +444,11 @@ private struct FinanceStatCard: View {
         )
         .background(.ultraThinMaterial)
         .overlay(
-            RoundedRectangle(cornerRadius: 20)
+            RoundedRectangle(cornerRadius: 18)
                 .stroke(.white.opacity(0.1), lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .contentShape(RoundedRectangle(cornerRadius: 18))
+        .macCardHover()
     }
 }

@@ -17,12 +17,12 @@ final class IncomeViewModel {
     }
 
     var isFormValid: Bool {
-        guard let value = Decimal(string: amount) else { return false }
+        guard let value = Decimal.fromUserInput(amount) else { return false }
         return value > 0 && roomId != nil
     }
 
     func save() async -> Income? {
-        guard let decimalAmount = Decimal(string: amount), let roomId else { return nil }
+        guard let decimalAmount = Decimal.fromUserInput(amount), let roomId else { return nil }
         isLoading = true
         errorMessage = nil
         do {
@@ -36,7 +36,7 @@ final class IncomeViewModel {
             isLoading = false
             return nil
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
             isLoading = false
             return nil
         }

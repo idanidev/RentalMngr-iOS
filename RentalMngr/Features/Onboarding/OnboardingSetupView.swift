@@ -61,7 +61,7 @@ final class OnboardingSetupViewModel {
             isLoading = false
             return true
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
             isLoading = false
             return false
         }
@@ -87,7 +87,7 @@ final class OnboardingSetupViewModel {
             isLoading = false
             return true
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
             isLoading = false
             return false
         }

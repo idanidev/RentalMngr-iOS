@@ -93,7 +93,7 @@ final class NotificationViewModel {
             isLoading = false
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isLoading = false
     }
@@ -143,7 +143,7 @@ final class NotificationViewModel {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 
@@ -159,7 +159,7 @@ final class NotificationViewModel {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 
@@ -174,7 +174,7 @@ final class NotificationViewModel {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 }

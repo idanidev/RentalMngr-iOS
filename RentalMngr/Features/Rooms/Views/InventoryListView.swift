@@ -121,7 +121,7 @@ struct InventoryListView: View {
         do {
             items = try await service.fetchInventory(roomId: roomId)
         } catch {
-            errorMsg = error.localizedDescription
+            errorMsg = error.safeUserMessage
         }
         isLoading = false
     }
@@ -134,7 +134,7 @@ struct InventoryListView: View {
                     items.removeAll { $0.id == id }
                 }
             } catch {
-                errorMsg = error.localizedDescription
+                errorMsg = error.safeUserMessage
             }
         }
     }

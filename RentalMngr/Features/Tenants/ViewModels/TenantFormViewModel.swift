@@ -138,10 +138,10 @@ final class TenantFormViewModel {
                     contractMonths: hasContract ? contractMonths : nil,
                     contractEndDate: hasContract ? contractEndDate : nil,
                     depositAmount: hasContract
-                        ? Decimal(string: depositAmount.replacingOccurrences(of: ",", with: "."))
+                        ? Decimal.fromUserInput(depositAmount)
                         : nil,
                     monthlyRent: hasContract
-                        ? Decimal(string: monthlyRent.replacingOccurrences(of: ",", with: "."))
+                        ? Decimal.fromUserInput(monthlyRent)
                         : nil,
                     currentAddress: currentAddress.isEmpty ? nil : currentAddress,
                     notes: notes.isEmpty ? nil : notes,
@@ -167,7 +167,7 @@ final class TenantFormViewModel {
                 return result
             }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
             isLoading = false
             return nil
         }

@@ -108,7 +108,7 @@ final class PurchaseManager {
                 return false
             }
         } catch {
-            lastError = error.localizedDescription
+            lastError = error.safeUserMessage
             return false
         }
     }

@@ -31,7 +31,7 @@ final class FinanceSummaryViewModel {
     /// Date filtering — matches webapp (year/month picker)
     @ObservationIgnored
     private var _selectedDate: Date =
-        UserDefaults.standard.object(forKey: "finance.selectedDate") as? Date ?? Date()
+        UserDefaults.standard.object(forKey: "finance.summary.selectedDate") as? Date ?? Date()
     var selectedDate: Date {
         get {
             access(keyPath: \.selectedDate)
@@ -40,7 +40,7 @@ final class FinanceSummaryViewModel {
         set {
             withMutation(keyPath: \.selectedDate) {
                 _selectedDate = newValue
-                UserDefaults.standard.set(newValue, forKey: "finance.selectedDate")
+                UserDefaults.standard.set(newValue, forKey: "finance.summary.selectedDate")
             }
         }
     }
@@ -133,7 +133,7 @@ final class FinanceSummaryViewModel {
             isLoading = false
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isLoading = false
     }
@@ -187,7 +187,7 @@ final class FinanceSummaryViewModel {
             isLoadingMore = false
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
 
         isLoadingMore = false
@@ -201,7 +201,7 @@ final class FinanceSummaryViewModel {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 
@@ -216,7 +216,7 @@ final class FinanceSummaryViewModel {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 
@@ -231,7 +231,7 @@ final class FinanceSummaryViewModel {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 
@@ -286,7 +286,7 @@ final class FinanceSummaryViewModel {
 
     /// Debounces realtime-triggered refreshes to avoid a request storm when
     /// multiple tables fire simultaneously.
-    private nonisolated func scheduleRefresh() {
+    private func scheduleRefresh() {
         refreshDebounceTask?.cancel()
         refreshDebounceTask = Task { [weak self] in
             try? await Task.sleep(for: .milliseconds(400))
@@ -345,13 +345,13 @@ final class FinanceSummaryViewModel {
 
         await withTaskGroup(of: Void.self) { group in
             group.addTask {
-                for await _ in incomeStream { self.scheduleRefresh() }
+                for await _ in incomeStream { await self.scheduleRefresh() }
             }
             group.addTask {
-                for await _ in expensesStream { self.scheduleRefresh() }
+                for await _ in expensesStream { await self.scheduleRefresh() }
             }
             group.addTask {
-                for await _ in utilityStream { self.scheduleRefresh() }
+                for await _ in utilityStream { await self.scheduleRefresh() }
             }
         }
     }

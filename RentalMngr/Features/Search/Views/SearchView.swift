@@ -65,7 +65,13 @@ struct SearchView: View {
                 return
             }
             isSearching = true
-            results = try? await appState.searchService.search(query: searchText)
+            do {
+                results = try await appState.searchService.search(query: searchText)
+            } catch where error.isCancellation {
+                // Superseded by a newer keystroke — keep current results.
+            } catch {
+                results = nil
+            }
             isSearching = false
         }
         .navigationDestination(for: Property.self) { property in

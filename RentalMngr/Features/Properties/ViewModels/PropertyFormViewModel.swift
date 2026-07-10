@@ -4,6 +4,10 @@ import Foundation
 struct EditableUtility: Identifiable {
     let type: UtilityType
     var enabled: Bool
+    /// Community fees only: the services covered by the flat fee.
+    var includedServices: [String] = []
+    /// Community fees only: the flat monthly amount (as typed text).
+    var amountText: String = ""
 
     var id: String { type.rawValue }
 }
@@ -57,11 +61,15 @@ final class PropertyFormViewModel {
             for config in existing {
                 if let index = utilities.firstIndex(where: { $0.type.rawValue == config.utilityType }) {
                     utilities[index].enabled = true
+                    utilities[index].includedServices = config.includedServices ?? []
+                    if let amount = config.monthlyAmount {
+                        utilities[index].amountText = "\(amount)"
+                    }
                 }
             }
         } catch {
             // Non-critical: just log and continue
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 
@@ -102,7 +110,10 @@ final class PropertyFormViewModel {
                         property_id: result.id,
                         utility_type: utility.type.rawValue,
                         included_in_rent: false,
-                        monthly_amount: nil
+                        monthly_amount: utility.type == .communityFees
+                            ? Decimal.fromUserInput(utility.amountText) : nil,
+                        included_services: utility.type == .communityFees && !utility.includedServices.isEmpty
+                            ? utility.includedServices : nil
                     )
                 }
             try await utilityService.savePropertyUtilities(
@@ -112,7 +123,7 @@ final class PropertyFormViewModel {
             isLoading = false
             return result
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
             isLoading = false
             return nil
         }

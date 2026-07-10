@@ -2,6 +2,7 @@ import SwiftUI
 
 struct NotificationListView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.dismiss) private var dismiss
     @State private var viewModel: NotificationViewModel?
 
     var body: some View {
@@ -14,6 +15,11 @@ struct NotificationListView: View {
         }
         .navigationTitle(String(localized: "Notifications", locale: LanguageService.currentLocale, comment: "Navigation title for notifications list"))
         .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button(String(localized: "Done", locale: LanguageService.currentLocale, comment: "Button to close the notifications screen")) {
+                    dismiss()
+                }
+            }
             ToolbarItem(placement: .primaryAction) {
                 if let vm = viewModel, vm.unreadCount > 0 {
                     Button(String(localized: "Read all", locale: LanguageService.currentLocale, comment: "Button to mark all notifications as read")) {
@@ -359,6 +365,7 @@ private struct NotificationRow: View {
         case .expense: "arrow.up.circle"
         case .income: "arrow.down.circle"
         case .roomChange: "bed.double"
+        case .unknown: "bell"
         }
     }
 
@@ -371,6 +378,7 @@ private struct NotificationRow: View {
         case .expense: .red
         case .income: .green
         case .roomChange: .cyan
+        case .unknown: .gray
         }
     }
 }

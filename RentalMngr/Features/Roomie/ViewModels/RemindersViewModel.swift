@@ -27,7 +27,7 @@ final class RemindersViewModel {
         do {
             reminders = try await reminderService.fetchReminders(propertyId: propertyId)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isLoaded = true
         isLoading = false
@@ -45,7 +45,7 @@ final class RemindersViewModel {
                 reminderId: reminder.id, completed: !reminder.completed)
             await refresh()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 
@@ -55,7 +55,7 @@ final class RemindersViewModel {
             try await reminderService.deleteReminder(id: reminder.id)
             reminders.removeAll { $0.id == reminder.id }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 }

@@ -42,6 +42,7 @@ struct IncomeFormView: View {
         .task {
             rooms = (try? await appState.roomService.fetchRooms(propertyId: propertyId)) ?? []
         }
+        .errorAlert(Binding(get: { viewModel?.errorMessage }, set: { viewModel?.errorMessage = $0 }))
     }
 
     @ViewBuilder
@@ -59,10 +60,6 @@ struct IncomeFormView: View {
                     .keyboardType(.decimalPad)
 
                 DatePicker(String(localized: "Month", locale: LanguageService.currentLocale, comment: "Month date picker label"), selection: Binding(get: { vm.month }, set: { vm.month = $0 }), displayedComponents: .date)
-            }
-
-            if let error = vm.errorMessage {
-                Section { Text(error).foregroundStyle(.red).font(.caption) }
             }
         }
     }

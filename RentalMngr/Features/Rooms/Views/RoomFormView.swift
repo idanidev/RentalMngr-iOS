@@ -48,6 +48,7 @@ struct RoomFormView: View {
                 )
             }
         }
+        .errorAlert(Binding(get: { viewModel?.errorMessage }, set: { viewModel?.errorMessage = $0 }))
     }
 
     @ViewBuilder
@@ -86,12 +87,8 @@ struct RoomFormView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             ForEach(vm.existingPhotos, id: \.self) { path in
-                                let url = URL(
-                                    string:
-                                        "\(SupabaseConfig.url.absoluteString)/storage/v1/object/public/\(SupabaseConfig.storageBucket)/\(path)"
-                                )
                                 ZStack(alignment: .topTrailing) {
-                                    AsyncImageView(url: url, contentMode: .fill, targetSize: CGSize(width: 80, height: 80))
+                                    AsyncImageView(bucket: SupabaseConfig.storageBucket, path: path, contentMode: .fill, targetSize: CGSize(width: 80, height: 80))
                                         .frame(width: 80, height: 80)
                                         .clipShape(RoundedRectangle(cornerRadius: 8))
 

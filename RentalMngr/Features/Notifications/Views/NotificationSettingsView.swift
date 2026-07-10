@@ -6,6 +6,10 @@ struct NotificationSettingsView: View {
     @State private var isLoading = true
     @State private var errorMessage: String?
     @AppStorage("weeklyReportWeekday") private var weeklyReportWeekday: Int = 2  // Monday
+    // Local-only toggles (device, not synced to Supabase)
+    @AppStorage(LocalNotifPrefKey.rentReminder) private var notifRentReminder = true
+    @AppStorage(LocalNotifPrefKey.depositPending) private var notifDepositPending = true
+    @AppStorage(LocalNotifPrefKey.vacantRoom) private var notifVacantRoom = true
 
     private let alertDayOptions = [7, 15, 30, 60]
     // UNCalendarNotificationTrigger: 1=Sun, 2=Mon, 3=Tue, 4=Wed, 5=Thu, 6=Fri, 7=Sat
@@ -104,6 +108,36 @@ struct NotificationSettingsView: View {
                                 .foregroundStyle(.red)
                         }
                     }
+
+                    Toggle(isOn: $notifRentReminder) {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(String(localized: "Rent reminder", locale: LanguageService.currentLocale, comment: "Toggle title for monthly rent reminder notifications"))
+                                    .font(.body)
+                                Text(String(localized: "Reminder on the 1st of each month to review rent payments", locale: LanguageService.currentLocale, comment: "Subtitle for rent reminder toggle"))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "calendar.badge.clock")
+                                .foregroundStyle(.green)
+                        }
+                    }
+
+                    Toggle(isOn: $notifDepositPending) {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(String(localized: "Deposit reminder", locale: LanguageService.currentLocale, comment: "Toggle title for deposit reminder notifications"))
+                                    .font(.body)
+                                Text(String(localized: "When an active tenant has no deposit recorded", locale: LanguageService.currentLocale, comment: "Subtitle for deposit reminder toggle"))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "eurosign.circle")
+                                .foregroundStyle(.green)
+                        }
+                    }
                 } header: {
                     Text(String(localized: "Finances", locale: LanguageService.currentLocale, comment: "Section header for financial notification settings"))
                 }
@@ -121,6 +155,21 @@ struct NotificationSettingsView: View {
                             }
                         } icon: {
                             Image(systemName: "bed.double")
+                                .foregroundStyle(.cyan)
+                        }
+                    }
+
+                    Toggle(isOn: $notifVacantRoom) {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(String(localized: "Vacant room", locale: LanguageService.currentLocale, comment: "Toggle title for vacant room notifications"))
+                                    .font(.body)
+                                Text(String(localized: "When a room is unoccupied and available to rent", locale: LanguageService.currentLocale, comment: "Subtitle for vacant room toggle"))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "bed.double.fill")
                                 .foregroundStyle(.cyan)
                         }
                     }
@@ -207,13 +256,19 @@ struct NotificationSettingsView: View {
             }
         }
         .navigationTitle(String(localized: "Notification settings", locale: LanguageService.currentLocale, comment: "Navigation title for notification settings screen"))
+        .errorAlert($errorMessage)
         .task {
             await loadSettings()
         }
         .onChange(of: settings) { _, newValue in
             guard let newValue else { return }
             Task {
-                try? await appState.notificationService.updateSettings(newValue)
+                do {
+                    try await appState.notificationService.updateSettings(newValue)
+                } catch {
+                    if error.isCancellation { return }
+                    errorMessage = error.safeUserMessage
+                }
             }
         }
         .onChange(of: settings?.enableWeeklyReport) { _, enabled in
@@ -231,6 +286,17 @@ struct NotificationSettingsView: View {
                 await appState.notificationService.scheduleWeeklyReport(weekday: newWeekday)
             }
         }
+        // Local-only toggles: rebuild the whole schedule so the change takes effect immediately.
+        .onChange(of: notifRentReminder) { _, _ in reschedule() }
+        .onChange(of: notifDepositPending) { _, _ in reschedule() }
+        .onChange(of: notifVacantRoom) { _, _ in reschedule() }
+    }
+
+    private func reschedule() {
+        Task {
+            await appState.localNotificationScheduler.rescheduleAll(
+                userId: appState.authService.currentUserId)
+        }
     }
 
     private func loadSettings() async {
@@ -238,7 +304,7 @@ struct NotificationSettingsView: View {
         do {
             settings = try await appState.notificationService.fetchOrCreateSettings(userId: userId)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isLoading = false
     }

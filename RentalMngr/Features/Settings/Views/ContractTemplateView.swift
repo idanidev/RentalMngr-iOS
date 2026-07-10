@@ -12,6 +12,8 @@ struct ContractTemplateView: View {
     private let templateService = ContractTemplateService()
     private let textViewRef = ContractTextEditor.TextViewRef()
     @State private var customVariables: [ContractVariable] = []
+    @State private var landlord: LandlordProfile?
+    @State private var showPDFPreview = false
 
     private var variables: [(key: String, icon: String, displayName: String)] {
         var all: [(key: String, icon: String, displayName: String)] = ContractVariable.builtIn.map { ($0.key, $0.icon, $0.label) }
@@ -53,6 +55,15 @@ struct ContractTemplateView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
+                    showPDFPreview = true
+                } label: {
+                    Image(systemName: "doc.text.magnifyingglass")
+                }
+                .disabled(templateText.isEmpty)
+                .accessibilityLabel(String(localized: "Vista previa del contrato", locale: LanguageService.currentLocale, comment: "Preview contract PDF action"))
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button {
                     Task { await save() }
                 } label: {
                     if isSaving {
@@ -74,6 +85,13 @@ struct ContractTemplateView: View {
         }
         .task { await loadTemplate() }
         .task { customVariables = (try? await ContractVariableService().fetchVariables()) ?? [] }
+        .task { landlord = try? await appState.userProfileService.getLandlordProfile() }
+        .sheet(isPresented: $showPDFPreview) {
+            NavigationStack {
+                ContractPreviewView(property: nil, templateOverride: templateText)
+            }
+            .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
+        }
         .errorAlert($errorMessage)
     }
 
@@ -166,18 +184,33 @@ struct ContractTemplateView: View {
 
     // MARK: - Helpers
 
+    private var landlordPreviewName: String {
+        let name = landlord?.fullName ?? ""
+        return name.isEmpty ? "NOMBRE ARRENDADOR" : name
+    }
+
+    private var landlordPreviewDni: String {
+        let dni = landlord?.dni ?? ""
+        return dni.isEmpty ? "DNI ARRENDADOR" : dni
+    }
+
     private var renderedPreview: AttributedString {
         var preview =
             templateText
             .replacingOccurrences(of: "{{tenant_name}}", with: "Ana García López")
             .replacingOccurrences(of: "{{tenant_dni}}", with: "12345678A")
             .replacingOccurrences(of: "{{tenant_address}}", with: "Calle Mayor 1, Madrid")
-            .replacingOccurrences(of: "{{landlord_name}}", with: "Carlos Martínez")
-            .replacingOccurrences(of: "{{landlord_dni}}", with: "87654321B")
+            .replacingOccurrences(of: "{{landlord_name}}", with: landlordPreviewName)
+            .replacingOccurrences(of: "{{landlord_dni}}", with: landlordPreviewDni)
             .replacingOccurrences(of: "{{property_address}}", with: "Calle Gran Vía 10, Madrid")
+            .replacingOccurrences(of: "{{room_name}}", with: "Habitación 1")
+            .replacingOccurrences(of: "{{habitacion}}", with: "Habitación 1")
             .replacingOccurrences(of: "{{start_date}}", with: "1 de enero de 2025")
             .replacingOccurrences(of: "{{end_date}}", with: "31 de diciembre de 2025")
             .replacingOccurrences(of: "{{rent}}", with: "750€")
+            .replacingOccurrences(of: "{{gastos_comunes}}", with: "50€")
+            .replacingOccurrences(of: "{{total_mensual}}", with: "800€")
+            .replacingOccurrences(of: "{{community_fees_includes}}", with: "Luz, Agua, Internet")
             .replacingOccurrences(of: "{{deposit}}", with: "1.500€")
             .replacingOccurrences(of: "{{deposit_words}}", with: "MIL QUINIENTOS EUROS")
             .replacingOccurrences(
@@ -206,7 +239,7 @@ struct ContractTemplateView: View {
         do {
             templateText = try await templateService.getTemplate()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isLoading = false
     }
@@ -220,7 +253,7 @@ struct ContractTemplateView: View {
             try? await Task.sleep(for: .seconds(2))
             showSaved = false
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isSaving = false
     }

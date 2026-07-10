@@ -12,6 +12,7 @@ struct PropertyContractView: View {
     @State private var isLoading = false
     @State private var showEditor = false
     @State private var customVariables: [ContractVariable] = []
+    @State private var landlord: LandlordProfile?
 
     var body: some View {
         Group {
@@ -26,6 +27,7 @@ struct PropertyContractView: View {
         }
         .task { await loadTemplate() }
         .task { customVariables = (try? await ContractVariableService().fetchVariables()) ?? [] }
+        .task { landlord = try? await appState.userProfileService.getLandlordProfile() }
         .sheet(isPresented: $showEditor) {
             Task { await loadTemplate() }  // refresh after editing
         } content: {
@@ -101,15 +103,29 @@ struct PropertyContractView: View {
 
     // MARK: - Rendered preview with placeholder values
 
+    /// Real landlord profile when loaded, else a clearly-labelled placeholder
+    /// (so the preview never shows misleading fake names).
+    private var landlordPreviewName: String {
+        let name = landlord?.fullName ?? ""
+        return name.isEmpty ? "NOMBRE ARRENDADOR" : name
+    }
+
+    private var landlordPreviewDni: String {
+        let dni = landlord?.dni ?? ""
+        return dni.isEmpty ? "DNI ARRENDADOR" : dni
+    }
+
     private var renderedPreview: AttributedString {
         var preview =
             templateText
             .replacingOccurrences(of: "{{tenant_name}}", with: "Ana García López")
             .replacingOccurrences(of: "{{tenant_dni}}", with: "12345678A")
             .replacingOccurrences(of: "{{tenant_address}}", with: property.address)
-            .replacingOccurrences(of: "{{landlord_name}}", with: "Carlos Martínez")
-            .replacingOccurrences(of: "{{landlord_dni}}", with: "87654321B")
+            .replacingOccurrences(of: "{{landlord_name}}", with: landlordPreviewName)
+            .replacingOccurrences(of: "{{landlord_dni}}", with: landlordPreviewDni)
             .replacingOccurrences(of: "{{property_address}}", with: property.address)
+            .replacingOccurrences(of: "{{room_name}}", with: "Habitación 1")
+            .replacingOccurrences(of: "{{habitacion}}", with: "Habitación 1")
             .replacingOccurrences(of: "{{start_date}}", with: "1 de enero de 2025")
             .replacingOccurrences(of: "{{end_date}}", with: "31 de diciembre de 2025")
             .replacingOccurrences(of: "{{rent}}", with: "750€")
@@ -121,6 +137,10 @@ struct PropertyContractView: View {
         for variable in customVariables {
             preview = preview.replacingOccurrences(of: variable.templateKey, with: variable.defaultValue)
         }
+
+        // Unfilled placeholders → blank fill-in line (matches the generated PDF)
+        preview = preview.replacingOccurrences(
+            of: "\\{\\{[^}]*\\}\\}", with: "______________", options: .regularExpression)
 
         if let attributed = try? AttributedString(
             markdown: preview,
@@ -185,6 +205,7 @@ struct ContractEditorSheet: View {
     @State private var errorMessage: String?
     @State private var showLoadGlobalConfirmation = false
     @State private var showVariablesSheet = false
+    @State private var showPDFPreview = false
 
     private let textViewRef = ContractTextEditor.TextViewRef()
     @State private var customVariables: [ContractVariable] = []
@@ -224,6 +245,15 @@ struct ContractEditorSheet: View {
                 ) {
                     dismiss()
                 }
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showPDFPreview = true
+                } label: {
+                    Image(systemName: "doc.text.magnifyingglass")
+                }
+                .disabled(templateText.isEmpty)
+                .accessibilityLabel(String(localized: "Vista previa del contrato", locale: LanguageService.currentLocale, comment: "Preview contract PDF action"))
             }
             ToolbarItem(placement: .primaryAction) {
                 Button {
@@ -301,6 +331,12 @@ struct ContractEditorSheet: View {
             }
             .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
         }
+        .sheet(isPresented: $showPDFPreview) {
+            NavigationStack {
+                ContractPreviewView(property: property, templateOverride: templateText)
+            }
+            .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
+        }
         .errorAlert($errorMessage)
     }
 
@@ -333,6 +369,23 @@ struct ContractEditorSheet: View {
             }
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
+                    Button {
+                        ContractTextEditor(text: $templateText, textViewRef: textViewRef)
+                            .insertAtCursor("______________")
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "rectangle.dashed").font(.caption)
+                            Text(String(localized: "Campo en blanco", locale: LanguageService.currentLocale, comment: "Insert a blank fill-in field"))
+                                .font(.caption)
+                                .fontWeight(.medium)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color.secondary.opacity(0.15))
+                        .foregroundStyle(.primary)
+                        .clipShape(Capsule())
+                    }
+
                     ForEach(variables, id: \.key) { variable in
                         Button {
                             ContractTextEditor(text: $templateText, textViewRef: textViewRef)
@@ -373,7 +426,7 @@ struct ContractEditorSheet: View {
             try? await Task.sleep(for: .seconds(1))
             dismiss()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isSaving = false
     }
@@ -382,7 +435,7 @@ struct ContractEditorSheet: View {
         do {
             templateText = try await ContractTemplateService().getTemplate()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 }

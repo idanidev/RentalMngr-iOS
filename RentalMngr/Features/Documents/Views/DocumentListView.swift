@@ -12,6 +12,10 @@ struct DocumentListView: View {
     @State private var isScannerPresented = false
     @Environment(\.openURL) var openURL
     @Environment(AppState.self) private var appState
+    @Environment(\.horizontalSizeClass) private var hSize
+
+    /// Single content gutter for the screen (MAC_DESIGN §1): regular 20, compact 16.
+    private var gutter: CGFloat { hSize == .regular ? 20 : 16 }
 
     init(appState: AppState, propertyId: UUID, tenantId: UUID? = nil) {
         let userId = appState.authService.currentUser?.id ?? UUID()
@@ -64,11 +68,13 @@ struct DocumentListView: View {
                             .padding(.horizontal, 8).padding(.vertical, 2)
                             .background(.quaternary, in: Capsule())
                     }
-                    .padding(.horizontal)
+                    .padding(.horizontal, gutter)
                     .padding(.top, 4)
 
-                    ForEach(group.docs) { doc in
-                        documentRow(doc)
+                    documentGrid {
+                        ForEach(group.docs) { doc in
+                            documentRow(doc)
+                        }
                     }
                 }
             }
@@ -160,6 +166,26 @@ struct DocumentListView: View {
             .sorted { $0.year > $1.year }
     }
 
+    /// Mac/iPad: documents in an adaptive grid so rows fill the width instead of
+    /// a single narrow column. iPhone: single column (unchanged).
+    @ViewBuilder
+    private func documentGrid<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        if hSize == .regular {
+            LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: 380), spacing: 16, alignment: .top)],
+                spacing: 16
+            ) {
+                content()
+            }
+            .padding(.horizontal, gutter)
+        } else {
+            VStack(spacing: 16) {
+                content()
+            }
+            .padding(.horizontal, gutter)
+        }
+    }
+
     @ViewBuilder
     private func documentRow(_ doc: Document) -> some View {
         HStack {
@@ -169,7 +195,7 @@ struct DocumentListView: View {
 
             VStack(alignment: .leading) {
                 Text(doc.name)
-                    .font(.headline)
+                    .font(hSize == .regular ? .title3.bold() : .headline)
                     .lineLimit(1)
                 Text(doc.createdAt.formatted(date: .abbreviated, time: .shortened))
                     .font(.caption)
@@ -191,9 +217,22 @@ struct DocumentListView: View {
             .accessibilityLabel(String(localized: "Más opciones", locale: LanguageService.currentLocale, comment: "Accessibility label for document options menu"))
         }
         .padding()
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .padding(.horizontal)
+        .background {
+            if hSize == .regular {
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(.background.secondary)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 18)
+                            .strokeBorder(.quaternary, lineWidth: 0.5)
+                    }
+            } else {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(.ultraThinMaterial)
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: hSize == .regular ? 18 : 12))
+        .contentShape(RoundedRectangle(cornerRadius: hSize == .regular ? 18 : 12))
+        .macCardHover()
     }
 
     private func iconName(for fileType: String) -> String {
@@ -203,8 +242,10 @@ struct DocumentListView: View {
     }
 
     private func openDocument(_ doc: Document) {
-        if let url = viewModel.getDocumentURL(doc) {
-            openURL(url)
+        Task {
+            if let url = try? await viewModel.getDocumentURL(doc) {
+                openURL(url)
+            }
         }
     }
 }

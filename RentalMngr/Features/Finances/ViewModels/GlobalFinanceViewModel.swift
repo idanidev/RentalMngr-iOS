@@ -12,10 +12,12 @@ final class GlobalFinanceViewModel {
     var isLoading = false
     private(set) var isLoaded = false
     var errorMessage: String?
+    /// Error from a paid/unpaid toggle — shown as an alert, not the full-screen error state
+    var actionErrorMessage: String?
     // Default to previous month — finances are reviewed "mes vencido" (month in arrears)
     @ObservationIgnored
     private var _selectedDate: Date =
-        UserDefaults.standard.object(forKey: "finance.selectedDate") as? Date
+        UserDefaults.standard.object(forKey: "finance.global.selectedDate") as? Date
         ?? Calendar.current.date(byAdding: .month, value: -1, to: Date())
         ?? Date()
     var selectedDate: Date {
@@ -26,7 +28,7 @@ final class GlobalFinanceViewModel {
         set {
             withMutation(keyPath: \.selectedDate) {
                 _selectedDate = newValue
-                UserDefaults.standard.set(newValue, forKey: "finance.selectedDate")
+                UserDefaults.standard.set(newValue, forKey: "finance.global.selectedDate")
             }
         }
     }
@@ -39,6 +41,8 @@ final class GlobalFinanceViewModel {
     private let realtimeService: RealtimeServiceProtocol
     @ObservationIgnored
     nonisolated(unsafe) private var realtimeTask: Task<Void, Never>?
+    @ObservationIgnored private var refreshDebounceTask: Task<Void, Never>?
+    private var isRefreshing = false
 
     init(
         propertyService: PropertyServiceProtocol,
@@ -172,9 +176,11 @@ final class GlobalFinanceViewModel {
             // Fetch all properties
             properties = try await propertyService.fetchProperties()
 
-            // Auto-generate utility charges for current month if needed
+            // Auto-generate utility charges only for the current month — merely viewing a
+            // future month must not write real utility_charges rows.
             if isCurrentMonth(selectedDate) {
-                try? await utilityService.generateMonthlyUtilityCharges(properties: properties)
+                try? await utilityService.generateMonthlyUtilityCharges(
+                    properties: properties, month: selectedDate)
             }
 
             // Calculate month range
@@ -196,8 +202,9 @@ final class GlobalFinanceViewModel {
             let allIncome = try await fetchIncome
             let allUtilities = try await fetchUtilities
 
-            // Group by property
-            incomeByProperty = Dictionary(grouping: allIncome, by: \.propertyId)
+            // Group by property. Hide vacant rooms: the server RPC generates rent for every
+            // room, but a room with no active tenant (tenantName == nil) should not appear.
+            incomeByProperty = Dictionary(grouping: visibleIncome(allIncome), by: \.propertyId)
             utilityChargesByProperty = Dictionary(grouping: allUtilities, by: \.propertyId)
 
             // Populate stored derived properties
@@ -212,7 +219,7 @@ final class GlobalFinanceViewModel {
             isLoading = false
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
             logger.error("[GlobalFinanceVM] Error: \(error)")
         }
 
@@ -233,20 +240,25 @@ final class GlobalFinanceViewModel {
 
         await withTaskGroup(of: Void.self) { group in
             group.addTask {
-                for await _ in incomeStream {
-                    await self.refreshData()
-                }
+                for await _ in incomeStream { await self.scheduleRefresh() }
             }
             group.addTask {
-                for await _ in propertiesStream {
-                    await self.refreshData()
-                }
+                for await _ in propertiesStream { await self.scheduleRefresh() }
             }
             group.addTask {
-                for await _ in utilityStream {
-                    await self.refreshData()
-                }
+                for await _ in utilityStream { await self.scheduleRefresh() }
             }
+        }
+    }
+
+    /// Coalesce a burst of realtime events (e.g. monthly-charge generation fires one event
+    /// per room×utility) into a single refresh, so we don't issue a storm of full re-fetches.
+    private func scheduleRefresh() {
+        refreshDebounceTask?.cancel()
+        refreshDebounceTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(400))
+            guard !Task.isCancelled, let self else { return }
+            await self.refreshData()
         }
     }
 
@@ -254,6 +266,27 @@ final class GlobalFinanceViewModel {
     private func isCurrentMonth(_ date: Date) -> Bool {
         let calendar = Calendar.current
         return calendar.isDate(date, equalTo: Date(), toGranularity: .month)
+    }
+
+    /// True if `date` is in the current month or a later one (not a past month).
+    private func isCurrentOrFutureMonth(_ date: Date) -> Bool {
+        let calendar = Calendar.current
+        let monthOf: (Date) -> Date = { calendar.date(from: calendar.dateComponents([.year, .month], from: $0)) ?? $0 }
+        return monthOf(date) >= monthOf(Date())
+    }
+
+    /// Income visible in the month view for `selectedDate`.
+    ///
+    /// The server RPC auto-generates a rent row for every room of the current/
+    /// future month, including vacant ones. We hide those phantom rows (a room
+    /// with no active tenant, still unpaid) so a vacant room doesn't show fake
+    /// rent. But that filter must NOT touch real history: past-month income and
+    /// any collected (paid) income are always shown — otherwise a tenant who has
+    /// since checked out makes their real income vanish from the month and its
+    /// totals (which disagreed with the annual report).
+    private func visibleIncome(_ income: [Income]) -> [Income] {
+        guard isCurrentOrFutureMonth(selectedDate) else { return income }
+        return income.filter { $0.paid || $0.tenantName != nil }
     }
 
     /// Safe month range calculation
@@ -266,6 +299,9 @@ final class GlobalFinanceViewModel {
     }
 
     private func refreshData() async {
+        guard !isRefreshing else { return }
+        isRefreshing = true
+        defer { isRefreshing = false }
         do {
             properties = try await propertyService.fetchProperties()
             let (startOfMonth, endOfMonth) = monthRange(for: selectedDate)
@@ -282,7 +318,7 @@ final class GlobalFinanceViewModel {
                 endDate: endOfMonth
             )
 
-            incomeByProperty = Dictionary(grouping: try await fetchIncome, by: \.propertyId)
+            incomeByProperty = Dictionary(grouping: visibleIncome(try await fetchIncome), by: \.propertyId)
             utilityChargesByProperty = Dictionary(grouping: try await fetchUtilities, by: \.propertyId)
 
             // Repopulate stored derived properties
@@ -311,6 +347,7 @@ final class GlobalFinanceViewModel {
             updateIncomeInPlace(id: income.id, propertyId: income.propertyId, paid: true, paymentDate: Date())
         } catch {
             logger.error("[GlobalFinanceVM] Error marking paid: \(error)")
+            actionErrorMessage = error.safeUserMessage
         }
     }
 
@@ -320,6 +357,7 @@ final class GlobalFinanceViewModel {
             updateIncomeInPlace(id: income.id, propertyId: income.propertyId, paid: false, paymentDate: nil)
         } catch {
             logger.error("[GlobalFinanceVM] Error marking unpaid: \(error)")
+            actionErrorMessage = error.safeUserMessage
         }
     }
 
@@ -329,6 +367,7 @@ final class GlobalFinanceViewModel {
             updateUtilityInPlace(id: charge.id, propertyId: charge.propertyId, paid: true, paymentDate: Date())
         } catch {
             logger.error("[GlobalFinanceVM] Error marking utility paid: \(error)")
+            actionErrorMessage = error.safeUserMessage
         }
     }
 
@@ -338,6 +377,7 @@ final class GlobalFinanceViewModel {
             updateUtilityInPlace(id: charge.id, propertyId: charge.propertyId, paid: false, paymentDate: nil)
         } catch {
             logger.error("[GlobalFinanceVM] Error marking utility unpaid: \(error)")
+            actionErrorMessage = error.safeUserMessage
         }
     }
 

@@ -83,7 +83,7 @@ final class DashboardViewModel {
             isLoading = false
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
 
         isLoaded = true

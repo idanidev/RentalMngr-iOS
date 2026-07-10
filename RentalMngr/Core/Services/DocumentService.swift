@@ -100,8 +100,8 @@ final class DocumentService: DocumentServiceProtocol {
             .execute()
     }
 
-    func getDocumentURL(_ document: Document) throws -> URL {
-        try storageService.getPublicURL(
+    func getDocumentURL(_ document: Document) async throws -> URL {
+        try await SignedURLCache.shared.url(
             bucket: SupabaseConfig.documentsBucket, path: document.filePath)
     }
 }

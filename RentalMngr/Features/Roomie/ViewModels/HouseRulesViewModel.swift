@@ -20,7 +20,7 @@ final class HouseRulesViewModel {
         do {
             rules = try await houseRuleService.fetchRules(propertyId: propertyId)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isLoading = false
     }
@@ -31,7 +31,7 @@ final class HouseRulesViewModel {
             try await houseRuleService.deleteRule(id: rule.id)
             rules.removeAll { $0.id == rule.id }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 

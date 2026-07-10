@@ -44,7 +44,7 @@ struct HouseRuleFormView: View {
                             )
                             dismiss()
                         } catch {
-                            errorMessage = error.localizedDescription
+                            errorMessage = error.safeUserMessage
                         }
                         isLoading = false
                     }

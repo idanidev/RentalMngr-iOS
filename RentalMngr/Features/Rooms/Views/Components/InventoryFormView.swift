@@ -156,7 +156,7 @@ struct InventoryFormView: View {
                 }
                 dismiss()
             } catch {
-                errorMsg = error.localizedDescription
+                errorMsg = error.safeUserMessage
             }
             isLoading = false
         }

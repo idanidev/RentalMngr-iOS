@@ -156,12 +156,12 @@ final class ExpenseViewModel {
     }
 
     var isFormValid: Bool {
-        guard let value = Decimal(string: amount) else { return false }
+        guard let value = Decimal.fromUserInput(amount) else { return false }
         return value > 0 && !category.isEmpty
     }
 
     func save() async -> Expense? {
-        guard let decimalAmount = Decimal(string: amount) else { return nil }
+        guard let decimalAmount = Decimal.fromUserInput(amount) else { return nil }
         isLoading = true
         errorMessage = nil
         do {
@@ -189,7 +189,7 @@ final class ExpenseViewModel {
             isLoading = false
             return nil
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
             isLoading = false
             return nil
         }

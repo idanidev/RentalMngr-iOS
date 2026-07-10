@@ -7,6 +7,11 @@ enum SharedExpenseCategory: String, Codable, Sendable, CaseIterable {
     case cleaning = "limpieza"
     case other = "otro"
 
+    init(from decoder: Decoder) throws {
+        let rawValue = try decoder.singleValueContainer().decode(String.self)
+        self = SharedExpenseCategory(rawValue: rawValue) ?? .other
+    }
+
     var displayName: String {
         switch self {
         case .utilities: String(localized: "Utilities", locale: LanguageService.currentLocale, comment: "Shared expense category")
@@ -22,6 +27,11 @@ enum SplitType: String, Codable, Sendable, CaseIterable {
     case equal
     case custom
     case byRoom = "by_room"
+
+    init(from decoder: Decoder) throws {
+        let rawValue = try decoder.singleValueContainer().decode(String.self)
+        self = SplitType(rawValue: rawValue) ?? .equal
+    }
 
     var displayName: String {
         switch self {

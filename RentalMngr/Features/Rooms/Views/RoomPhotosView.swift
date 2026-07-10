@@ -6,11 +6,6 @@ struct RoomPhotosView: View {
     let photos: [String]
     @State private var selectedIndex = 0
 
-    // Resolve all URLs up-front, outside any @ViewBuilder context
-    private func resolvedURLs() -> [URL?] {
-        photos.map { path in try? appState.storageService.getPublicURL(path: path) }
-    }
-
     var body: some View {
         Group {
             if photos.isEmpty {
@@ -20,10 +15,9 @@ struct RoomPhotosView: View {
                     systemImage: "photo.slash"
                 )
             } else {
-                let urls = resolvedURLs()
                 TabView(selection: $selectedIndex) {
-                    ForEach(urls.indices, id: \.self) { index in
-                        AsyncImageView(url: urls[index], contentMode: .fit)
+                    ForEach(photos.indices, id: \.self) { index in
+                        AsyncImageView(bucket: SupabaseConfig.storageBucket, path: photos[index], contentMode: .fit)
                             .tag(index)
                     }
                 }

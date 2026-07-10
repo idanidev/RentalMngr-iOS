@@ -1,8 +1,11 @@
 import SwiftUI
 
 struct AuthView: View {
+    enum Field { case email, password, confirm }
+
     @Environment(AppState.self) private var appState
     @State private var viewModel: AuthViewModel?
+    @FocusState private var focusedField: Field?
 
     var body: some View {
         NavigationStack {
@@ -42,17 +45,32 @@ struct AuthView: View {
                         .keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .submitLabel(.next)
+                        .focused($focusedField, equals: .email)
+                        .onSubmit { focusedField = .password }
                         .padding()
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
 
                     SecureField(String(localized: "Password", locale: LanguageService.currentLocale, comment: "Password field placeholder"), text: Binding(get: { vm.password }, set: { vm.password = $0 }))
                         .textContentType(vm.isSignUpMode ? .newPassword : .password)
+                        .submitLabel(vm.isSignUpMode ? .next : .go)
+                        .focused($focusedField, equals: .password)
+                        .onSubmit {
+                            if vm.isSignUpMode {
+                                focusedField = .confirm
+                            } else {
+                                submit(vm)
+                            }
+                        }
                         .padding()
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
 
                     if vm.isSignUpMode {
                         SecureField(String(localized: "Confirm Password", locale: LanguageService.currentLocale, comment: "Confirm password field placeholder"), text: Binding(get: { vm.confirmPassword }, set: { vm.confirmPassword = $0 }))
                             .textContentType(.newPassword)
+                            .submitLabel(.go)
+                            .focused($focusedField, equals: .confirm)
+                            .onSubmit { submit(vm) }
                             .padding()
                             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
                     }
@@ -121,6 +139,20 @@ struct AuthView: View {
                     }
                 }
                 .padding(.horizontal)
+            }
+        }
+    }
+
+    /// Submits the form when the user presses Return in any field (macOS/hardware
+    /// keyboard). Mirrors the primary button's guard so an incomplete or in-flight
+    /// form does nothing.
+    private func submit(_ vm: AuthViewModel) {
+        guard vm.isFormValid, !vm.isLoading else { return }
+        Task {
+            if vm.isSignUpMode {
+                await vm.signUp()
+            } else {
+                await vm.signIn()
             }
         }
     }

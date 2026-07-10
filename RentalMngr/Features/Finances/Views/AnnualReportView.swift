@@ -179,6 +179,9 @@ struct AnnualReportView: View {
         }
         .task { await viewModel.load() }
         .onChange(of: viewModel.year) { _, _ in pdfURL = nil }
+        .onDisappear {
+            if let pdfURL { try? FileManager.default.removeItem(at: pdfURL) }
+        }
         .errorAlert(Binding(
             get: { viewModel.errorMessage },
             set: { viewModel.errorMessage = $0 }))
@@ -204,7 +207,12 @@ struct AnnualReportView: View {
             totalExpenses: viewModel.totalExpenses, totalNet: viewModel.totalNet)
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("Informe_\(viewModel.year).pdf")
-        try? data.write(to: url)
-        pdfURL = url
+        // Only point the share sheet at the file if the write actually succeeded.
+        do {
+            try data.write(to: url)
+            pdfURL = url
+        } catch {
+            pdfURL = nil
+        }
     }
 }

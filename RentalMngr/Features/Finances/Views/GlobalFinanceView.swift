@@ -2,7 +2,10 @@ import SwiftUI
 
 struct GlobalFinanceView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.horizontalSizeClass) private var hSize
     @State private var viewModel: GlobalFinanceViewModel?
+
+    private var gutter: CGFloat { hSize == .regular ? 20 : 16 }
 
     var body: some View {
         Group {
@@ -16,7 +19,21 @@ struct GlobalFinanceView: View {
         .navigationTitle(
             String(localized: "Finances", locale: LanguageService.currentLocale, comment: "Navigation title for finances view")
         )
+        // Paid-toggle failures show as an alert instead of the full-screen error state
+        .errorAlert(Binding(
+            get: { viewModel?.actionErrorMessage },
+            set: { viewModel?.actionErrorMessage = $0 }
+        ))
         .toolbar {
+            // Manual refresh — pull-to-refresh isn't available on Mac Catalyst.
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    Task { await viewModel?.refresh() }
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                }
+                .accessibilityLabel(String(localized: "Refresh", locale: LanguageService.currentLocale, comment: "Refresh finances toolbar button"))
+            }
             ToolbarItem(placement: .primaryAction) {
                 NavigationLink {
                     AnnualReportView(appState: appState)
@@ -63,7 +80,7 @@ struct GlobalFinanceView: View {
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                     Button(String(localized: "Retry", locale: LanguageService.currentLocale, comment: "Button to retry loading")) {
-                        Task { await vm.loadData() }
+                        Task { await vm.refresh() }
                     }
                     .buttonStyle(.bordered)
                 }
@@ -86,17 +103,27 @@ struct GlobalFinanceView: View {
                             )
                             .padding(.top, 40)
                         } else {
-                            ForEach(vm.propertiesWithIncome) { property in
-                                propertySection(property, vm: vm)
+                            LazyVGrid(
+                                columns: [GridItem(.adaptive(minimum: 460), spacing: 16, alignment: .top)],
+                                spacing: 16
+                            ) {
+                                ForEach(vm.propertiesWithIncome) { property in
+                                    propertySection(property, vm: vm)
+                                }
                             }
                         }
                     }
-                    .padding()
+                    .padding(.horizontal, gutter)
+                    .padding(.vertical, 16)
+                    .frame(maxWidth: 1280)
+                    .frame(maxWidth: .infinity)
+                }
+                // Attach to the ScrollView (not the outer VStack) so the refresh
+                // indicator stays inside the scroll area, below the month selector.
+                .refreshable {
+                    await vm.refresh()
                 }
             }
-        }
-        .refreshable {
-            await vm.refresh()
         }
     }
 
@@ -123,7 +150,7 @@ struct GlobalFinanceView: View {
                     .contentShape(Rectangle())
             }
         }
-        .padding(.horizontal, 12)
+        .padding(.horizontal, gutter)
         .padding(.vertical, 4)
         .background(.ultraThinMaterial)
         .overlay(alignment: .bottom) { Divider() }
@@ -206,7 +233,7 @@ struct GlobalFinanceView: View {
         }
         .padding()
         .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: 18))
     }
 
     // MARK: - Room Payment Section (Rent + Utilities)
@@ -346,6 +373,8 @@ private struct IncomePaymentRow: View {
         .padding(.horizontal, 8)
         .background(income.paid ? Color.green.opacity(0.05) : Color.red.opacity(0.05))
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        .contentShape(RoundedRectangle(cornerRadius: 8))
+        .macCardHover()
     }
 }
 
@@ -395,5 +424,7 @@ private struct UtilityPaymentRow: View {
         .padding(.horizontal, 8)
         .background(charge.paid ? Color.green.opacity(0.05) : Color.red.opacity(0.05))
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        .contentShape(RoundedRectangle(cornerRadius: 8))
+        .macCardHover()
     }
 }

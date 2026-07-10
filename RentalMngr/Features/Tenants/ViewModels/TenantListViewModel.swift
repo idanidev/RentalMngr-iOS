@@ -79,7 +79,7 @@ final class TenantListViewModel {
             return
         } catch {
             logger.error("ERROR loading tenants: \(error)")
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isLoaded = true
         isLoading = false
@@ -106,7 +106,7 @@ final class TenantListViewModel {
             isLoadingMore = false
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
 
         isLoadingMore = false
@@ -120,7 +120,7 @@ final class TenantListViewModel {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 
@@ -132,7 +132,7 @@ final class TenantListViewModel {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 
@@ -144,7 +144,7 @@ final class TenantListViewModel {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 
@@ -156,7 +156,7 @@ final class TenantListViewModel {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 
@@ -168,7 +168,7 @@ final class TenantListViewModel {
             // Tarea cancelada por navegación — no es un error real
             return
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 

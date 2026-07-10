@@ -17,7 +17,8 @@ final class PDFGenerator {
 
     func generateContract(
         tenant: Tenant, room: Room, property: Property, landlord: LandlordProfile,
-        template: String? = nil, customVariables: [ContractVariable] = []
+        template: String? = nil, customVariables: [ContractVariable] = [],
+        communityFeesIncludes: [String] = [], communityFeesAmount: Decimal? = nil
     )
         async throws -> Data
     {
@@ -62,26 +63,35 @@ final class PDFGenerator {
 
             // 1. Prepare replacements
             let currencySymbol = Locale.current.currencySymbol ?? "€"
+            let communityFeesInt = Int(truncating: (communityFeesAmount ?? 0) as NSDecimalNumber)
+            let totalMonthlyInt = rent + communityFeesInt
             let replacements: [String: String] = [
                 // Current format: {{snake_case}}
                 "{{start_date}}": fmtDate(tenant.contractStartDate),
                 "{{end_date}}": fmtDate(tenant.contractEndDate),
-                "{{rent}}": "\(rent)\(currencySymbol)",
-                "{{deposit}}": "\(deposit)\(currencySymbol)",
-                "{{deposit_words}}": depositWords,
+                "{{rent}}": rent > 0 ? "\(rent)\(currencySymbol)" : "",
+                "{{deposit}}": deposit > 0 ? "\(deposit)\(currencySymbol)" : "",
+                "{{deposit_words}}": deposit > 0 ? depositWords : "",
                 "{{tenant_name}}": tenant.fullName,
                 "{{tenant_dni}}": tenant.dni ?? "",
                 "{{landlord_name}}": landlord.fullName,
                 "{{landlord_dni}}": landlord.dni,
                 "{{property_address}}": property.address,
+                "{{room_name}}": room.name,
+                "{{habitacion}}": room.name,
                 "{{tenant_address}}": tenantAddress,
                 "{{date}}": dateFormatter.string(from: Date()),
+                "{{community_fees_includes}}": communityFeesIncludes.joined(separator: ", "),
+                "{{gastos_comunes}}": communityFeesInt > 0 ? "\(communityFeesInt)\(currencySymbol)" : "",
+                "{{community_fees}}": communityFeesInt > 0 ? "\(communityFeesInt)\(currencySymbol)" : "",
+                "{{total_mensual}}": "\(totalMonthlyInt)\(currencySymbol)",
+                "{{total_monthly}}": "\(totalMonthlyInt)\(currencySymbol)",
                 // Legacy format: {camelCase} (single braces, camelCase)
                 "{startDateShort}": fmtDate(tenant.contractStartDate),
                 "{endDateShort}": fmtDate(tenant.contractEndDate),
-                "{monthlyRent}": "\(rent)\(currencySymbol)",
-                "{depositAmount}": "\(deposit)\(currencySymbol)",
-                "{depositAmountWords}": depositWords,
+                "{monthlyRent}": rent > 0 ? "\(rent)\(currencySymbol)" : "",
+                "{depositAmount}": deposit > 0 ? "\(deposit)\(currencySymbol)" : "",
+                "{depositAmountWords}": deposit > 0 ? depositWords : "",
                 "{tenantName}": tenant.fullName,
                 "{tenantDni}": tenant.dni ?? "",
                 "{landlordName}": landlord.fullName,
@@ -95,17 +105,26 @@ final class PDFGenerator {
             // Normalize line endings first: templates saved from the web app may use
             // CRLF (\r\n) or lone CR (\r), which leave stray carriage returns that
             // print as spurious line breaks / boxes on some printers.
+            // A placeholder with no value (empty built-in or undefined variable) is
+            // rendered as a blank fill-in line so it can be completed by hand.
+            let blankFill = "______________"
             var bodyText = templateBody
                 .replacingOccurrences(of: "\r\n", with: "\n")
                 .replacingOccurrences(of: "\r", with: "\n")
             for (key, value) in replacements {
-                bodyText = bodyText.replacingOccurrences(of: key, with: value)
+                bodyText = bodyText.replacingOccurrences(of: key, with: value.isEmpty ? blankFill : value)
             }
 
             // 3. Process custom variables (user-defined)
             for variable in customVariables {
-                bodyText = bodyText.replacingOccurrences(of: variable.templateKey, with: variable.defaultValue)
+                bodyText = bodyText.replacingOccurrences(
+                    of: variable.templateKey,
+                    with: variable.defaultValue.isEmpty ? blankFill : variable.defaultValue)
             }
+
+            // 4. Any remaining {{placeholder}} (undefined variable) → blank fill-in line.
+            bodyText = bodyText.replacingOccurrences(
+                of: "\\{\\{[^}]*\\}\\}", with: blankFill, options: .regularExpression)
 
             // 3. Render paragraphs
             let lines = bodyText.components(separatedBy: "\n")
@@ -113,49 +132,59 @@ final class PDFGenerator {
             for line in lines {
                 let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
 
-                // If distinct empty line, add spacing
+                // Distinct empty line → vertical spacing (next content line breaks itself)
                 if trimmed.isEmpty {
                     y += 12
-                    y = checkPageBreak(y: y, needed: 20, context: context)
                     continue
                 }
 
-                // Header check (### Header or ALL CAPS)
+                // Header check (### Header or short ALL-CAPS line)
                 var isHeader = false
                 var displayText = trimmed
-
                 if trimmed.hasPrefix("### ") {
                     isHeader = true
                     displayText = String(trimmed.dropFirst(4))
-                } else if trimmed.count < 80 && trimmed == trimmed.uppercased() && trimmed.count > 3
-                {
+                } else if trimmed.count < 80 && trimmed == trimmed.uppercased() && trimmed.count > 3 {
                     isHeader = true
-                    displayText = trimmed
                 }
 
-                // Check page break
-                y = checkPageBreak(y: y, needed: isHeader ? 50 : 20, context: context)
-
                 if isHeader {
-                    y =
-                        drawColoredText(
-                            displayText,
-                            at: CGPoint(x: margin, y: y),
-                            font: .boldSystemFont(ofSize: 14),  // Increased title size
-                            color: charcoal,
-                            maxWidth: contentWidth) + 8
-                } else {
-                    // Check for bold markers **text**
-                    if displayText.contains("**") {
-                        let spans = parseMarkdown(displayText)
-                        y = drawMixedText(spans, at: y, contentWidth: contentWidth) + 4
-                    } else {
-                        y =
-                            drawParagraph(
-                                displayText,
-                                at: y,
-                                contentWidth: contentWidth) + 4
+                    let font = UIFont.boldSystemFont(ofSize: 14)
+                    let h = measureHeight(displayText, font: font, maxWidth: contentWidth)
+                    // Reserve the heading plus ~2 lines so it never sits orphaned at a page bottom.
+                    y = checkPageBreak(y: y, needed: h + 46, context: context)
+                    y = drawColoredText(
+                        displayText, at: CGPoint(x: margin, y: y),
+                        font: font, color: charcoal, maxWidth: contentWidth) + 8
+                    continue
+                }
+
+                // Two-column row (e.g. the signature block). A tab or a run of 3+ spaces
+                // marks the column gap; we lay the two parts at fixed positions because
+                // padding columns with spaces does not align in a proportional font.
+                if let gap = trimmed.range(of: "(\\t+| {3,})", options: .regularExpression) {
+                    let left = trimmed[..<gap.lowerBound].trimmingCharacters(in: .whitespaces)
+                    let right = trimmed[gap.upperBound...].trimmingCharacters(in: .whitespaces)
+                    if !left.isEmpty, !right.isEmpty {
+                        // A bold left part marks the start of the signature block — reserve
+                        // enough height to keep the whole block (titles + lines + names) together.
+                        let leftIsBold = left.hasPrefix("**") && left.hasSuffix("**")
+                        y = checkPageBreak(y: y, needed: leftIsBold ? 92 : 28, context: context)
+                        y = drawTwoColumns(left, right, at: y, contentWidth: contentWidth) + 4
+                        continue
                     }
+                }
+
+                // Bold markers **text**
+                if displayText.contains("**") {
+                    let spans = parseMarkdown(displayText)
+                    let h = measureMixed(spans, contentWidth: contentWidth)
+                    y = checkPageBreak(y: y, needed: h, context: context)
+                    y = drawMixedText(spans, at: y, contentWidth: contentWidth) + 4
+                } else {
+                    let h = measureHeight(displayText, font: .systemFont(ofSize: 11), maxWidth: contentWidth)
+                    y = checkPageBreak(y: y, needed: h, context: context)
+                    y = drawParagraph(displayText, at: y, contentWidth: contentWidth) + 4
                 }
             }
 
@@ -311,6 +340,52 @@ final class PDFGenerator {
             font: .systemFont(ofSize: 11), color: charcoal, maxWidth: contentWidth)
     }
 
+    /// Measured height of a single-font text block (for accurate page breaks).
+    private func measureHeight(_ text: String, font: UIFont, maxWidth: CGFloat) -> CGFloat {
+        let style = NSMutableParagraphStyle()
+        style.lineSpacing = 3
+        let attr = NSAttributedString(string: text, attributes: [.font: font, .paragraphStyle: style])
+        return attr.boundingRect(
+            with: CGSize(width: maxWidth, height: .greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil).height
+    }
+
+    /// Measured height of a mixed bold/regular span run.
+    private func measureMixed(_ spans: [TextSpan], contentWidth: CGFloat) -> CGFloat {
+        let font = UIFont.systemFont(ofSize: 11)
+        let boldFont = UIFont.boldSystemFont(ofSize: 11)
+        let style = NSMutableParagraphStyle()
+        style.lineSpacing = 3
+        let attr = NSMutableAttributedString()
+        for span in spans {
+            attr.append(NSAttributedString(
+                string: span.text,
+                attributes: [.font: span.isBold ? boldFont : font, .paragraphStyle: style]))
+        }
+        return attr.boundingRect(
+            with: CGSize(width: contentWidth, height: .greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil).height
+    }
+
+    /// Draw two columns at fixed positions (left half / right half). Used for the
+    /// signature block so the right column lines up regardless of text width.
+    private func drawTwoColumns(_ left: String, _ right: String, at y: CGFloat, contentWidth: CGFloat) -> CGFloat {
+        let gap: CGFloat = 24
+        let colWidth = (contentWidth - gap) / 2
+        let leftHeight = drawColumnPart(left, at: CGPoint(x: margin, y: y), maxWidth: colWidth)
+        let rightHeight = drawColumnPart(right, at: CGPoint(x: margin + colWidth + gap, y: y), maxWidth: colWidth)
+        return y + max(leftHeight, rightHeight)
+    }
+
+    /// Draw one column part, honouring a fully-bold part wrapped in `**`.
+    private func drawColumnPart(_ raw: String, at point: CGPoint, maxWidth: CGFloat) -> CGFloat {
+        let isBold = raw.hasPrefix("**") && raw.hasSuffix("**") && raw.count > 4
+        let text = raw.replacingOccurrences(of: "**", with: "")
+        let font: UIFont = isBold ? .boldSystemFont(ofSize: 11) : .systemFont(ofSize: 11)
+        let endY = drawColoredText(text, at: point, font: font, color: charcoal, maxWidth: maxWidth)
+        return endY - point.y
+    }
+
     /// If remaining space is less than `needed`, start a new page
     private func checkPageBreak(y: CGFloat, needed: CGFloat, context: UIGraphicsPDFRendererContext)
         -> CGFloat
@@ -414,7 +489,8 @@ final class PDFGenerator {
     func generateRoomAd(
         room: Room, property: Property, commonRooms: [Room] = [],
         depositAmount: Decimal? = nil, ownerContact: String? = nil,
-        roomImages: [UIImage] = [], commonRoomImages: [String: [UIImage]] = [:]
+        roomImages: [UIImage] = [], commonRoomImages: [String: [UIImage]] = [:],
+        communityFeesIncludes: [String] = [], communityFeesAmount: Decimal? = nil
     ) async -> Data {
         let pageRect = CGRect(x: 0, y: 0, width: pageWidth, height: pageHeight)
         let contentWidth = pageWidth - margin * 2
@@ -472,8 +548,8 @@ final class PDFGenerator {
                 context: context)
             y = 110
 
-            // Quick features bar (amenities auto-detected from common rooms)
-            let amenities = detectAmenities(commonRooms: commonRooms, room: room)
+            // Quick features bar: size + each common area name as a chip.
+            let amenities = buildAmenityChips(commonRooms: commonRooms, room: room)
             if !amenities.isEmpty {
                 y = drawAmenitiesBar(amenities, at: y, contentWidth: contentWidth, context: context)
                 y += 15
@@ -489,9 +565,11 @@ final class PDFGenerator {
                 title: rentLabel,
                 value: "\(room.monthlyRent.formatted(currencyCode: "EUR"))\(perMonth)",
                 at: CGRect(x: margin, y: y, width: boxWidth, height: 50), context: context)
-            let deposit = depositAmount ?? room.monthlyRent
+            // Don't fake the deposit as the monthly rent — show "Ask" when it's unknown.
+            let depositValue = depositAmount.map { $0.formatted(currencyCode: "EUR") }
+                ?? String(localized: "Ask", locale: LanguageService.currentLocale, comment: "PDF room ad deposit value when unknown")
             drawInfoBox(
-                title: depositLabel, value: deposit.formatted(currencyCode: "EUR"),
+                title: depositLabel, value: depositValue,
                 at: CGRect(x: margin + boxWidth + 10, y: y, width: boxWidth, height: 50),
                 context: context)
             drawInfoBox(
@@ -500,7 +578,25 @@ final class PDFGenerator {
                 context: context)
             y += 70
 
+            // Contact — prominent, shown above the details.
+            if let contact = ownerContact, !contact.isEmpty {
+                let boxHeight: CGFloat = 50
+                drawRect(
+                    at: CGRect(x: margin, y: y, width: contentWidth, height: boxHeight),
+                    color: navy, context: context, cornerRadius: 10)
+                let contactLabel = String(localized: "Contact", locale: LanguageService.currentLocale, comment: "PDF room ad contact label")
+                drawColoredText(
+                    contactLabel, at: CGPoint(x: margin + 16, y: y + 9),
+                    font: .systemFont(ofSize: 9), color: UIColor.white.withAlphaComponent(0.7),
+                    maxWidth: contentWidth - 32)
+                drawColoredText(
+                    contact, at: CGPoint(x: margin + 16, y: y + 21),
+                    font: .boldSystemFont(ofSize: 19), color: .white, maxWidth: contentWidth - 32)
+                y += boxHeight + 18
+            }
+
             // Room details section
+            y = checkPageBreak(y: y, needed: 110, context: context)
             let detailsTitle = String(localized: "DETAILS", locale: LanguageService.currentLocale, comment: "PDF room ad details section title")
             y = drawPremiumSectionTitle(detailsTitle, at: y)
             let typeLabel = String(localized: "Type:", locale: LanguageService.currentLocale, comment: "PDF room ad type label")
@@ -512,19 +608,32 @@ final class PDFGenerator {
                 at: y)
             if let size = room.sizeSqm {
                 let sizeLabel = String(localized: "Size:", locale: LanguageService.currentLocale, comment: "PDF room ad size label")
-                y = drawLabelValue(sizeLabel, value: "\(size) m²", at: y)
+                y = drawLabelValue(sizeLabel, value: "\(formatSize(size)) m²", at: y)
+            }
+            let feesAmount = communityFeesAmount ?? 0
+            if feesAmount > 0 || !communityFeesIncludes.isEmpty {
+                let feesLabel = String(localized: "Common expenses:", locale: LanguageService.currentLocale, comment: "PDF room ad common expenses label")
+                // Format like rent/deposit (locale currency, no Int truncation, no glued symbol).
+                var feesValue = feesAmount > 0 ? "\(feesAmount.formatted(currencyCode: "EUR"))\(perMonth)" : ""
+                if !communityFeesIncludes.isEmpty {
+                    let joined = communityFeesIncludes.joined(separator: ", ")
+                    feesValue = feesValue.isEmpty ? joined : "\(feesValue) — \(joined)"
+                }
+                y = drawLabelValue(feesLabel, value: feesValue, at: y)
             }
             y += 10
 
-            // Description
-            if let notes = room.notes, !notes.isEmpty {
+            // Description — capped with an ellipsis (no silent loss) and paginated so it
+            // never spills under the footer.
+            if let notes = room.notes?.trimmingCharacters(in: .whitespacesAndNewlines), !notes.isEmpty {
+                let capped = notes.count > 600 ? String(notes.prefix(600)) + "…" : notes
                 let descTitle = String(localized: "DESCRIPTION", locale: LanguageService.currentLocale, comment: "PDF room ad description section title")
+                let descHeight = measureHeight(capped, font: .systemFont(ofSize: 11), maxWidth: contentWidth)
+                y = checkPageBreak(y: y, needed: 36 + descHeight, context: context)
                 y = drawPremiumSectionTitle(descTitle, at: y)
-                let lines = notes.components(separatedBy: "\n").prefix(5).joined(separator: "\n")
-                y =
-                    drawColoredText(
-                        lines, at: CGPoint(x: margin, y: y),
-                        font: .systemFont(ofSize: 11), color: charcoal, maxWidth: contentWidth) + 15
+                y = drawColoredText(
+                    capped, at: CGPoint(x: margin, y: y),
+                    font: .systemFont(ofSize: 11), color: charcoal, maxWidth: contentWidth) + 15
             }
 
             // Room photos section — actual embedded images
@@ -539,45 +648,33 @@ final class PDFGenerator {
                 y += 15
             }
 
-            // Common areas section
+            // Common areas. Start on a fresh page only if some common room actually has
+            // photos; otherwise continue inline so we don't waste a blank page on bare names.
             if !commonRooms.isEmpty {
-                if y > pageHeight - 160 {
+                let anyCommonPhotos = commonRooms.contains { !(commonRoomImages[$0.id.uuidString]?.isEmpty ?? true) }
+                if anyCommonPhotos {
                     context.beginPage()
                     y = margin
+                } else {
+                    y = checkPageBreak(y: y, needed: 70, context: context)
                 }
                 let commonTitle = String(localized: "COMMON AREAS", locale: LanguageService.currentLocale, comment: "PDF room ad common areas section title")
                 y = drawPremiumSectionTitle(commonTitle, at: y)
                 for commonRoom in commonRooms {
+                    let photos = commonRoomImages[commonRoom.id.uuidString] ?? []
+                    // Keep each label with its photos: jump to the next page if it won't fit.
+                    let needed: CGFloat = photos.isEmpty ? 26 : 190
+                    if y + needed > pageHeight - 60 {
+                        context.beginPage()
+                        y = margin
+                    }
                     y = drawBulletPoint("• \(commonRoom.name)", at: y, context: context)
-                    // Show common room photos if available
-                    if let photos = commonRoomImages[commonRoom.id.uuidString], !photos.isEmpty {
-                        if y > pageHeight - 160 {
-                            context.beginPage()
-                            y = margin
-                        }
-                        y = drawPhotoGrid(
-                            Array(photos.prefix(2)), at: y, contentWidth: contentWidth,
-                            context: context)
-                        y += 5
+                    if !photos.isEmpty {
+                        y = drawPhotoGrid(photos, at: y, contentWidth: contentWidth, context: context)
+                        y += 8
                     }
                 }
                 y += 10
-            }
-
-            // Contact info
-            if let contact = ownerContact, !contact.isEmpty {
-                if y > pageHeight - 80 {
-                    context.beginPage()
-                    y = margin
-                }
-                let contactPrefix = String(localized: "Contact: ", locale: LanguageService.currentLocale, comment: "PDF room ad contact prefix")
-                drawRect(
-                    at: CGRect(x: margin, y: y, width: contentWidth, height: 40), color: lightGray,
-                    context: context, cornerRadius: 8)
-                drawColoredText(
-                    "\(contactPrefix)\(contact)", at: CGPoint(x: margin + 12, y: y + 12),
-                    font: .systemFont(ofSize: 12), color: charcoal, maxWidth: contentWidth - 24)
-                y += 55
             }
 
             // Footer
@@ -664,23 +761,6 @@ final class PDFGenerator {
         return textY + 8
     }
 
-    private func drawInfoCard(
-        title: String, lines: [String], at rect: CGRect, context: UIGraphicsPDFRendererContext
-    ) {
-        drawRect(at: rect, color: lightGray, context: context, cornerRadius: 6)
-        var y = rect.origin.y + 8
-        drawColoredText(
-            title, at: CGPoint(x: rect.origin.x + 10, y: y),
-            font: .boldSystemFont(ofSize: 9), color: navy, maxWidth: rect.width - 20)
-        y += 14
-        for line in lines {
-            y =
-                drawColoredText(
-                    line, at: CGPoint(x: rect.origin.x + 10, y: y),
-                    font: .systemFont(ofSize: 10), color: charcoal, maxWidth: rect.width - 20) + 2
-        }
-    }
-
     private func drawInfoBox(
         title: String, value: String, at rect: CGRect, context: UIGraphicsPDFRendererContext
     ) {
@@ -712,8 +792,10 @@ final class PDFGenerator {
         var currentY = y
 
         for amenity in amenities {
-            let textWidth =
-                amenity.size(withAttributes: [.font: UIFont.systemFont(ofSize: 9)]).width + 16
+            // Cap to the content width so a very long common-room name can't bleed past the margin.
+            let textWidth = min(
+                amenity.size(withAttributes: [.font: UIFont.systemFont(ofSize: 9)]).width + 16,
+                contentWidth)
             if x + textWidth > margin + contentWidth {
                 x = margin
                 currentY += chipHeight + 4
@@ -730,47 +812,28 @@ final class PDFGenerator {
         return currentY + chipHeight
     }
 
-    private func detectAmenities(commonRooms: [Room], room: Room) -> [String] {
-        var amenities: [String] = []
-        if let size = room.sizeSqm { amenities.append("\(size) m²") }
-        let names = commonRooms.map { $0.name.lowercased() }
+    /// Quick-feature chips for the ad header: the room size plus every common area by its
+    /// actual name (deduped). Not "detection" — it just lists what the property has.
+    private func buildAmenityChips(commonRooms: [Room], room: Room) -> [String] {
+        var chips: [String] = []
+        if let size = room.sizeSqm { chips.append("\(formatSize(size)) m²") }
+        for common in commonRooms {
+            let name = common.name.trimmingCharacters(in: .whitespaces)
+            if !name.isEmpty, !chips.contains(name) {
+                chips.append(name)
+            }
+        }
+        return chips
+    }
 
-        let pool = String(localized: "Pool", locale: LanguageService.currentLocale, comment: "PDF amenity pool")
-        let garden = String(localized: "Garden", locale: LanguageService.currentLocale, comment: "PDF amenity garden")
-        let terrace = String(localized: "Terrace", locale: LanguageService.currentLocale, comment: "PDF amenity terrace")
-        let parking = String(localized: "Parking", locale: LanguageService.currentLocale, comment: "PDF amenity parking")
-        let kitchen = String(localized: "Kitchen", locale: LanguageService.currentLocale, comment: "PDF amenity kitchen")
-        let livingRoom = String(localized: "Living room", locale: LanguageService.currentLocale, comment: "PDF amenity living room")
-
-        // Search both Spanish and English common room names
-        if names.contains(where: { $0.contains("piscina") || $0.contains("pool") }) {
-            amenities.append(pool)
-        }
-        if names.contains(where: {
-            $0.contains("jardín") || $0.contains("jardin") || $0.contains("garden")
-        }) {
-            amenities.append(garden)
-        }
-        if names.contains(where: {
-            $0.contains("terraza") || $0.contains("terrace") || $0.contains("balcony")
-        }) {
-            amenities.append(terrace)
-        }
-        if names.contains(where: {
-            $0.contains("parking") || $0.contains("garaje") || $0.contains("garage")
-        }) {
-            amenities.append(parking)
-        }
-        if names.contains(where: { $0.contains("cocina") || $0.contains("kitchen") }) {
-            amenities.append(kitchen)
-        }
-        if names.contains(where: {
-            $0.contains("salón") || $0.contains("salon") || $0.contains("living")
-        }) {
-            amenities.append(livingRoom)
-        }
-        if names.contains(where: { $0.contains("wifi") }) { amenities.append("WiFi") }
-        return amenities
+    /// Locale-aware size string (e.g. "12,5") without trailing decimal noise.
+    private func formatSize(_ size: Decimal) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.locale = LanguageService.currentLocale
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 1
+        return formatter.string(from: size as NSDecimalNumber) ?? "\(size)"
     }
 
     private func drawPremiumFooter(context: UIGraphicsPDFRendererContext) {
@@ -786,7 +849,7 @@ final class PDFGenerator {
 
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .medium
-        dateFormatter.locale = Locale.current
+        dateFormatter.locale = LanguageService.currentLocale
         let dateStr = dateFormatter.string(from: Date())
         let footerText = String(localized: "Generated with Rental Manager", locale: LanguageService.currentLocale, comment: "PDF footer text")
         drawColoredText(
@@ -796,15 +859,6 @@ final class PDFGenerator {
     }
 
     // MARK: - Core Drawing
-
-    @discardableResult
-    private func drawText(
-        _ text: String, at point: CGPoint, font: UIFont, maxWidth: CGFloat,
-        alignment: NSTextAlignment = .left
-    ) -> CGFloat {
-        drawColoredText(
-            text, at: point, font: font, color: .black, maxWidth: maxWidth, alignment: alignment)
-    }
 
     @discardableResult
     private func drawColoredText(
@@ -849,33 +903,17 @@ final class PDFGenerator {
         }
     }
 
-    private func drawSectionTitle(_ title: String, at yPosition: CGFloat) -> CGFloat {
-        drawText(
-            title, at: CGPoint(x: margin, y: yPosition),
-            font: .boldSystemFont(ofSize: 14), maxWidth: pageWidth - margin * 2) + 8
-    }
-
     private func drawLabelValue(_ label: String, value: String, at yPosition: CGFloat) -> CGFloat {
         let labelWidth: CGFloat = 130
         let contentWidth = pageWidth - margin * 2
-        drawColoredText(
+        let labelEnd = drawColoredText(
             label, at: CGPoint(x: margin, y: yPosition),
             font: .boldSystemFont(ofSize: 11), color: charcoal, maxWidth: labelWidth)
-        return drawColoredText(
+        let valueEnd = drawColoredText(
             value, at: CGPoint(x: margin + labelWidth, y: yPosition),
-            font: .systemFont(ofSize: 11), color: charcoal, maxWidth: contentWidth - labelWidth) + 4
-    }
-
-    private func drawDivider(at yPosition: CGFloat, context: UIGraphicsPDFRendererContext)
-        -> CGFloat
-    {
-        let ctx = context.cgContext
-        ctx.setStrokeColor(gold.cgColor)
-        ctx.setLineWidth(2)
-        ctx.move(to: CGPoint(x: margin, y: yPosition))
-        ctx.addLine(to: CGPoint(x: pageWidth - margin, y: yPosition))
-        ctx.strokePath()
-        return yPosition
+            font: .systemFont(ofSize: 11), color: charcoal, maxWidth: contentWidth - labelWidth)
+        // Advance by the taller of the two columns so a wrapped label can't overlap the next row.
+        return max(labelEnd, valueEnd) + 4
     }
 
 }

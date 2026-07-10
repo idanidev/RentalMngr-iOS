@@ -1,4 +1,5 @@
 import Foundation
+import Supabase
 
 /// Unified error type for the app — standardizes error handling across services
 enum AppError: LocalizedError {
@@ -41,7 +42,22 @@ extension Error {
         if let appError = self as? AppError {
             return appError.errorDescription ?? String(localized: "Ha ocurrido un error", locale: LanguageService.currentLocale)
         }
-        // Never expose raw system errors to the user
-        return String(localized: "Ha ocurrido un error inesperado. Inténtalo de nuevo.", locale: LanguageService.currentLocale)
+        // Surface real backend errors from Supabase — the message (e.g. an RLS/constraint
+        // violation) is actionable for the user and not a sensitive internal leak.
+        if let pg = self as? PostgrestError {
+            return pg.message
+        }
+        if let auth = self as? AuthError {
+            return auth.localizedDescription
+        }
+        // Foundation/StoreKit/URLError and friends already carry a localized,
+        // user-safe description (e.g. "The Internet connection appears to be
+        // offline"). Show it rather than a vague generic message — a blank
+        // "error inesperado" tells the user nothing and hides the real cause.
+        let described = localizedDescription
+        if described.isEmpty {
+            return String(localized: "Ha ocurrido un error inesperado. Inténtalo de nuevo.", locale: LanguageService.currentLocale)
+        }
+        return described
     }
 }

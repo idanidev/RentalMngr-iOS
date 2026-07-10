@@ -2,6 +2,7 @@ import SwiftUI
 
 struct PropertyListView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.horizontalSizeClass) private var hSize
     @State private var viewModel: PropertyListViewModel?
     @State private var showAddSheet = false
     @State private var showPaywall = false
@@ -37,8 +38,10 @@ struct PropertyListView: View {
                 .environment(appState.entitlementService)
         }
         .sheet(isPresented: $showAddSheet) {
+            // Force a full reload on dismiss: loadProperties() is a no-op once
+            // isLoaded is true, so a freshly created property would never appear.
             if let vm = viewModel {
-                Task { await vm.loadProperties() }
+                Task { await vm.refresh() }
             }
         } content: {
             NavigationStack {
@@ -122,6 +125,34 @@ struct PropertyListView: View {
                 actionTitle: String(localized: "Add Property", locale: LanguageService.currentLocale, comment: "Button to add first property")
             ) {
                 showAddSheet = true
+            }
+        } else if hSize == .regular {
+            ScrollView {
+                LazyVGrid(
+                    columns: [GridItem(.adaptive(minimum: 360), spacing: 16, alignment: .top)],
+                    spacing: 16
+                ) {
+                    ForEach(vm.properties) { property in
+                        NavigationLink(value: property) {
+                            PropertyRichCard(property: property)
+                        }
+                        .buttonStyle(.plain)
+                        .contextMenu {
+                            Button(role: .destructive) {
+                                propertyToDelete = property
+                            } label: {
+                                Label(
+                                    String(localized: "Delete", locale: LanguageService.currentLocale, comment: "Swipe action to delete property"),
+                                    systemImage: "trash")
+                            }
+                        }
+                    }
+                }
+                .padding(20)
+            }
+            .scrollIndicators(.hidden)
+            .refreshable {
+                await vm.refresh()
             }
         } else {
             List {

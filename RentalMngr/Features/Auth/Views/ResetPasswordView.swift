@@ -49,7 +49,7 @@ struct ResetPasswordView: View {
                         try? await Task.sleep(for: .milliseconds(700))
                         navigateToNewPassword = true
                     } catch {
-                        message = error.localizedDescription
+                        message = error.safeUserMessage
                         isError = true
                     }
                     isLoading = false

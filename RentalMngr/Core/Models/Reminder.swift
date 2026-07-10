@@ -7,6 +7,11 @@ enum ReminderType: String, Codable, Sendable, CaseIterable {
     case event = "evento"
     case other = "otro"
 
+    init(from decoder: Decoder) throws {
+        let raw = try decoder.singleValueContainer().decode(String.self)
+        self = ReminderType(rawValue: raw) ?? .other
+    }
+
     var displayName: String {
         switch self {
         case .payment: String(localized: "Payment", locale: LanguageService.currentLocale, comment: "Reminder type")

@@ -6,7 +6,19 @@ struct MainTabView: View {
     var body: some View {
         @Bindable var bindable = appState
 
-        TabView(selection: $bindable.selectedTab) {
+        // Native tab bar. It can't host a long-press, so the property switcher is
+        // opened by re-tapping the Properties tab while already on it.
+        let selection = Binding(
+            get: { appState.selectedTab },
+            set: { newValue in
+                if newValue == .properties && appState.selectedTab == .properties {
+                    appState.showPropertySwitcher = true
+                }
+                appState.selectedTab = newValue
+            }
+        )
+
+        TabView(selection: selection) {
             Tab(
                 String(localized: "Home", locale: LanguageService.currentLocale, comment: "Tab bar item for dashboard"),
                 systemImage: "house.fill",
@@ -36,8 +48,24 @@ struct MainTabView: View {
                     GlobalFinanceView()
                 }
             }
+
+            Tab(
+                String(localized: "More", locale: LanguageService.currentLocale, comment: "Tab bar item for settings/more"),
+                systemImage: "ellipsis",
+                value: AppTab.more
+            ) {
+                NavigationStack {
+                    SettingsView(showsDoneButton: false)
+                }
+            }
         }
-        // iPhone: tab bar normal. iPad/Mac: sidebar adaptable automático.
-        .tabViewStyle(.sidebarAdaptable)
+        // iPhone/iPad: sidebar adaptable. Mac Catalyst: keep the iOS-style bottom
+        // tab bar (no sidebar) — the sidebar left big empty columns on Mac.
+        #if !targetEnvironment(macCatalyst)
+            .tabViewStyle(.sidebarAdaptable)
+        #endif
+        .sheet(isPresented: $bindable.showPropertySwitcher) {
+            PropertySwitcherView()
+        }
     }
 }

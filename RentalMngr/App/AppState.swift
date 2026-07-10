@@ -6,6 +6,8 @@ final class AppState {
     var selectedProperty: Property?
     var propertiesNavigationPath = NavigationPath()
     var selectedTab: AppTab = .dashboard
+    /// Toggled by a long-press on the Properties tab to present the property switcher.
+    var showPropertySwitcher = false
 
     // Stored as concrete type so @Observable tracking works through AppState
     let authService: AuthService
@@ -20,6 +22,9 @@ final class AppState {
     let sharedExpenseService: SharedExpenseServiceProtocol
     let reminderService: ReminderServiceProtocol
     let systemNotificationService: SystemNotificationService?
+    let localNotificationScheduler: LocalNotificationScheduler
+    let deviceTokenService: DeviceTokenServiceProtocol
+    let pushManager: PushManager
     let realtimeService: RealtimeServiceProtocol
     let userProfileService: UserProfileServiceProtocol
     let documentService: DocumentServiceProtocol
@@ -55,6 +60,21 @@ final class AppState {
         self.inventoryService = InventoryService()
         self.utilityService = UtilityService()
 
+        LocalNotificationScheduler.registerDefaults()
+        self.localNotificationScheduler = LocalNotificationScheduler(
+            propertyService: self.propertyService,
+            tenantService: self.tenantService,
+            roomService: self.roomService,
+            notificationService: self.notificationService
+        )
+
+        self.deviceTokenService = DeviceTokenService()
+        self.pushManager = PushManager(
+            deviceTokenService: self.deviceTokenService,
+            authService: self.authService
+        )
+        PushManager.shared = self.pushManager
+
         // Load Theme
         if let savedTheme = UserDefaults.standard.string(forKey: "userInterfaceStyle"),
             let theme = AppTheme(rawValue: savedTheme)
@@ -77,12 +97,14 @@ enum AppTab: Int, Hashable, CaseIterable {
     case dashboard = 0
     case properties = 1
     case finances = 2
+    case more = 3
 
     var title: String {
         switch self {
         case .dashboard: String(localized: "Home", locale: LanguageService.currentLocale, comment: "Tab title")
         case .properties: String(localized: "Properties", locale: LanguageService.currentLocale, comment: "Tab title")
         case .finances: String(localized: "Finances", locale: LanguageService.currentLocale, comment: "Tab title")
+        case .more: String(localized: "More", locale: LanguageService.currentLocale, comment: "Tab title")
         }
     }
 
@@ -91,6 +113,7 @@ enum AppTab: Int, Hashable, CaseIterable {
         case .dashboard: "house.fill"
         case .properties: "building.2.fill"
         case .finances: "chart.line.uptrend.xyaxis"
+        case .more: "ellipsis"
         }
     }
 }

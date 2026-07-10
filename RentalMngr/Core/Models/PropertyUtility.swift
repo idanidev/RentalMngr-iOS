@@ -8,6 +8,8 @@ struct PropertyUtility: Codable, Identifiable, Sendable, Hashable {
     var utilityType: String
     var includedInRent: Bool
     var monthlyAmount: Decimal?
+    /// For community fees: the services this flat fee covers (e.g. ["Luz", "Agua"]).
+    var includedServices: [String]?
     let createdAt: Date?
 
     enum CodingKeys: String, CodingKey {
@@ -16,6 +18,7 @@ struct PropertyUtility: Codable, Identifiable, Sendable, Hashable {
         case utilityType = "utility_type"
         case includedInRent = "included_in_rent"
         case monthlyAmount = "monthly_amount"
+        case includedServices = "included_services"
         case createdAt = "created_at"
     }
 

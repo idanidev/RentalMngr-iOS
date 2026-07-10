@@ -6,11 +6,15 @@ private let logger = Logger(subsystem: "com.rentalmngr", category: "TenantListVi
 struct TenantListView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.openURL) private var openURL
+    @Environment(\.horizontalSizeClass) private var hSize
     @State private var viewModel: TenantListViewModel?
     @State private var showAddSheet = false
     @State private var showRenewalConfirmation = false
     @State private var selectedTenantForRenewal: Tenant?
     let propertyId: UUID
+
+    /// Single content gutter for the screen (MAC_DESIGN §1): regular 20, compact 16.
+    private var gutter: CGFloat { hSize == .regular ? 20 : 16 }
 
     var body: some View {
         Group {
@@ -72,7 +76,7 @@ struct TenantListView: View {
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                 Button(String(localized: "Retry", locale: LanguageService.currentLocale, comment: "Retry loading button")) {
-                    Task { await vm.loadTenants() }
+                    Task { await vm.refresh() }
                 }
                 .buttonStyle(.borderedProminent)
             }
@@ -89,7 +93,7 @@ struct TenantListView: View {
                         Text("All", comment: "Filter for all tenants").tag(true)
                     }
                     .pickerStyle(.segmented)
-                    .padding(.horizontal)
+                    .padding(.horizontal, gutter)
                     .padding(.bottom, 8)
 
                     if vm.filteredTenants.isEmpty {
@@ -109,15 +113,10 @@ struct TenantListView: View {
                         }
                         .padding(.top, 40)
                     } else {
-                        LazyVStack(spacing: 12) {
+                        tenantGrid {
                             ForEach(vm.filteredTenants) { tenant in
                                 NavigationLink(value: tenant) {
-                                    TenantRow(tenant: tenant)
-                                        .equatable()
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 4)
-                                        .background(.ultraThinMaterial)
-                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    tenantCard(tenant)
                                 }
                                 .buttonStyle(.plain)
                                 .contextMenu {
@@ -180,7 +179,6 @@ struct TenantListView: View {
                                 }
                             }
                         }
-                        .padding(.horizontal)
                     }
 
                     if vm.isLoadingMore {
@@ -213,9 +211,56 @@ struct TenantListView: View {
         }
     }
 
+    /// Mac/iPad: tenant rows in an adaptive multi-column grid so they fill the
+    /// width instead of a single stretched column. iPhone: single column (unchanged).
+    @ViewBuilder
+    private func tenantGrid<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        if hSize == .regular {
+            LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: 340), spacing: 16, alignment: .top)],
+                spacing: 16
+            ) {
+                content()
+            }
+            .padding(.horizontal, gutter)
+        } else {
+            LazyVStack(spacing: 12) {
+                content()
+            }
+            .padding(.horizontal, gutter)
+        }
+    }
+
+    /// Tenant row wrapped as a card. On regular (Mac/iPad) it uses the MAC_DESIGN §4
+    /// card style; iPhone keeps its current ultraThinMaterial look.
+    @ViewBuilder
+    private func tenantCard(_ tenant: Tenant) -> some View {
+        if hSize == .regular {
+            TenantRow(tenant: tenant)
+                .equatable()
+                .padding(.horizontal, gutter)
+                .padding(.vertical, 4)
+                .background(.background.secondary, in: RoundedRectangle(cornerRadius: 18))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18)
+                        .strokeBorder(.quaternary, lineWidth: 0.5)
+                )
+                .contentShape(RoundedRectangle(cornerRadius: 18))
+                .macCardHover()
+        } else {
+            TenantRow(tenant: tenant)
+                .equatable()
+                .padding(.horizontal, gutter)
+                .padding(.vertical, 4)
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+    }
+
 }
 
 private struct TenantRow: View, Equatable {
+    @Environment(\.horizontalSizeClass) private var hSize
     let tenant: Tenant
 
     static func == (lhs: TenantRow, rhs: TenantRow) -> Bool {
@@ -305,7 +350,7 @@ private struct TenantRow: View, Equatable {
                 VStack(alignment: .leading, spacing: 3) {
                     HStack {
                         Text(tenant.fullName)
-                            .font(.headline)
+                            .font(hSize == .regular ? .title3.bold() : .headline)
                         if !tenant.active {
                             Text("Inactive", comment: "Inactive tenant badge")
                                 .font(.caption2)

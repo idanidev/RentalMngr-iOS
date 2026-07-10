@@ -38,7 +38,7 @@ struct IncomeListView: View {
                                                 incomeId: item.id)
                                         }
                                     } catch {
-                                        errorMessage = error.localizedDescription
+                                        errorMessage = error.safeUserMessage
                                     }
                                 }
                             }

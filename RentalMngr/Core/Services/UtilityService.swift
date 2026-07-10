@@ -34,13 +34,16 @@ final class UtilityService: UtilityServiceProtocol {
     ) async throws {
         let enabledTypes = utilities.map(\.utility_type)
 
-        // Only delete utility types that are no longer enabled — never delete everything first
+        // Only delete utility types that are no longer enabled — never delete everything first.
+        // PostgREST's `in` filter needs a parenthesised list "(a,b)"; passing a Swift array
+        // serialises to "{a,b}" which fails to parse, so build the value string explicitly.
         let idsToDelete = enabledTypes.isEmpty ? ["__none__"] : enabledTypes
+        let inList = "(\(idsToDelete.joined(separator: ",")))"
         try await client
             .from(SupabaseTable.propertyUtilities)
             .delete()
             .eq("property_id", value: propertyId)
-            .not("utility_type", operator: .in, value: idsToDelete)
+            .not("utility_type", operator: .in, value: inList)
             .execute()
 
         // Upsert enabled utilities (insert or update on conflict)
@@ -166,12 +169,12 @@ final class UtilityService: UtilityServiceProtocol {
 
     // MARK: - Auto-generation of Monthly Utility Charges
 
-    /// Generate utility charges for the current month for all properties.
+    /// Generate utility charges for the given month for all properties (defaults to current).
     /// For each property with configured utilities, creates charges for each occupied room
-    /// if they don't already exist for the current month.
-    func generateMonthlyUtilityCharges(properties: [Property]) async throws {
+    /// if they don't already exist for that month.
+    func generateMonthlyUtilityCharges(properties: [Property], month: Date = Date()) async throws {
         let calendar = Calendar.current
-        let now = Date()
+        let now = month
         let components = calendar.dateComponents([.year, .month], from: now)
         guard let startOfMonth = calendar.date(from: components) else { return }
 
@@ -230,4 +233,33 @@ struct PropertyUtilityUpsert: Encodable, Sendable {
     let utility_type: String
     let included_in_rent: Bool
     let monthly_amount: Decimal?
+    var included_services: [String]? = nil
+
+    private enum CodingKeys: String, CodingKey {
+        case property_id
+        case utility_type
+        case included_in_rent
+        case monthly_amount
+        case included_services
+    }
+
+    // Supabase upsert builds its ?columns= param from the union of keys PRESENT in the
+    // encoded payload; the synthesized Encodable omits nil keys, so cleared (nil) values
+    // would never be written to the DB. Encode explicit JSON null so clearing persists.
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(property_id, forKey: .property_id)
+        try container.encode(utility_type, forKey: .utility_type)
+        try container.encode(included_in_rent, forKey: .included_in_rent)
+        if let monthly_amount {
+            try container.encode(monthly_amount, forKey: .monthly_amount)
+        } else {
+            try container.encodeNil(forKey: .monthly_amount)
+        }
+        if let included_services {
+            try container.encode(included_services, forKey: .included_services)
+        } else {
+            try container.encodeNil(forKey: .included_services)
+        }
+    }
 }

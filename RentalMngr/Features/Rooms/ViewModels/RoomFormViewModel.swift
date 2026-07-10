@@ -43,14 +43,14 @@ final class RoomFormViewModel {
     var isFormValid: Bool {
         let nameOk = !name.trimmingCharacters(in: .whitespaces).isEmpty
         // Common areas don't require a rent value
-        let rentOk = roomType == .common || Decimal(string: monthlyRent) != nil
+        let rentOk = roomType == .common || Decimal.fromUserInput(monthlyRent) != nil
         return nameOk && rentOk
     }
 
     func save(newPhotos: [Data] = []) async -> Room? {
         // Common areas can have zero/empty rent
-        let rent = Decimal(string: monthlyRent) ?? 0
-        let size = Decimal(string: sizeSqm)
+        let rent = Decimal.fromUserInput(monthlyRent) ?? 0
+        let size = Decimal.fromUserInput(sizeSqm)
         isLoading = true
         errorMessage = nil
 
@@ -118,7 +118,7 @@ final class RoomFormViewModel {
             return currentRoom
 
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
             isLoading = false
             return nil
         }

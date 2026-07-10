@@ -2,11 +2,15 @@ import SwiftUI
 
 struct RoomListView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.horizontalSizeClass) private var hSize
     @State private var viewModel: RoomListViewModel?
     @State private var showAddSheet = false
     @State private var roomForAd: Room?
     let propertyId: UUID
     let rooms: [Room]
+
+    /// Single content gutter for the screen (MAC_DESIGN §1): regular 20, compact 16.
+    private var gutter: CGFloat { hSize == .regular ? 20 : 16 }
 
     var body: some View {
         Group {
@@ -71,7 +75,7 @@ struct RoomListView: View {
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                 Button(String(localized: "Retry", locale: LanguageService.currentLocale, comment: "Retry loading button")) {
-                    Task { await vm.loadRooms() }
+                    Task { await vm.refresh() }
                 }
                 .buttonStyle(.borderedProminent)
             }
@@ -96,54 +100,55 @@ struct RoomListView: View {
                         )
                         .font(.headline)
                         .foregroundStyle(.secondary)
-                        .padding(.horizontal)
+                        .padding(.horizontal, gutter)
 
-                        ForEach(vm.privateRooms) { room in
-                            NavigationLink(value: room) {
-                                RoomRow(room: room)
-                                    .equatable()
-                                    .contentShape(Rectangle())
+                        roomGrid {
+                            ForEach(vm.privateRooms) { room in
+                                NavigationLink(value: room) {
+                                    RoomRow(room: room)
+                                        .equatable()
+                                        .contentShape(Rectangle())
+                                }
+                                .buttonStyle(.plain)
+                                .contextMenu {
+                                    Button {
+                                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                        roomForAd = room
+                                    } label: {
+                                        Label(
+                                            String(localized: "PDF Ad",
+                                                locale: LanguageService.currentLocale, comment: "Context menu action to generate PDF ad"),
+                                            systemImage: "doc.richtext")
+                                    }
+
+                                    Button {
+                                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                        Task { await vm.toggleOccupancy(room) }
+                                    } label: {
+                                        Label(
+                                            room.occupied
+                                                ? String(localized: "Mark as Vacant",
+                                                    locale: LanguageService.currentLocale, comment:
+                                                        "Context menu action to mark room as vacant")
+                                                : String(localized: "Mark as Occupied",
+                                                    locale: LanguageService.currentLocale, comment:
+                                                        "Context menu action to mark room as occupied"),
+                                            systemImage: room.occupied
+                                                ? "arrow.uturn.left" : "checkmark"
+                                        )
+                                    }
+
+                                    Button(role: .destructive) {
+                                        UINotificationFeedbackGenerator().notificationOccurred(.warning)
+                                        Task { await vm.deleteRoom(room) }
+                                    } label: {
+                                        Label(
+                                            String(localized: "Delete",
+                                                locale: LanguageService.currentLocale, comment: "Context menu action to delete"),
+                                            systemImage: "trash")
+                                    }
+                                }
                             }
-                            .buttonStyle(.plain)
-                            .contextMenu {
-                                Button {
-                                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                                    roomForAd = room
-                                } label: {
-                                    Label(
-                                        String(localized: "PDF Ad",
-                                            locale: LanguageService.currentLocale, comment: "Context menu action to generate PDF ad"),
-                                        systemImage: "doc.richtext")
-                                }
-
-                                Button {
-                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                                    Task { await vm.toggleOccupancy(room) }
-                                } label: {
-                                    Label(
-                                        room.occupied
-                                            ? String(localized: "Mark as Vacant",
-                                                locale: LanguageService.currentLocale, comment:
-                                                    "Context menu action to mark room as vacant")
-                                            : String(localized: "Mark as Occupied",
-                                                locale: LanguageService.currentLocale, comment:
-                                                    "Context menu action to mark room as occupied"),
-                                        systemImage: room.occupied
-                                            ? "arrow.uturn.left" : "checkmark"
-                                    )
-                                }
-
-                                Button(role: .destructive) {
-                                    UINotificationFeedbackGenerator().notificationOccurred(.warning)
-                                    Task { await vm.deleteRoom(room) }
-                                } label: {
-                                    Label(
-                                        String(localized: "Delete",
-                                            locale: LanguageService.currentLocale, comment: "Context menu action to delete"),
-                                        systemImage: "trash")
-                                }
-                            }
-                            .padding(.horizontal)
                         }
                     }
                 }
@@ -156,26 +161,27 @@ struct RoomListView: View {
                         )
                         .font(.headline)
                         .foregroundStyle(.secondary)
-                        .padding(.horizontal)
+                        .padding(.horizontal, gutter)
 
-                        ForEach(vm.commonRooms) { room in
-                            NavigationLink(value: room) {
-                                RoomRow(room: room)
-                                    .equatable()
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                            .contextMenu {
-                                Button(role: .destructive) {
-                                    Task { await vm.deleteRoom(room) }
-                                } label: {
-                                    Label(
-                                        String(localized: "Delete",
-                                            locale: LanguageService.currentLocale, comment: "Context menu action to delete"),
-                                        systemImage: "trash")
+                        roomGrid {
+                            ForEach(vm.commonRooms) { room in
+                                NavigationLink(value: room) {
+                                    RoomRow(room: room)
+                                        .equatable()
+                                        .contentShape(Rectangle())
+                                }
+                                .buttonStyle(.plain)
+                                .contextMenu {
+                                    Button(role: .destructive) {
+                                        Task { await vm.deleteRoom(room) }
+                                    } label: {
+                                        Label(
+                                            String(localized: "Delete",
+                                                locale: LanguageService.currentLocale, comment: "Context menu action to delete"),
+                                            systemImage: "trash")
+                                    }
                                 }
                             }
-                            .padding(.horizontal)
                         }
                     }
                 }
@@ -186,121 +192,136 @@ struct RoomListView: View {
             }
         }
     }
+
+    /// Mac/iPad: rooms in an adaptive grid so photos render as proper cards
+    /// instead of full-width strips. iPhone: single column (unchanged).
+    @ViewBuilder
+    private func roomGrid<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        if hSize == .regular {
+            LazyVGrid(
+                columns: [GridItem(.adaptive(minimum: 460), spacing: 18, alignment: .top)],
+                spacing: 18
+            ) {
+                content()
+            }
+            .padding(.horizontal, gutter)
+        } else {
+            VStack(spacing: 12) {
+                content()
+            }
+            .padding(.horizontal, gutter)
+        }
+    }
 }
 
 private struct RoomRow: View, Equatable {
+    @Environment(\.horizontalSizeClass) private var hSize
     let room: Room
 
     static func == (lhs: RoomRow, rhs: RoomRow) -> Bool {
         lhs.room == rhs.room
     }
 
+    private var photoHeight: CGFloat { hSize == .regular ? 210 : 140 }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Hero photo area
-            if let firstPhotoUrl = room.listThumbnailUrls.first {
-                // ── CON FOTO: texto blanco sobre gradiente oscuro ──
-                ZStack(alignment: .bottomLeading) {
-                    AsyncImageView(url: firstPhotoUrl, contentMode: .fill)
-                        .frame(height: 140)
-                        .frame(maxWidth: .infinity)
-                        .clipped()
-
-                    LinearGradient(
-                        colors: [.clear, .black.opacity(0.65)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                    .frame(height: 80)
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(room.name)
-                            .font(.title3.bold())
-                            .foregroundStyle(.white)
-                        if room.roomType == .privateRoom {
-                            Text(room.monthlyRent.formatted(currencyCode: "EUR"))
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundStyle(.white.opacity(0.9))
-                        }
+            // Media (photo or placeholder) with name + price always overlaid,
+            // so cards with and without photos line up identically.
+            ZStack(alignment: .bottomLeading) {
+                Group {
+                    if let firstPath = room.photos.first {
+                        AsyncImageView(bucket: SupabaseConfig.storageBucket, path: firstPath, contentMode: .fill)
+                    } else {
+                        photoPlaceholder
                     }
-                    .padding(10)
+                }
+                .frame(height: photoHeight)
+                .frame(maxWidth: .infinity)
+                .clipped()
 
-                    if room.photos.count > 1 {
-                        HStack(spacing: 3) {
-                            Image(systemName: "photo.stack").font(.caption2)
-                            Text("\(room.photos.count)").font(.caption2.bold())
-                        }
-                        .padding(.horizontal, 6).padding(.vertical, 3)
-                        .background(.ultraThinMaterial, in: Capsule())
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.7)],
+                    startPoint: .center,
+                    endPoint: .bottom
+                )
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(room.name)
+                        .font(.title3.bold())
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    if room.roomType == .privateRoom {
+                        Text(room.monthlyRent.formatted(currencyCode: "EUR"))
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.white.opacity(0.9))
+                    }
+                }
+                .padding(12)
+
+                if room.photos.count > 1 {
+                    HStack(spacing: 3) {
+                        Image(systemName: "photo.stack").font(.caption2)
+                        Text("\(room.photos.count)").font(.caption2.bold())
+                    }
+                    .padding(.horizontal, 6).padding(.vertical, 3)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                    .padding(8)
+                }
+
+                if room.roomType == .privateRoom {
+                    occupancyBadge
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                         .padding(8)
-                    }
-
-                    if room.roomType == .privateRoom {
-                        occupancyBadge
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                            .padding(8)
-                    }
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            } else {
-                // ── SIN FOTO: placeholder + texto legible en cualquier modo ──
-                ZStack(alignment: .topLeading) {
-                    photoPlaceholder
-                        .frame(height: 88)
-                        .frame(maxWidth: .infinity)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-
-                    if room.roomType == .privateRoom {
-                        occupancyBadge.padding(8)
-                    }
-                }
-
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(room.name)
-                            .font(.subheadline.bold())
-                            .foregroundStyle(.primary)
-                        if room.roomType == .privateRoom {
-                            Text(room.monthlyRent.formatted(currencyCode: "EUR"))
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    Spacer()
-                }
-                .padding(.top, 6)
-                .padding(.horizontal, 2)
             }
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .macCardHover()
 
             // Bottom info section
-            if room.roomType == .privateRoom {
-                if let tenant = room.tenantName, !tenant.isEmpty {
+            VStack(alignment: .leading, spacing: 5) {
+                if room.roomType == .privateRoom {
                     HStack(spacing: 6) {
                         Image(systemName: "person.fill")
                             .font(.caption)
-                            .foregroundStyle(.blue)
-                        Text(tenant)
+                            .foregroundStyle(room.occupied ? .blue : .orange)
+                        Text(tenantLabel)
                             .font(.subheadline)
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(room.occupied ? Color.primary : Color.orange)
+                            .lineLimit(1)
                     }
-                    .padding(.top, 6)
-                    .padding(.horizontal, 2)
+                } else {
+                    HStack(spacing: 6) {
+                        Image(systemName: "sofa.fill")
+                            .font(.caption)
+                            .foregroundStyle(.purple)
+                        Text("Zona común")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
                 }
-            } else {
-                HStack(spacing: 6) {
-                    Image(systemName: "sofa.fill")
-                        .font(.caption)
-                        .foregroundStyle(.purple)
-                    Text("Zona común")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+
+                if let size = room.sizeSqm, size > 0 {
+                    HStack(spacing: 6) {
+                        Image(systemName: "ruler")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text("\(NSDecimalNumber(decimal: size).intValue) m²")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
-                .padding(.top, 6)
-                .padding(.horizontal, 2)
             }
+            .padding(.top, 8)
+            .padding(.horizontal, 2)
         }
         .padding(.vertical, 4)
+    }
+
+    private var tenantLabel: String {
+        if let tenant = room.tenantName, !tenant.isEmpty { return tenant }
+        return room.occupied ? "Ocupada" : "Libre"
     }
 
     @ViewBuilder
@@ -331,7 +352,7 @@ private struct RoomRow: View, Equatable {
             )
             .overlay {
                 Image(systemName: room.roomType == .common ? "sofa.fill" : "bed.double.fill")
-                    .font(.system(size: 28))
+                    .font(.title)
                     .foregroundStyle(
                         room.roomType == .common ? .purple.opacity(0.35) : .blue.opacity(0.35))
             }

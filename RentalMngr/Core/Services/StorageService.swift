@@ -29,6 +29,15 @@ final class StorageService: StorageServiceProtocol {
             .getPublicURL(path: path)
     }
 
+    /// Signed, time-limited URL for a private-bucket object. Prefer this over
+    /// getPublicURL so the storage buckets can stay private (no anonymous access
+    /// to tenant documents / room photos).
+    func createSignedURL(bucket: String, path: String, expiresIn: Int = 3600) async throws -> URL {
+        try await client.storage
+            .from(bucket)
+            .createSignedURL(path: path, expiresIn: expiresIn)
+    }
+
     func deleteFile(bucket: String, path: String) async throws {
         try await client.storage
             .from(bucket)

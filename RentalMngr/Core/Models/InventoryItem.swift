@@ -9,6 +9,11 @@ enum InventoryCondition: String, Codable, CaseIterable, Identifiable, Sendable {
 
     var id: String { rawValue }
 
+    init(from decoder: any Decoder) throws {
+        let rawValue = try decoder.singleValueContainer().decode(String.self)
+        self = InventoryCondition(rawValue: rawValue) ?? .good
+    }
+
     var label: String {
         switch self {
         case .new: return String(localized: "New", locale: LanguageService.currentLocale, comment: "Inventory condition new")

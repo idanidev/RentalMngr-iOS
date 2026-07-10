@@ -48,7 +48,7 @@ struct MyInvitationsView: View {
         do {
             invitations = try await appState.propertyService.getMyInvitations(email: email)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isLoading = false
     }
@@ -60,7 +60,7 @@ struct MyInvitationsView: View {
                 token: invitation.token, userId: userId)
             invitations.removeAll { $0.id == invitation.id }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 
@@ -69,7 +69,7 @@ struct MyInvitationsView: View {
             try await appState.propertyService.rejectInvitation(id: invitation.id)
             invitations.removeAll { $0.id == invitation.id }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 }

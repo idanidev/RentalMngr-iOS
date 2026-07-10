@@ -9,6 +9,11 @@ enum HouseRuleCategory: String, Codable, Sendable, CaseIterable {
     case community = "comunidad"
     case other = "otro"
 
+    init(from decoder: Decoder) throws {
+        let raw = try decoder.singleValueContainer().decode(String.self)
+        self = HouseRuleCategory(rawValue: raw) ?? .other
+    }
+
     var displayName: String {
         switch self {
         case .cleaning: String(localized: "Cleaning", locale: LanguageService.currentLocale, comment: "House rule category")

@@ -28,6 +28,10 @@ struct ContentView: View {
                 if !hasCompletedSetup {
                     OnboardingSetupView()
                         .transition(.opacity)
+                } else if appState.appLockManager.isLocked {
+                    // Gate the whole authenticated tree: while locked, MainTabView is not
+                    // built, so no PII view fetches and no realtime runs underneath.
+                    AppLockOverlay()
                 } else {
                     MainTabView()
                 }
@@ -81,12 +85,21 @@ struct ContentView: View {
             do {
                 let properties = try await appState.propertyService.fetchProperties()
                 try await appState.utilityService.generateMonthlyUtilityCharges(
-                    properties: properties)
+                    properties: properties, month: Date())
                 logger.info("Monthly utility charge generation completed")
             } catch {
                 logger.error(
                     "Monthly utility charge generation failed: \(error.localizedDescription)")
             }
+        }
+        .task(id: appState.authService.isAuthenticated) {
+            // Build the local-notification schedule and sync the push token exactly
+            // when the session resolves (and again after every sign-in) — running at
+            // launch with a nil userId would rebuild without server settings.
+            guard appState.authService.isAuthenticated else { return }
+            await appState.localNotificationScheduler.rescheduleAll(
+                userId: appState.authService.currentUserId)
+            await appState.pushManager.syncCurrentUser()
         }
         .alert(
             String(localized: "Welcome!", locale: LanguageService.currentLocale, comment: "Welcome alert title"),
@@ -111,12 +124,10 @@ struct ContentView: View {
                 break
             }
         }
-        .overlay {
-            if appState.appLockManager.isLocked {
-                AppLockOverlay()
-            }
-        }
         .task {
+            // Lock on cold launch too (not only after a background→foreground transition),
+            // otherwise force-quit + relaunch bypasses the biometric gate.
+            appState.appLockManager.lockIfEnabled()
             let report = DeviceIntegrity.check()
             if report.isCompromised {
                 showJailbreakAlert = true
@@ -130,6 +141,7 @@ struct ContentView: View {
         } message: {
             Text(String(localized: "Se han detectado modificaciones de seguridad en este dispositivo. Algunas funciones pueden no estar disponibles.", locale: LanguageService.currentLocale))
         }
+        .macWindowConfigured()
     }
 
     /// Auto-process pending invitations on login (matches webapp layout.svelte)

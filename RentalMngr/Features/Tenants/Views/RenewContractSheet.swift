@@ -137,6 +137,7 @@ struct RenewContractSheet: View {
                 }
             }
         }
+        .errorAlert($errorMessage)
     }
 
     // MARK: - Helpers
@@ -157,7 +158,7 @@ struct RenewContractSheet: View {
             try await onRenew(selectedMonths)
             dismiss()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isRenewing = false
     }

@@ -83,7 +83,7 @@ final class PropertyService: PropertyServiceProtocol {
             let description: String?
             let owner_id: UUID
         }
-        return
+        let property: Property =
             try await client
             .from(SupabaseTable.properties)
             .insert(
@@ -94,6 +94,43 @@ final class PropertyService: PropertyServiceProtocol {
             .single()
             .execute()
             .value
+
+        // The owner needs a property_access row or the property is invisible to
+        // fetchProperties (which filters strictly by property_access). Some
+        // deployments create this via a DB trigger; do it explicitly so the app
+        // never silently depends on server-side wiring. Idempotent: a duplicate
+        // (a trigger already granted access) is fine. On any other failure roll
+        // back the property so we never leave an orphan the owner can't see.
+        struct NewAccess: Encodable {
+            let property_id: UUID
+            let user_id: UUID
+            let role: String
+        }
+        do {
+            try await client
+                .from(SupabaseTable.propertyAccess)
+                .insert(
+                    NewAccess(
+                        property_id: property.id, user_id: ownerId,
+                        role: AccessRole.owner.rawValue)
+                )
+                .execute()
+        } catch {
+            if let pg = error as? PostgrestError, pg.code == "23505" {
+                // Access already granted (e.g. by a DB trigger) — nothing to do.
+                logger.debug("Owner access already existed for property \(property.id)")
+            } else {
+                logger.error("[PropertyService] Owner access grant failed, rolling back property: \(error)")
+                try? await client
+                    .from(SupabaseTable.properties)
+                    .delete()
+                    .eq("id", value: property.id)
+                    .execute()
+                throw error
+            }
+        }
+
+        return property
     }
 
     func updateProperty(_ property: Property) async throws -> Property {

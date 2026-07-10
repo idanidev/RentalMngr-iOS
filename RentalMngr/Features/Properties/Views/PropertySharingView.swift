@@ -148,6 +148,7 @@ struct PropertySharingView: View {
         .task {
             await loadAccessData()
         }
+        .errorAlert($errorMessage)
     }
 
     private func loadAccessData() async {
@@ -158,7 +159,7 @@ struct PropertySharingView: View {
             accessList = try await access
             invitations = try await pending
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 
@@ -179,7 +180,7 @@ struct PropertySharingView: View {
             email = ""
             await loadAccessData()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
         isLoading = false
     }
@@ -190,7 +191,7 @@ struct PropertySharingView: View {
                 propertyId: property.id, userId: access.userId)
             await loadAccessData()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 
@@ -203,7 +204,7 @@ struct PropertySharingView: View {
             await loadAccessData()
             successMessage = String(localized: "✓ Role updated successfully", locale: LanguageService.currentLocale, comment: "Success message when role is updated")
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
             // Reload to reset UI state on error
             await loadAccessData()
         }
@@ -215,7 +216,7 @@ struct PropertySharingView: View {
             try await appState.propertyService.revokeInvitation(id: invitation.id)
             await loadAccessData()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = error.safeUserMessage
         }
     }
 }

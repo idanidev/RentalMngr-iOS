@@ -5,6 +5,7 @@ struct ExpenseListView: View {
     @State private var showAddSheet = false
     @State private var expenseToEdit: Expense? = nil
     @State private var expenseToDelete: Expense? = nil
+    @State private var errorMessage: String?
     let propertyId: UUID
     let expenses: [Expense]
     var onLoadMore: (() async -> Void)? = nil
@@ -90,13 +91,21 @@ struct ExpenseListView: View {
             Button(String(localized: "Delete", locale: LanguageService.currentLocale, comment: "Delete expense button"), role: .destructive) {
                 if let expense = expenseToDelete {
                     Task {
-                        try? await appState.financeService.deleteExpense(id: expense.id)
-                        expenseToDelete = nil
-                        if let onRefresh { await onRefresh() }
+                        do {
+                            try await appState.financeService.deleteExpense(id: expense.id)
+                            expenseToDelete = nil
+                            if let onRefresh { await onRefresh() }
+                        } catch {
+                            if !error.isCancellation {
+                                errorMessage = error.safeUserMessage
+                            }
+                            expenseToDelete = nil
+                        }
                     }
                 }
             }
         }
+        .errorAlert(Binding(get: { errorMessage }, set: { errorMessage = $0 }))
     }
 
     private var groupedByCategory: [String: [Expense]] {

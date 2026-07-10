@@ -44,6 +44,7 @@ struct ExpenseFormView: View {
                 expense: expense
             )
         }
+        .errorAlert(Binding(get: { viewModel?.errorMessage }, set: { viewModel?.errorMessage = $0 }))
     }
 
     @ViewBuilder
@@ -63,10 +64,6 @@ struct ExpenseFormView: View {
 
                 TextField(String(localized: "Description (optional)", locale: LanguageService.currentLocale, comment: "Description field placeholder"), text: Binding(get: { vm.description }, set: { vm.description = $0 }), axis: .vertical)
                     .lineLimit(2...4)
-            }
-
-            if let error = vm.errorMessage {
-                Section { Text(error).foregroundStyle(.red).font(.caption) }
             }
         }
     }

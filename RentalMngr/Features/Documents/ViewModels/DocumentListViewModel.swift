@@ -126,7 +126,7 @@ final class DocumentListViewModel {
         }
     }
 
-    func getDocumentURL(_ document: Document) -> URL? {
-        try? documentService.getDocumentURL(document)
+    func getDocumentURL(_ document: Document) async throws -> URL {
+        try await documentService.getDocumentURL(document)
     }
 }

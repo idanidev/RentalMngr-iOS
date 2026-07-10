@@ -44,7 +44,7 @@ struct SharedExpenseFormView: View {
                 Button(String(localized: "Save", locale: LanguageService.currentLocale, comment: "Save button")) {
                     Task {
                         guard let userId = appState.authService.currentUserId,
-                              let decimalAmount = Decimal(string: amount) else { return }
+                              let decimalAmount = Decimal.fromUserInput(amount) else { return }
                         isLoading = true
                         do {
                             _ = try await appState.sharedExpenseService.createSharedExpense(
@@ -55,7 +55,7 @@ struct SharedExpenseFormView: View {
                             )
                             dismiss()
                         } catch {
-                            errorMessage = error.localizedDescription
+                            errorMessage = error.safeUserMessage
                         }
                         isLoading = false
                     }
@@ -63,5 +63,6 @@ struct SharedExpenseFormView: View {
                 .disabled(title.isEmpty || amount.isEmpty || isLoading)
             }
         }
+        .errorAlert($errorMessage)
     }
 }
