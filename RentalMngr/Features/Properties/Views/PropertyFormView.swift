@@ -62,6 +62,17 @@ struct PropertyFormView: View {
                     .lineLimit(3...6)
             }
 
+            Section {
+                Toggle(
+                    String(localized: "Se alquila entera", locale: LanguageService.currentLocale, comment: "Toggle: rent the whole property as one unit"),
+                    isOn: Binding(get: { vm.isSingleUnit }, set: { vm.isSingleUnit = $0 })
+                )
+            } footer: {
+                Text(vm.isSingleUnit
+                    ? String(localized: "Un solo contrato para toda la vivienda. Cuenta como 1 unidad de tu plan aunque tenga varias habitaciones.", locale: LanguageService.currentLocale, comment: "Footer when single unit is on")
+                    : String(localized: "Alquiler por habitaciones: cada habitación tiene su inquilino y cuenta como 1 unidad de tu plan.", locale: LanguageService.currentLocale, comment: "Footer when renting by room"))
+            }
+
             // Utilities / Services configuration (community fees handled separately below)
             Section {
                 ForEach(vm.utilities.indices, id: \.self) { index in

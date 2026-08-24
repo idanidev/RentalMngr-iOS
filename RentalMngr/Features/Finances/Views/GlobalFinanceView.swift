@@ -274,6 +274,7 @@ struct GlobalFinanceView: View {
                             await vm.markAsUnpaid(rent)
                         } else {
                             await vm.markAsPaid(rent)
+                            appState.reviewPrompter.registerSuccess()
                         }
                     }
                 }

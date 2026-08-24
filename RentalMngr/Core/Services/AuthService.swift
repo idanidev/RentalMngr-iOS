@@ -29,6 +29,8 @@ final class AuthService: AuthServiceProtocol {
         // Remove this device's push token while still authenticated (RLS needs the session),
         // so the signed-out user stops receiving the prior account's notifications.
         await PushManager.shared?.clearOnSignOut()
+        // No arrastrar datos de una cuenta a la siguiente.
+        await StableDataCache.shared.clearAll()
         try await client.auth.signOut()
         currentSession = nil
         currentUser = nil

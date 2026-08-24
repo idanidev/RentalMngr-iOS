@@ -63,10 +63,10 @@ struct ContentView: View {
 
             // Resolve setup state BEFORE showing any screen — avoids flashing the
             // setup wizard for existing users who already have properties.
-            if !hasCompletedSetup,
-                let props = try? await appState.propertyService.fetchProperties(),
-                !props.isEmpty
-            {
+            // Se reutiliza más abajo para generar los cargos: antes se pedía la
+            // lista de propiedades dos veces en cada arranque.
+            let properties = (try? await appState.propertyService.fetchProperties()) ?? []
+            if !hasCompletedSetup, !properties.isEmpty {
                 hasCompletedSetup = true
             }
             setupCheckComplete = true
@@ -83,7 +83,6 @@ struct ContentView: View {
 
             // Generate monthly utility charges for all properties
             do {
-                let properties = try await appState.propertyService.fetchProperties()
                 try await appState.utilityService.generateMonthlyUtilityCharges(
                     properties: properties, month: Date())
                 logger.info("Monthly utility charge generation completed")

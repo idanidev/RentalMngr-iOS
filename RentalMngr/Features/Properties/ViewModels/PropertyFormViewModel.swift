@@ -18,6 +18,8 @@ final class PropertyFormViewModel {
     var address = ""
     var description = ""
     var utilities: [EditableUtility] = []
+    /// Se alquila entera: cuenta como 1 unidad aunque tenga varias habitaciones.
+    var isSingleUnit = false
     var isLoading = false
     var errorMessage: String?
 
@@ -48,6 +50,7 @@ final class PropertyFormViewModel {
             self.name = property.name
             self.address = property.address
             self.description = property.description ?? ""
+            self.isSingleUnit = property.isSingleUnit
         } else {
             self.isEditing = false
         }
@@ -90,7 +93,8 @@ final class PropertyFormViewModel {
                     address: address.trimmingCharacters(in: .whitespaces),
                     description: description.isEmpty ? nil : description,
                     ownerId: userId,
-                    createdAt: Date()
+                    createdAt: Date(),
+                    isSingleUnit: isSingleUnit
                 )
                 result = try await propertyService.updateProperty(updated)
             } else {
@@ -98,7 +102,8 @@ final class PropertyFormViewModel {
                     name: name.trimmingCharacters(in: .whitespaces),
                     address: address.trimmingCharacters(in: .whitespaces),
                     description: description.isEmpty ? nil : description,
-                    ownerId: userId
+                    ownerId: userId,
+                    isSingleUnit: isSingleUnit
                 )
             }
 

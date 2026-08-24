@@ -3,6 +3,16 @@ import Foundation
 enum PropertyTab: String, CaseIterable {
     case rooms, tenants, finances, documents, contract
 
+    /// Etiqueta de la pestaña. En una vivienda que se alquila entera hablar de
+    /// "Habitaciones" confunde: ahí las habitaciones son organización interna,
+    /// no unidades que se alquilan por separado.
+    func displayName(isSingleUnit: Bool) -> String {
+        if self == .rooms && isSingleUnit {
+            return String(localized: "Vivienda", locale: LanguageService.currentLocale, comment: "Property tab when rented as a whole")
+        }
+        return displayName
+    }
+
     var displayName: String {
         switch self {
         case .rooms: String(localized: "Rooms", locale: LanguageService.currentLocale, comment: "Property tab")
@@ -11,6 +21,11 @@ enum PropertyTab: String, CaseIterable {
         case .documents: String(localized: "Documents", locale: LanguageService.currentLocale, comment: "Property tab")
         case .contract: String(localized: "Contract", locale: LanguageService.currentLocale, comment: "Property tab for contract template")
         }
+    }
+
+    func icon(isSingleUnit: Bool) -> String {
+        if self == .rooms && isSingleUnit { return "house.fill" }
+        return icon
     }
 
     var icon: String {

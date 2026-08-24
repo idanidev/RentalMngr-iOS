@@ -20,6 +20,13 @@ enum ImageCompressor {
         return compressedData
     }
 
+    /// Miniatura para listas y tiras de fotos: ~50 KB frente a los ~450 KB del
+    /// original. Es lo que evita bajar megas para pintar tarjetas pequeñas,
+    /// porque las transformaciones de imagen de Supabase son de plan Pro.
+    static func thumbnail(_ data: Data) -> Data? {
+        compress(data, maxSizeKB: 60, maxDimension: 600)
+    }
+
     private static func resize(_ image: UIImage, maxDimension: CGFloat) -> UIImage {
         let size = image.size
         guard size.width > maxDimension || size.height > maxDimension else { return image }

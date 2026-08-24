@@ -41,6 +41,33 @@ actor SignedURLCache {
         return signed
     }
 
+    /// Firma en UNA sola petición todas las rutas que aún no estén en caché.
+    ///
+    /// Sin esto, abrir una propiedad con 6 habitaciones lanzaba 6 peticiones de
+    /// firma antes de empezar a descargar ninguna imagen. Llamar a esto al
+    /// entrar en la pantalla deja las URLs listas y cada foto va directa a
+    /// descargar.
+    func prefetch(bucket: String, paths: [String], expiresIn: Int? = nil) async {
+        let lifetime = expiresIn ?? Int(ttl)
+        let missing = paths.filter { path in
+            guard let entry = cache["\(bucket)/\(path)"] else { return true }
+            return entry.expiry.timeIntervalSinceNow <= refreshMargin
+        }
+        guard !missing.isEmpty else { return }
+
+        do {
+            let signed = try await client.storage
+                .from(bucket)
+                .createSignedURLs(paths: missing, expiresIn: lifetime)
+            let expiry = Date().addingTimeInterval(TimeInterval(lifetime))
+            for (path, url) in zip(missing, signed) {
+                cache["\(bucket)/\(path)"] = Entry(url: url, expiry: expiry)
+            }
+        } catch {
+            // Sin drama: cada imagen firmará por su cuenta al cargarse.
+        }
+    }
+
     /// Drop a cached entry (e.g. after the underlying object is replaced/deleted).
     func invalidate(bucket: String, path: String) {
         cache["\(bucket)/\(path)"] = nil

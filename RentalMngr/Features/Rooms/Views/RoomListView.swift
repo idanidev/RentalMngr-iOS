@@ -54,6 +54,13 @@ struct RoomListView: View {
                 )
             }
         }
+        .task(id: rooms.map(\.id)) {
+            // Firma todas las portadas en UNA petición: si no, cada tarjeta pedía
+            // la suya antes de empezar a descargar y la primera carga se arrastraba.
+            await SignedURLCache.shared.prefetch(
+                bucket: SupabaseConfig.storageBucket,
+                paths: rooms.compactMap(\.photos.first))
+        }
         .onChange(of: rooms) { _, newRooms in
             viewModel?.rooms = newRooms
         }
@@ -231,7 +238,12 @@ private struct RoomRow: View, Equatable {
             ZStack(alignment: .bottomLeading) {
                 Group {
                     if let firstPath = room.photos.first {
-                        AsyncImageView(bucket: SupabaseConfig.storageBucket, path: firstPath, contentMode: .fill)
+                        AsyncImageView(
+                            bucket: SupabaseConfig.storageBucket, path: firstPath,
+                            contentMode: .fill,
+                            // Sin esto se decodificaba la foto entera (hasta 4000 px)
+                            // para pintarla en una tarjeta de ~400 pt.
+                            targetSize: CGSize(width: 400, height: 300))
                     } else {
                         photoPlaceholder
                     }

@@ -14,8 +14,13 @@ final class EntitlementService {
 
     private var client: SupabaseClient { SupabaseService.shared.client }
 
+    /// Respaldo firmado por Apple. StoreKit conoce la suscripción aunque el
+    /// servidor no responda, así que un cliente de pago sin cobertura (o en un
+    /// arranque en frío con la red caída) no pierde el acceso que ha pagado.
+    private(set) var storeKitActive = false
+
     /// True if user is admin or has active premium. Defaults to FALSE while loading.
-    var isPremium: Bool { subscription?.isPremium == true }
+    var isPremium: Bool { subscription?.isPremium == true || storeKitActive }
     var tier: SubscriptionTier { subscription?.tier ?? .free }
     var isAdmin: Bool { subscription?.tier == .admin }
 
@@ -41,8 +46,14 @@ final class EntitlementService {
         }
     }
 
+    /// Lo llama PurchaseManager tras consultar `Transaction.currentEntitlements`.
+    func setStoreKitEntitlement(_ active: Bool) {
+        storeKitActive = active
+    }
+
     func clear() {
         subscription = nil
+        storeKitActive = false
     }
 
     /// Throws `EntitlementError.premiumRequired` if user is not premium.

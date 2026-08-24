@@ -119,6 +119,7 @@ struct ContractView: View {
                 .appendingPathComponent(pdfFileName)
             try pdfData.write(to: url)
             pdfURL = url
+            appState.reviewPrompter.registerSuccess()
         } catch {
             // Failed to load data — isLoading = false shows error state
         }

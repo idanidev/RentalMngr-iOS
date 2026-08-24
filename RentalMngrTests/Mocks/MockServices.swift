@@ -26,7 +26,7 @@ final class MockPropertyService: PropertyServiceProtocol, @unchecked Sendable {
         return try stubbedProperties.first { $0.id == id } ?? { throw MockError.notStubbed }()
     }
 
-    func createProperty(name: String, address: String, description: String?, ownerId: UUID) async throws -> Property {
+    func createProperty(name: String, address: String, description: String?, ownerId: UUID, isSingleUnit: Bool) async throws -> Property {
         throw MockError.notStubbed
     }
 
@@ -94,6 +94,7 @@ final class MockRoomService: RoomServiceProtocol, @unchecked Sendable {
     func toggleOccupancy(roomId: UUID, occupied: Bool) async throws {}
 
     func uploadPhoto(data: Data, path: String) async throws {}
+    func deletePhoto(path: String) async throws {}
 }
 
 // MARK: - MockTenantService
@@ -121,6 +122,11 @@ final class MockTenantService: TenantServiceProtocol, @unchecked Sendable {
     func fetchActiveTenants(propertyId: UUID) async throws -> [Tenant] {
         if let error = stubbedError { throw error }
         return stubbedTenants.filter(\.active)
+    }
+
+    func fetchActiveTenants(propertyIds: [UUID]) async throws -> [Tenant] {
+        if let error = stubbedError { throw error }
+        return stubbedTenants.filter { $0.active && propertyIds.contains($0.propertyId) }
     }
 
     func fetchTenant(id: UUID) async throws -> Tenant {

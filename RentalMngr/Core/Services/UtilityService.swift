@@ -59,6 +59,17 @@ final class UtilityService: UtilityServiceProtocol {
 
     // MARK: - Utility Charges
 
+    /// Configuraciones de VARIAS propiedades en una sola consulta.
+    func fetchPropertyUtilities(propertyIds: [UUID]) async throws -> [PropertyUtility] {
+        guard !propertyIds.isEmpty else { return [] }
+        return try await client
+            .from(SupabaseTable.propertyUtilities)
+            .select()
+            .in("property_id", values: propertyIds)
+            .execute()
+            .value
+    }
+
     func fetchUtilityCharges(
         propertyId: UUID, startDate: Date?, endDate: Date?, limit: Int?, offset: Int?
     ) async throws -> [UtilityCharge] {
@@ -172,56 +183,54 @@ final class UtilityService: UtilityServiceProtocol {
     /// Generate utility charges for the given month for all properties (defaults to current).
     /// For each property with configured utilities, creates charges for each occupied room
     /// if they don't already exist for that month.
+    /// Genera los cargos del mes que falten.
+    ///
+    /// Antes hacía 2 consultas POR PROPIEDAD (configuración + cargos existentes).
+    /// Ahora hace 2 en total y cruza en memoria: con 4 propiedades pasa de 8
+    /// consultas a 2, y corre en cada arranque.
     func generateMonthlyUtilityCharges(properties: [Property], month: Date = Date()) async throws {
+        guard !properties.isEmpty else { return }
         let calendar = Calendar.current
         let now = month
         let components = calendar.dateComponents([.year, .month], from: now)
         guard let startOfMonth = calendar.date(from: components) else { return }
+        let endOfMonth =
+            calendar.date(byAdding: DateComponents(month: 1, second: -1), to: startOfMonth) ?? now
+
+        let propertyIds = properties.map(\.id)
+
+        // 2 consultas para todas las propiedades.
+        let configsByProperty = Dictionary(
+            grouping: (try? await fetchPropertyUtilities(propertyIds: propertyIds)) ?? [],
+            by: \.propertyId)
+        let existingCharges = (try? await fetchAllUtilityCharges(
+            propertyIds: propertyIds, startDate: startOfMonth, endDate: endOfMonth)) ?? []
+        let existingKeys = Set(existingCharges.map { "\($0.roomId)_\($0.utilityType)" })
 
         for property in properties {
-            do {
-                // 1. Get utility configs for this property
-                let configs = try await fetchPropertyUtilities(propertyId: property.id)
-                guard !configs.isEmpty else { continue }
+            let configs = configsByProperty[property.id] ?? []
+            guard !configs.isEmpty else { continue }
 
-                // 2. Get occupied rooms
-                let occupiedRooms = property.occupiedPrivateRooms
-                guard !occupiedRooms.isEmpty else { continue }
+            let occupiedRooms = property.occupiedPrivateRooms
+            guard !occupiedRooms.isEmpty else { continue }
 
-                // 3. Check existing charges for this month to avoid duplicates
-                let endOfMonth =
-                    calendar.date(byAdding: DateComponents(month: 1, second: -1), to: startOfMonth)
-                    ?? now
-                let existingCharges = try await fetchUtilityCharges(
-                    propertyId: property.id,
-                    startDate: startOfMonth,
-                    endDate: endOfMonth,
-                    limit: nil,
-                    offset: nil
-                )
+            for room in occupiedRooms {
+                for config in configs {
+                    let key = "\(room.id)_\(config.utilityType)"
+                    guard !existingKeys.contains(key) else { continue }
 
-                // Build a set of existing (roomId, utilityType) for fast lookup
-                let existingKeys = Set(existingCharges.map { "\($0.roomId)_\($0.utilityType)" })
-
-                // 4. Create missing charges
-                for room in occupiedRooms {
-                    for config in configs {
-                        let key = "\(room.id)_\(config.utilityType)"
-                        guard !existingKeys.contains(key) else { continue }
-
-                        let amount = config.monthlyAmount ?? Decimal.zero
-
+                    do {
                         _ = try await createUtilityCharge(
                             propertyId: property.id,
                             roomId: room.id,
                             utilityType: config.utilityType,
-                            amount: amount,
+                            amount: config.monthlyAmount ?? Decimal.zero,
                             month: startOfMonth
                         )
+                    } catch {
+                        logger.error("Error creating utility charge for \(property.name): \(error)")
                     }
                 }
-            } catch {
-                logger.error("Error generating utility charges for \(property.name): \(error)")
             }
         }
     }

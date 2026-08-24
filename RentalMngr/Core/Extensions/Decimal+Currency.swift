@@ -24,39 +24,46 @@ extension Decimal {
     /// Parses a user-typed monetary amount, tolerating both comma and period
     /// decimal separators ("1.234,50", "1234,50", "1234.50", "1,234.50").
     ///
-    /// A plain `Decimal(string:)` assumes a period decimal separator, so on a
-    /// Spanish-locale `.decimalPad` (which emits a comma) "1.500,00" silently
-    /// truncates to 1.5 — corrupting stored money. This parses with the device
-    /// locale first, then falls back to comma/period normalization. Returns nil
-    /// for empty or invalid input.
+    /// `Decimal(string:)` asume punto decimal, así que en un teclado español
+    /// (que escribe coma) "1.500,00" se truncaba a 1,5 y corrompía el importe.
+    ///
+    /// No usa el locale del dispositivo a propósito: `NumberFormatter` en un
+    /// iPhone en inglés lee "600,50" como 60050, un error de 100×. La regla es
+    /// determinista — el último separador es el decimal, salvo que separe un
+    /// grupo de 3 dígitos, que entonces es de millares. Devuelve nil si está
+    /// vacío o no es un número, nunca cero.
     static func fromUserInput(_ text: String) -> Decimal? {
         let clean = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if clean.isEmpty { return nil }
+            .replacingOccurrences(of: "\u{00A0}", with: "")
+            .replacingOccurrences(of: " ", with: "")
+        guard !clean.isEmpty else { return nil }
+        guard clean.allSatisfy({ $0.isNumber || $0 == "." || $0 == "," || $0 == "-" }) else { return nil }
 
-        // 1) Device-locale aware parse (respects the user's own separators).
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        if let number = formatter.number(from: clean) {
-            return number.decimalValue
+        // Regla determinista, sin depender del locale del dispositivo:
+        // el ÚLTIMO separador es el decimal salvo que separe un grupo de 3
+        // dígitos (entonces es de millares). Así "600,50" son 600,5 tanto en un
+        // iPhone español como en uno inglés — fiarse del locale convertía
+        // "600,50" en 60050 en un dispositivo en inglés.
+        let separators = clean.filter { $0 == "." || $0 == "," }
+        guard !separators.isEmpty else { return Decimal(string: clean) }
+
+        guard let lastIndex = clean.lastIndex(where: { $0 == "." || $0 == "," }) else {
+            return Decimal(string: clean)
         }
-        // 2) Comma-as-decimal → period ("1234,50"). Guard against ambiguous
-        // multi-separator input like "1.234.50": Decimal(string:) parses only the
-        // longest valid prefix ("1.234"), silently corrupting the value — so
-        // reject anything left with more than one "." rather than truncating it.
-        let dotNormalized = clean.replacingOccurrences(of: ",", with: ".")
-        if dotNormalized.filter({ $0 == "." }).count <= 1,
-            let dec = Decimal(string: dotNormalized) {
-            return dec
+        let tail = String(clean[clean.index(after: lastIndex)...])
+        let head = String(clean[clean.startIndex..<lastIndex])
+
+        // Grupo final de 3 dígitos con algo delante = millares ("1.500" son mil quinientos).
+        let lastIsGrouping = tail.count == 3 && tail.allSatisfy(\.isNumber) && !head.isEmpty
+
+        if lastIsGrouping {
+            let digitsOnly = clean.filter { $0.isNumber || $0 == "-" }
+            return Decimal(string: digitsOnly)
         }
-        // 3) es_ES fallback for grouped input on a non-es device ("1.234,50" →
-        // 1234.5). NumberFormatter strips grouping separators; a bare
-        // Decimal(string:) would not.
-        let esFormatter = NumberFormatter()
-        esFormatter.numberStyle = .decimal
-        esFormatter.locale = Locale(identifier: "es_ES")
-        if let number = esFormatter.number(from: clean) {
-            return number.decimalValue
-        }
-        return nil
+
+        guard !tail.isEmpty, tail.allSatisfy(\.isNumber) else { return nil }
+        let integerPart = head.filter { $0.isNumber || $0 == "-" }
+        guard !integerPart.isEmpty else { return Decimal(string: "0.\(tail)") }
+        return Decimal(string: "\(integerPart).\(tail)")
     }
 }

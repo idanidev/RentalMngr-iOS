@@ -26,6 +26,8 @@ struct RentalMngrApp: App {
                 .environment(\.locale, appState.languageService.selectedLanguage.locale)
                 .id(appState.languageService.selectedLanguage)
                 .task {
+                    // Marketing mockup mode: no permission prompts on top of the shot.
+                    guard mockupScreen == nil else { return }
                     // Request permission and register with APNs. The notification
                     // schedule + token sync are built from ContentView when the
                     // session resolves — at this point the userId is still nil and

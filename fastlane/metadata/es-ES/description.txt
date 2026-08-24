@@ -1,40 +1,32 @@
-RentalMngr es la solución completa para propietarios y gestores de alquileres. Gestiona tus propiedades, habitaciones e inquilinos desde una sola app.
+¿Alquilas por habitaciones? Esta app está hecha exactamente para eso.
+Cada habitación con su inquilino, su renta y sus gastos, no una app de "propiedades" donde encajas el piso compartido a la fuerza.
+Y el papeleo resuelto: contrato en PDF, anuncio de la habitación libre e informe anual para la declaración.
 
-GESTIÓN DE PROPIEDADES Y HABITACIONES
-• Añade propiedades con fotos, dirección y detalles completos
-• Gestiona habitaciones individuales con estado de ocupación
-• Inventario detallado por habitación
-• Vista de ocupación en tiempo real
+POR HABITACIÓN, NO POR PISO
+• Cada habitación con su inquilino, su renta y su estado: ocupada o libre
+• Zonas comunes aparte: cocina, salón, terraza...
+• Fotos e inventario de cada habitación
+• Ocupación real de un vistazo
 
-CONTROL DE INQUILINOS
-• Ficha completa de cada inquilino con documentos y contratos
-• Seguimiento de fechas de entrada y salida
-• Historial de pagos y deudas
-• Contrato generado automáticamente en PDF
+PAPELEO RESUELTO
+• Contrato en PDF con tus propias cláusulas y variables: renta, fianza, fechas
+• Anuncio de la habitación libre en PDF, con fotos y tus datos de contacto
+• Informe anual por propiedad: cobrado, pendiente, gastos y neto
+• Documentos guardados por propiedad e inquilino
 
-FINANZAS SIMPLIFICADAS
-• Registro de ingresos y gastos por propiedad
-• Control de recibos de suministros (luz, agua, gas)
-• Resumen financiero mensual con gráficas
-• Exportación de informes
+COBROS Y GASTOS CLAROS
+• La renta de cada habitación, marcada como cobrada o pendiente
+• Luz, agua, gas... o una cuota fija de gastos comunes con lo que incluye
+• Gastos por categoría y resumen mensual de todas tus propiedades
 
-ROOMIE — GESTIÓN COMPARTIDA
-• Gastos compartidos entre compañeros de piso
-• Reglas de la casa digitales
-• Recordatorios automáticos de pagos
-• Panel de notificaciones
+QUE NO SE TE PASE NADA
+• Avisos de cobro del mes, fianza pendiente y habitación libre
+• Aviso de fin de contrato, con los días de antelación que tú elijas
+• Resumen semanal
 
-DISEÑO MODERNO
-• Interfaz limpia e intuitiva
-• Soporte para iPhone y iPad
-• Modo oscuro incluido
-• Disponible en español e inglés
+EN TODOS TUS DISPOSITIVOS
+• iPhone, iPad y Mac, sincronizado al momento
+• Comparte una propiedad con tu pareja, socio o gestor, con permisos de edición o solo lectura
+• Bloqueo con Face ID o Touch ID
 
-PREMIUM
-• Gratis: 1 propiedad y 2 habitaciones para empezar
-• Premium: propiedades y habitaciones ilimitadas
-• Generación de contratos en PDF
-• Variables de contrato personalizables
-• Compartir propiedades con colaboradores
-• Histórico financiero completo
-• Suscripción mensual, cancela cuando quieras
+Gratis: 1 propiedad y 2 habitaciones. Premium: sin límite.

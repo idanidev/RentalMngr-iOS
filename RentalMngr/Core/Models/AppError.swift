@@ -38,6 +38,32 @@ extension Error {
 // MARK: - Safe error messages for UI (never leak internals)
 
 extension Error {
+    /// Traducción de los límites que aplica el servidor.
+    fileprivate static func planLimitMessage(for raw: String) -> String? {
+        if raw.contains("free_tier_unit_limit_reached") {
+            return String(localized: "Has alcanzado las 3 unidades del plan gratuito. Hazte Premium para añadir las que necesites.", locale: LanguageService.currentLocale, comment: "Free tier unit limit")
+        }
+        if raw.contains("photo_daily_limit_reached") {
+            return String(localized: "Has subido muchas fotos hoy. Inténtalo de nuevo mañana.", locale: LanguageService.currentLocale, comment: "Daily photo limit")
+        }
+        if raw.contains("photo_quota_reached") {
+            return String(localized: "Has alcanzado el límite de fotos de tu plan. Hazte Premium para subir más.", locale: LanguageService.currentLocale, comment: "Photo quota")
+        }
+        if raw.contains("document_quota_reached") {
+            return String(localized: "Has alcanzado el límite de documentos de tu plan. Hazte Premium para guardar más.", locale: LanguageService.currentLocale, comment: "Document quota")
+        }
+        if raw.contains("transaction_already_used") {
+            return String(localized: "Esa compra ya está activada en otra cuenta.", locale: LanguageService.currentLocale, comment: "Purchase already used")
+        }
+        return nil
+    }
+
+    /// True si el error viene de un límite del plan: la interfaz puede ofrecer Premium.
+    var isPlanLimit: Bool {
+        guard let pg = self as? PostgrestError else { return false }
+        return Self.planLimitMessage(for: pg.message) != nil
+    }
+
     var safeUserMessage: String {
         if let appError = self as? AppError {
             return appError.errorDescription ?? String(localized: "Ha ocurrido un error", locale: LanguageService.currentLocale)
@@ -45,6 +71,12 @@ extension Error {
         // Surface real backend errors from Supabase — the message (e.g. an RLS/constraint
         // violation) is actionable for the user and not a sensitive internal leak.
         if let pg = self as? PostgrestError {
+            // Los límites de plan los aplica la base de datos y llegan como
+            // códigos internos. Se traducen aquí para que el usuario lea algo
+            // accionable en vez de "free_tier_unit_limit_reached".
+            if let planMessage = Self.planLimitMessage(for: pg.message) {
+                return planMessage
+            }
             return pg.message
         }
         if let auth = self as? AuthError {

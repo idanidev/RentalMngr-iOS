@@ -31,6 +31,8 @@ final class AppState {
     let inventoryService: InventoryServiceProtocol
     let utilityService: UtilityServiceProtocol
     let entitlementService = EntitlementService()
+    /// Gates the App Store review prompt to genuine success moments.
+    let reviewPrompter = ReviewPrompter()
     let purchaseManager = PurchaseManager()
     let languageService = LanguageService()
     let appLockManager = AppLockManager()

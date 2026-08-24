@@ -17,8 +17,13 @@ final class RoomFormViewModel {
     private var roomId: UUID?
     private(set) var existingPhotos: [String] = []
 
+    /// Rutas que el usuario ha quitado. No se borran del storage hasta guardar:
+    /// si cancela el formulario, sus fotos siguen ahí.
+    private var pendingDeletions: [String] = []
+
     func deletePhoto(_ path: String) {
         existingPhotos.removeAll { $0 == path }
+        pendingDeletions.append(path)
     }
 
     init(
@@ -84,9 +89,16 @@ final class RoomFormViewModel {
             if !newPhotos.isEmpty {
                 for photoData in newPhotos {
                     let path = "\(currentRoom.id)/\(UUID().uuidString).jpg"
-                    let uploadData = ImageCompressor.compress(photoData, maxSizeKB: 800, maxDimension: 1920) ?? photoData
+                    let uploadData = ImageCompressor.compress(photoData, maxSizeKB: 450, maxDimension: 1600) ?? photoData
                     try await roomService.uploadPhoto(data: uploadData, path: path)
                     uploadedPaths.append(path)
+
+                    // Miniatura hermana para listas. Si falla, no se aborta la
+                    // subida: quien lee cae al original.
+                    if let thumb = ImageCompressor.thumbnail(photoData) {
+                        try? await roomService.uploadPhoto(
+                            data: thumb, path: StoragePaths.thumbnail(for: path))
+                    }
                 }
             }
 
@@ -113,6 +125,15 @@ final class RoomFormViewModel {
                 )
                 currentRoom = try await roomService.updateRoom(roomWithPhotos)
             }
+
+            // Ahora sí: liberar del storage lo que el usuario quitó. Hasta hoy
+            // los ficheros se quedaban ocupando cuota para siempre.
+            for path in pendingDeletions {
+                try? await roomService.deletePhoto(path: path)
+                try? await roomService.deletePhoto(path: StoragePaths.thumbnail(for: path))
+                await SignedURLCache.shared.invalidate(bucket: SupabaseConfig.storageBucket, path: path)
+            }
+            pendingDeletions.removeAll()
 
             isLoading = false
             return currentRoom

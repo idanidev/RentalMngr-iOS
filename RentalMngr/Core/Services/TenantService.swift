@@ -59,6 +59,20 @@ final class TenantService: TenantServiceProtocol {
             .value
     }
 
+    /// Inquilinos activos de VARIAS propiedades en una sola consulta.
+    /// Evita el N+1 de pedirlos propiedad a propiedad al construir alertas.
+    func fetchActiveTenants(propertyIds: [UUID]) async throws -> [Tenant] {
+        guard !propertyIds.isEmpty else { return [] }
+        return try await client
+            .from(SupabaseTable.tenants)
+            .select(tenantSelect)
+            .in("property_id", values: propertyIds)
+            .eq("active", value: true)
+            .order("full_name")
+            .execute()
+            .value
+    }
+
     func fetchTenant(id: UUID) async throws -> Tenant {
         try await client
             .from(SupabaseTable.tenants)

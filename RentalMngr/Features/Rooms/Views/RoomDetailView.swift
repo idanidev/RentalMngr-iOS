@@ -118,6 +118,11 @@ struct RoomDetailView: View {
                         service: appState.inventoryService,
                         initialItems: inventory
                     )
+                    .task(id: room.photos) {
+                        // Todas las fotos de la habitación firmadas en una sola petición.
+                        await SignedURLCache.shared.prefetch(
+                            bucket: SupabaseConfig.storageBucket, paths: room.photos)
+                    }
                     .navigationTitle(
                         String(localized: "Inventory of \(room.name)",
                             locale: LanguageService.currentLocale, comment: "Navigation title for room inventory"))

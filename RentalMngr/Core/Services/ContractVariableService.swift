@@ -4,7 +4,14 @@ import Supabase
 final class ContractVariableService: Sendable {
     private var client: SupabaseClient { SupabaseService.shared.client }
 
+    /// Cacheado igual que el perfil: se pide desde cada pantalla de contrato.
     func fetchVariables() async throws -> [ContractVariable] {
+        try await StableDataCache.shared.value(for: StableDataKey.contractVariables) {
+            try await self.fetchVariablesUncached()
+        }
+    }
+
+    private func fetchVariablesUncached() async throws -> [ContractVariable] {
         let userId = try await client.auth.session.user.id.uuidString
         return try await client
             .from(SupabaseTable.contractVariables)
@@ -16,6 +23,7 @@ final class ContractVariableService: Sendable {
     }
 
     func createVariable(name: String, label: String, defaultValue: String) async throws -> ContractVariable {
+        await StableDataCache.shared.invalidate(StableDataKey.contractVariables)
         let userId = try await client.auth.session.user.id.uuidString
 
         struct NewVariable: Encodable {
@@ -37,6 +45,7 @@ final class ContractVariableService: Sendable {
     }
 
     func updateVariable(_ variable: ContractVariable) async throws {
+        await StableDataCache.shared.invalidate(StableDataKey.contractVariables)
         struct UpdatePayload: Encodable {
             let name: String
             let label: String
@@ -51,6 +60,7 @@ final class ContractVariableService: Sendable {
     }
 
     func deleteVariable(id: UUID) async throws {
+        await StableDataCache.shared.invalidate(StableDataKey.contractVariables)
         try await client
             .from(SupabaseTable.contractVariables)
             .delete()

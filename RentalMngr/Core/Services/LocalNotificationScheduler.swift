@@ -105,8 +105,15 @@ final class LocalNotificationScheduler {
         var depositPendingCount = 0
         var vacantRoomCount = 0
 
+        // Una sola consulta para todas las propiedades: antes era una por cada
+        // una, y esto corre en CADA vuelta a primer plano.
+        let tenantsByProperty = Dictionary(
+            grouping: (try? await tenantService.fetchActiveTenants(
+                propertyIds: properties.map(\.id))) ?? [],
+            by: \.propertyId)
+
         for property in properties {
-            let tenants = (try? await tenantService.fetchActiveTenants(propertyId: property.id)) ?? []
+            let tenants = tenantsByProperty[property.id] ?? []
             // Rooms (with `occupied`) are already embedded by fetchProperties — no extra fetch.
             let rooms = property.rooms ?? []
 
@@ -144,8 +151,18 @@ final class LocalNotificationScheduler {
             oneShots.append((date, makeVacantRoomSummaryRequest(count: vacantRoomCount, date: date, calendar: calendar)))
         }
 
+        // El aviso de fin de prueba lo programa la compra, no este método: hay que
+        // conservarlo o el borrado de abajo lo eliminaría en el siguiente foreground,
+        // y ese aviso es lo que evita un cargo sorpresa.
+        let trialReminder = await center.pendingNotificationRequests()
+            .first { $0.identifier == Self.trialEndingId }
+
         // Clean slate, then add within the 64-pending budget (repeating first, then soonest one-shots).
         center.removeAllPendingNotificationRequests()
+
+        if let trialReminder {
+            await add(trialReminder, to: center)
+        }
 
         var scheduled = 0
         for request in repeating {
@@ -185,6 +202,40 @@ final class LocalNotificationScheduler {
             matching: DateComponents(hour: summaryHour, minute: 0),
             matchingPolicy: .nextTime)
     }
+
+    // MARK: - Fin de prueba gratuita
+
+    /// Avisa el día ANTES de que termine la prueba, no el mismo día: el objetivo
+    /// es que dé tiempo a cancelar sin que se cobre. Un cargo sorpresa es una
+    /// disputa y una reseña de una estrella.
+    ///
+    /// Se programa como aviso único y sobreescribe cualquier anterior, así que
+    /// llamarlo varias veces es seguro.
+    func scheduleTrialEndingReminder(trialEnds: Date) async {
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: [Self.trialEndingId])
+
+        guard let fireDate = Calendar.current.date(byAdding: .day, value: -1, to: trialEnds),
+              fireDate > Date() else {
+            // Prueba de un solo día (o ya vencida): no hay hueco para avisar antes.
+            logger.debug("Trial too short to schedule an advance reminder")
+            return
+        }
+
+        let content = UNMutableNotificationContent()
+        content.title = String(localized: "Tu prueba acaba mañana", locale: LanguageService.currentLocale, comment: "Trial ending notification title")
+        content.body = String(localized: "Puedes cancelar hoy desde Ajustes y no se te cobrará nada.", locale: LanguageService.currentLocale, comment: "Trial ending notification body")
+        content.sound = .default
+
+        let components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: fireDate)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+        await add(
+            UNNotificationRequest(identifier: Self.trialEndingId, content: content, trigger: trigger),
+            to: center)
+    }
+
+    /// Identificador estable para poder reemplazar el aviso sin duplicarlo.
+    static let trialEndingId = "trial_ending"
 
     // MARK: - Request builders
 

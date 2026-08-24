@@ -22,7 +22,15 @@ final class UserProfileService: UserProfileServiceProtocol {
         }
     }
 
+    /// Cacheado: se pide en cada contrato, anuncio y vista previa, y cambia
+    /// como mucho una vez al mes. Se invalida al guardar (ver `saveLandlordProfile`).
     func getLandlordProfile() async throws -> LandlordProfile {
+        try await StableDataCache.shared.value(for: StableDataKey.landlordProfile) {
+            try await self.fetchLandlordProfile()
+        }
+    }
+
+    private func fetchLandlordProfile() async throws -> LandlordProfile {
         let userId = try await client.auth.session.user.id.uuidString
 
         let rows: [LandlordProfileRow] = try await client
@@ -47,6 +55,9 @@ final class UserProfileService: UserProfileServiceProtocol {
     }
 
     func saveLandlordProfile(_ profile: LandlordProfile) async throws {
+        // Invalidación explícita: el usuario nunca debe ver como antiguo lo que
+        // acaba de guardar.
+        await StableDataCache.shared.invalidate(StableDataKey.landlordProfile)
         let userId = try await client.auth.session.user.id.uuidString
 
         try await client

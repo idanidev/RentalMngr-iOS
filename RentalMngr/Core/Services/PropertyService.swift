@@ -74,21 +74,24 @@ final class PropertyService: PropertyServiceProtocol {
             .value
     }
 
-    func createProperty(name: String, address: String, description: String?, ownerId: UUID)
-        async throws -> Property
-    {
+    func createProperty(
+        name: String, address: String, description: String?, ownerId: UUID,
+        isSingleUnit: Bool = false
+    ) async throws -> Property {
         struct NewProperty: Encodable {
             let name: String
             let address: String
             let description: String?
             let owner_id: UUID
+            let is_single_unit: Bool
         }
         let property: Property =
             try await client
             .from(SupabaseTable.properties)
             .insert(
                 NewProperty(
-                    name: name, address: address, description: description, owner_id: ownerId)
+                    name: name, address: address, description: description, owner_id: ownerId,
+                    is_single_unit: isSingleUnit)
             )
             .select("*, rooms(*)")
             .single()
@@ -138,6 +141,7 @@ final class PropertyService: PropertyServiceProtocol {
             let name: String
             let address: String
             let description: String?
+            let is_single_unit: Bool
         }
         return
             try await client
@@ -145,7 +149,7 @@ final class PropertyService: PropertyServiceProtocol {
             .update(
                 UpdateProperty(
                     name: property.name, address: property.address,
-                    description: property.description)
+                    description: property.description, is_single_unit: property.isSingleUnit)
             )
             .eq("id", value: property.id)
             .select("*, rooms(*)")

@@ -410,9 +410,10 @@
 				DEVELOPMENT_TEAM = AXK73U74AC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "RentalMngr necesita acceso a la cámara para escanear documentos.";
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "RentalMngr usa Face ID para proteger el acceso a tu información.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "RentalMngr necesita acceso a tu galería para añadir fotos de habitaciones y propiedades.";
+				INFOPLIST_KEY_CFBundleDisplayName = Alquileres;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Alquileres necesita acceso a la cámara para escanear documentos.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Alquileres usa Face ID para proteger el acceso a tu información.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Alquileres necesita acceso a tu galería para añadir fotos de habitaciones y propiedades.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -447,9 +448,10 @@
 				DEVELOPMENT_TEAM = AXK73U74AC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "RentalMngr necesita acceso a la cámara para escanear documentos.";
-				INFOPLIST_KEY_NSFaceIDUsageDescription = "RentalMngr usa Face ID para proteger el acceso a tu información.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "RentalMngr necesita acceso a tu galería para añadir fotos de habitaciones y propiedades.";
+				INFOPLIST_KEY_CFBundleDisplayName = Alquileres;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Alquileres necesita acceso a la cámara para escanear documentos.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Alquileres usa Face ID para proteger el acceso a tu información.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Alquileres necesita acceso a tu galería para añadir fotos de habitaciones y propiedades.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

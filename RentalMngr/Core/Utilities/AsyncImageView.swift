@@ -136,18 +136,18 @@ struct AsyncImageView: View {
             isLoading = true
             defer { isLoading = false }
 
-            // Resolve the actual URL to fetch — sign private-bucket paths on demand.
-            let url: URL
+            // Rutas candidatas, en orden de preferencia. Para tamaños pequeños se
+            // intenta primero la miniatura (~50 KB) y, si esa foto es antigua y no
+            // la tiene, se cae al original (~450 KB). Se prueba descargando: un
+            // 404 es más barato que una comprobación HEAD previa a cada imagen.
+            let candidates: [String]
             switch source {
-            case .url(let u):
-                guard let u else { return }
-                url = u
-            case .storage(let bucket, let path):
-                guard let signed = try? await SignedURLCache.shared.url(bucket: bucket, path: path)
-                else { return }
-                url = signed
+            case .url:
+                candidates = []
+            case .storage(_, let path):
+                let wantsThumbnail = (targetSize?.width ?? .greatestFiniteMagnitude) <= 400
+                candidates = wantsThumbnail ? [StoragePaths.thumbnail(for: path), path] : [path]
             }
-            guard !Task.isCancelled else { return }
 
             let ts = targetSize
             #if os(iOS)
@@ -156,7 +156,24 @@ struct AsyncImageView: View {
 
             do {
                 // 1. Network fetch — uses HTTP disk cache automatically
-                let (data, _) = try await URLSession.images.data(from: url)
+                var data: Data?
+                switch source {
+                case .url(let u):
+                    guard let u else { return }
+                    data = try await URLSession.images.data(from: u).0
+                case .storage(let bucket, _):
+                    for candidate in candidates {
+                        guard let signed = try? await SignedURLCache.shared.url(
+                            bucket: bucket, path: candidate) else { continue }
+                        guard let (body, response) = try? await URLSession.images.data(from: signed)
+                        else { continue }
+                        if (response as? HTTPURLResponse)?.statusCode == 200 {
+                            data = body
+                            break
+                        }
+                    }
+                }
+                guard let data else { return }
                 guard !Task.isCancelled else { return }
 
                 // 2. Decode + downscale off the main thread

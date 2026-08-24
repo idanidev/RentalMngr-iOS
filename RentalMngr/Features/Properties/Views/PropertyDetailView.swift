@@ -16,6 +16,12 @@ struct PropertyDetailView: View {
         _currentProperty = State(initialValue: property)
     }
 
+    /// La propiedad se alquila entera: cambia cómo se nombra la sección de
+    /// habitaciones, que ahí son partes de una misma vivienda.
+    private var isSingleUnit: Bool {
+        viewModel?.property.isSingleUnit ?? currentProperty.isSingleUnit
+    }
+
     var body: some View {
         Group {
             if let vm = viewModel {
@@ -252,10 +258,10 @@ struct PropertyDetailView: View {
                     }
                 } label: {
                     VStack(spacing: 4) {
-                        Image(systemName: tab.icon)
+                        Image(systemName: tab.icon(isSingleUnit: isSingleUnit))
                             .font(.system(size: 18, weight: selectedTab == tab ? .bold : .medium))
                             .symbolEffect(.bounce, value: selectedTab == tab)
-                        Text(tab.displayName)
+                        Text(tab.displayName(isSingleUnit: isSingleUnit))
                             .font(.caption2)
                             .fontWeight(selectedTab == tab ? .bold : .regular)
                             .opacity(selectedTab == tab ? 1.0 : 0.6)

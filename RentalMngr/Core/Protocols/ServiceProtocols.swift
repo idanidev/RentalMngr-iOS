@@ -10,7 +10,7 @@ protocol SystemNotificationServiceProtocol: Sendable {
 protocol PropertyServiceProtocol: Sendable {
     func fetchProperties() async throws -> [Property]
     func fetchProperty(id: UUID) async throws -> Property
-    func createProperty(name: String, address: String, description: String?, ownerId: UUID)
+    func createProperty(name: String, address: String, description: String?, ownerId: UUID, isSingleUnit: Bool)
         async throws -> Property
     func updateProperty(_ property: Property) async throws -> Property
     func updateContractTemplate(propertyId: UUID, template: String) async throws
@@ -55,6 +55,7 @@ struct CreateTenantParams: Sendable {
 protocol TenantServiceProtocol: Sendable {
     func fetchTenants(propertyId: UUID, limit: Int?, offset: Int?) async throws -> [Tenant]
     func fetchActiveTenants(propertyId: UUID) async throws -> [Tenant]
+    func fetchActiveTenants(propertyIds: [UUID]) async throws -> [Tenant]
     func fetchTenant(id: UUID) async throws -> Tenant
     func fetchAvailableTenants(propertyId: UUID) async throws -> [Tenant]
     func createTenant(_ params: CreateTenantParams) async throws -> Tenant
@@ -105,6 +106,7 @@ protocol RoomServiceProtocol: Sendable {
     func deleteRoom(id: UUID) async throws
     func toggleOccupancy(roomId: UUID, occupied: Bool) async throws
     func uploadPhoto(data: Data, path: String) async throws
+    func deletePhoto(path: String) async throws
 }
 
 protocol AuthServiceProtocol: Sendable {

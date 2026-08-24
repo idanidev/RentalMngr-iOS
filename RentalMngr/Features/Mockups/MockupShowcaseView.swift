@@ -33,13 +33,13 @@ private struct MockupDashboard: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                MockupTopBar(title: "Inicio", badge: 4)
+                MockupTopBar(title: MockupL10n.t("Inicio"), badge: 4)
 
                 // Greeting card
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Buenos días, Daniel")
+                    Text(MockupL10n.t("Buenos días, Daniel"))
                         .font(.largeTitle.bold())
-                    Text("Esto es lo importante hoy")
+                    Text(MockupL10n.t("Esto es lo importante hoy"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -48,28 +48,28 @@ private struct MockupDashboard: View {
 
                 // Quick stats — 2x2 grid (no money values)
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                    MockStatCard(icon: "building.2.fill", label: "Propiedades", value: "3", tint: .orange)
-                    MockStatCard(icon: "bed.double.fill", label: "Habitaciones", value: "8", tint: .blue)
-                    MockStatCard(icon: "person.2.fill", label: "Ocupadas", value: "7 / 8", tint: .purple)
-                    MockStatCard(icon: "calendar.badge.clock", label: "Vencen pronto", value: "2", tint: .red)
+                    MockStatCard(icon: "building.2.fill", label: MockupL10n.t("Propiedades"), value: "3", tint: .orange)
+                    MockStatCard(icon: "bed.double.fill", label: MockupL10n.t("Habitaciones"), value: "8", tint: .blue)
+                    MockStatCard(icon: "person.2.fill", label: MockupL10n.t("Ocupadas"), value: "7 / 8", tint: .purple)
+                    MockStatCard(icon: "calendar.badge.clock", label: MockupL10n.t("Vencen pronto"), value: "2", tint: .red)
                 }
                 .padding(.horizontal, 20)
 
                 // Activity card
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {
-                        Text("Actividad reciente")
+                        Text(MockupL10n.t("Actividad reciente"))
                             .font(.headline)
                         Spacer()
-                        Text("Esta semana")
+                        Text(MockupL10n.t("Esta semana"))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                     Divider()
-                    ActivityRow(icon: "doc.text.fill", tint: .blue, title: "Nuevo contrato firmado", subtitle: "Marta · Habitación 2 · Calle Mayor")
-                    ActivityRow(icon: "checkmark.seal.fill", tint: .green, title: "Renta de mayo cobrada", subtitle: "Carlos · Habitación 1")
-                    ActivityRow(icon: "person.crop.circle.badge.plus", tint: .purple, title: "Nuevo inquilino registrado", subtitle: "Laura entra el 1 de junio")
-                    ActivityRow(icon: "wrench.adjustable.fill", tint: .orange, title: "Mantenimiento programado", subtitle: "Calefactor · Calle del Sol")
+                    ActivityRow(icon: "doc.text.fill", tint: .blue, title: MockupL10n.t("Nuevo contrato firmado"), subtitle: MockupL10n.t("Marta · Habitación 2 · Calle Mayor"))
+                    ActivityRow(icon: "checkmark.seal.fill", tint: .green, title: MockupL10n.t("Renta de mayo cobrada"), subtitle: MockupL10n.t("Carlos · Habitación 1"))
+                    ActivityRow(icon: "person.crop.circle.badge.plus", tint: .purple, title: MockupL10n.t("Nuevo inquilino registrado"), subtitle: MockupL10n.t("Laura entra el 1 de junio"))
+                    ActivityRow(icon: "wrench.adjustable.fill", tint: .orange, title: MockupL10n.t("Mantenimiento programado"), subtitle: MockupL10n.t("Calefactor · Calle del Sol"))
                 }
                 .padding(16)
                 .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 18))
@@ -89,7 +89,7 @@ private struct MockupProperties: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                MockupTopBar(title: "Propiedades", badge: nil, trailing: "plus")
+                MockupTopBar(title: MockupL10n.t("Propiedades"), badge: nil, trailing: "plus")
 
                 VStack(spacing: 14) {
                     PropertyCard(
@@ -147,19 +147,19 @@ private struct MockupRooms: View {
 
                 // Tab bar
                 HStack(spacing: 22) {
-                    TabPill(label: "Habitaciones", active: true)
-                    TabPill(label: "Inquilinos", active: false)
-                    TabPill(label: "Finanzas", active: false)
-                    TabPill(label: "Documentos", active: false)
+                    TabPill(label: MockupL10n.t("Habitaciones"), active: true)
+                    TabPill(label: MockupL10n.t("Inquilinos"), active: false)
+                    TabPill(label: MockupL10n.t("Finanzas"), active: false)
+                    TabPill(label: MockupL10n.t("Documentos"), active: false)
                 }
                 .padding(.horizontal, 20)
 
                 // Rooms grid
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)], spacing: 14) {
-                    RoomCard(name: "Habitación 1", tenant: "Carlos M.", status: .occupied, color: .blue)
-                    RoomCard(name: "Habitación 2", tenant: "Marta L.", status: .occupied, color: .purple)
-                    RoomCard(name: "Habitación 3", tenant: "Laura R.", status: .startingSoon, color: .orange)
-                    RoomCard(name: "Habitación 4", tenant: nil, status: .available, color: .green)
+                    RoomCard(name: MockupL10n.t("Habitación 1"), tenant: "Carlos M.", status: .occupied, color: .blue)
+                    RoomCard(name: MockupL10n.t("Habitación 2"), tenant: "Marta L.", status: .occupied, color: .purple)
+                    RoomCard(name: MockupL10n.t("Habitación 3"), tenant: "Laura R.", status: .startingSoon, color: .orange)
+                    RoomCard(name: MockupL10n.t("Habitación 4"), tenant: nil, status: .available, color: .green)
                 }
                 .padding(.horizontal, 20)
 
@@ -177,15 +177,15 @@ private struct MockupTenants: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                MockupTopBar(title: "Inquilinos", badge: nil, trailing: "magnifyingglass")
+                MockupTopBar(title: MockupL10n.t("Inquilinos"), badge: nil, trailing: "magnifyingglass")
 
                 VStack(spacing: 12) {
-                    TenantRow(initials: "CM", name: "Carlos Méndez", room: "Habitación 1 · Calle Mayor", status: .active, endDate: "Renueva 14 ago")
-                    TenantRow(initials: "ML", name: "Marta López", room: "Habitación 2 · Calle Mayor", status: .active, endDate: "Renueva 30 sep")
-                    TenantRow(initials: "LR", name: "Laura Ruiz", room: "Habitación 3 · Calle Mayor", status: .startingSoon, endDate: "Entra 1 jun")
-                    TenantRow(initials: "AF", name: "Andrés Fernández", room: "Habitación 1 · Calle del Sol", status: .expiringSoon, endDate: "Vence en 18 días")
-                    TenantRow(initials: "PG", name: "Paula Giménez", room: "Habitación 2 · Calle del Sol", status: .active, endDate: "Renueva 12 nov")
-                    TenantRow(initials: "RB", name: "Roberto Bermejo", room: "Avenida del Mar 28", status: .active, endDate: "Renueva 5 mar")
+                    TenantRow(initials: "CM", name: "Carlos Méndez", room: MockupL10n.t("Habitación 1 · Calle Mayor"), status: .active, endDate: MockupL10n.t("Renueva 14 ago"))
+                    TenantRow(initials: "ML", name: "Marta López", room: MockupL10n.t("Habitación 2 · Calle Mayor"), status: .active, endDate: MockupL10n.t("Renueva 30 sep"))
+                    TenantRow(initials: "LR", name: "Laura Ruiz", room: MockupL10n.t("Habitación 3 · Calle Mayor"), status: .startingSoon, endDate: MockupL10n.t("Entra 1 jun"))
+                    TenantRow(initials: "AF", name: "Andrés Fernández", room: MockupL10n.t("Habitación 1 · Calle del Sol"), status: .expiringSoon, endDate: MockupL10n.t("Vence en 18 días"))
+                    TenantRow(initials: "PG", name: "Paula Giménez", room: MockupL10n.t("Habitación 2 · Calle del Sol"), status: .active, endDate: MockupL10n.t("Renueva 12 nov"))
+                    TenantRow(initials: "RB", name: "Roberto Bermejo", room: "Avenida del Mar 28", status: .active, endDate: MockupL10n.t("Renueva 5 mar"))
                 }
                 .padding(.horizontal, 20)
 
@@ -203,12 +203,12 @@ private struct MockupAlerts: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                MockupTopBar(title: "Avisos", badge: nil)
+                MockupTopBar(title: MockupL10n.t("Avisos"), badge: nil)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Siempre un paso por delante")
+                    Text(MockupL10n.t("Siempre un paso por delante"))
                         .font(.title3.bold())
-                    Text("Nunca pierdas un contrato ni una fecha clave")
+                    Text(MockupL10n.t("Nunca pierdas un contrato ni una fecha clave"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -218,37 +218,37 @@ private struct MockupAlerts: View {
                     AlertCard(
                         icon: "exclamationmark.triangle.fill",
                         tint: .red,
-                        title: "Contrato vence en 18 días",
+                        title: MockupL10n.t("Contrato vence en 18 días"),
                         subtitle: "Andrés Fernández · Calle del Sol 5",
-                        cta: "Renovar"
+                        cta: MockupL10n.t("Renovar")
                     )
                     AlertCard(
                         icon: "calendar.badge.exclamationmark",
                         tint: .orange,
-                        title: "Renovación en 30 días",
+                        title: MockupL10n.t("Renovación en 30 días"),
                         subtitle: "Carlos Méndez · Calle Mayor 12",
-                        cta: "Preparar"
+                        cta: MockupL10n.t("Preparar")
                     )
                     AlertCard(
                         icon: "person.crop.circle.badge.plus",
                         tint: .purple,
-                        title: "Nuevo inquilino entra el 1 de junio",
-                        subtitle: "Laura Ruiz · Habitación 3",
-                        cta: "Ver detalles"
+                        title: MockupL10n.t("Nuevo inquilino entra el 1 de junio"),
+                        subtitle: MockupL10n.t("Laura Ruiz · Habitación 3"),
+                        cta: MockupL10n.t("Ver detalles")
                     )
                     AlertCard(
                         icon: "envelope.badge.fill",
                         tint: .blue,
-                        title: "Invitación pendiente",
-                        subtitle: "María quiere compartir 'Calle del Sol'",
-                        cta: "Aceptar"
+                        title: MockupL10n.t("Invitación pendiente"),
+                        subtitle: MockupL10n.t("María quiere compartir 'Calle del Sol'"),
+                        cta: MockupL10n.t("Aceptar")
                     )
                     AlertCard(
                         icon: "doc.text.magnifyingglass",
                         tint: .green,
-                        title: "Resumen semanal listo",
-                        subtitle: "5 movimientos · 2 renovaciones esta semana",
-                        cta: "Ver"
+                        title: MockupL10n.t("Resumen semanal listo"),
+                        subtitle: MockupL10n.t("5 movimientos · 2 renovaciones esta semana"),
+                        cta: MockupL10n.t("Ver")
                     )
                 }
                 .padding(.horizontal, 20)
@@ -389,9 +389,9 @@ private struct RoomCard: View {
 
     var statusLabel: (String, Color) {
         switch status {
-        case .occupied:     ("Ocupada", .blue)
-        case .available:    ("Disponible", .green)
-        case .startingSoon: ("Entra pronto", .orange)
+        case .occupied:     (MockupL10n.t("Ocupada"), .blue)
+        case .available:    (MockupL10n.t("Disponible"), .green)
+        case .startingSoon: (MockupL10n.t("Entra pronto"), .orange)
         }
     }
     var body: some View {
@@ -425,9 +425,9 @@ private struct TenantRow: View {
 
     var statusBadge: (String, Color, String) {
         switch status {
-        case .active:        ("Activo", .green, "checkmark.seal.fill")
-        case .expiringSoon:  ("Vence pronto", .orange, "clock.badge.exclamationmark.fill")
-        case .startingSoon:  ("Entra pronto", .blue, "person.crop.circle.badge.plus")
+        case .active:        (MockupL10n.t("Activo"), .green, "checkmark.seal.fill")
+        case .expiringSoon:  (MockupL10n.t("Vence pronto"), .orange, "clock.badge.exclamationmark.fill")
+        case .startingSoon:  (MockupL10n.t("Entra pronto"), .blue, "person.crop.circle.badge.plus")
         }
     }
     var body: some View {
@@ -480,5 +480,81 @@ private struct AlertCard: View {
         }
         .padding(14)
         .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+
+/// Marketing-only strings for the App Store screenshot screens.
+///
+/// Deliberately kept OUT of the app's Localizable.xcstrings: these are fake
+/// sample values that exist to fill a screenshot, not product copy, and mixing
+/// them into the real catalog would pollute it. Switch the language of a
+/// capture with the launch env var `MOCKUP_LANG=en`.
+enum MockupL10n {
+    private static let isEnglish =
+        ProcessInfo.processInfo.environment["MOCKUP_LANG"]?.lowercased().hasPrefix("en") == true
+
+    private static let english: [String: String] = [
+        "Inicio": "Home",
+        "Buenos días, Daniel": "Good morning, Daniel",
+        "Esto es lo importante hoy": "Here's what matters today",
+        "Propiedades": "Properties",
+        "Habitaciones": "Rooms",
+        "Ocupadas": "Occupied",
+        "Vencen pronto": "Expiring soon",
+        "Actividad reciente": "Recent activity",
+        "Esta semana": "This week",
+        "Nuevo contrato firmado": "New lease signed",
+        "Marta · Habitación 2 · Calle Mayor": "Marta · Room 2 · Calle Mayor",
+        "Renta de mayo cobrada": "May rent collected",
+        "Carlos · Habitación 1": "Carlos · Room 1",
+        "Nuevo inquilino registrado": "New tenant added",
+        "Laura entra el 1 de junio": "Laura moves in June 1",
+        "Mantenimiento programado": "Maintenance scheduled",
+        "Calefactor · Calle del Sol": "Heater · Calle del Sol",
+        "Inquilinos": "Tenants",
+        "Finanzas": "Finances",
+        "Documentos": "Documents",
+        "Habitación 1": "Room 1",
+        "Habitación 2": "Room 2",
+        "Habitación 3": "Room 3",
+        "Habitación 4": "Room 4",
+        "Habitación 1 · Calle Mayor": "Room 1 · Calle Mayor",
+        "Habitación 2 · Calle Mayor": "Room 2 · Calle Mayor",
+        "Habitación 3 · Calle Mayor": "Room 3 · Calle Mayor",
+        "Habitación 1 · Calle del Sol": "Room 1 · Calle del Sol",
+        "Habitación 2 · Calle del Sol": "Room 2 · Calle del Sol",
+        "Renueva 14 ago": "Renews Aug 14",
+        "Renueva 30 sep": "Renews Sep 30",
+        "Entra 1 jun": "Moves in Jun 1",
+        "Vence en 18 días": "Expires in 18 days",
+        "Renueva 12 nov": "Renews Nov 12",
+        "Renueva 5 mar": "Renews Mar 5",
+        "Avisos": "Alerts",
+        "Siempre un paso por delante": "Always one step ahead",
+        "Nunca pierdas un contrato ni una fecha clave": "Never miss a lease or a key date",
+        "Contrato vence en 18 días": "Lease expires in 18 days",
+        "Renovar": "Renew",
+        "Renovación en 30 días": "Renewal in 30 days",
+        "Preparar": "Prepare",
+        "Nuevo inquilino entra el 1 de junio": "New tenant moves in June 1",
+        "Laura Ruiz · Habitación 3": "Laura Ruiz · Room 3",
+        "Ver detalles": "View details",
+        "Invitación pendiente": "Pending invitation",
+        "María quiere compartir 'Calle del Sol'": "María wants to share 'Calle del Sol'",
+        "Aceptar": "Accept",
+        "Resumen semanal listo": "Weekly summary ready",
+        "5 movimientos · 2 renovaciones esta semana": "5 entries · 2 renewals this week",
+        "Ver": "View",
+        "Ocupada": "Occupied",
+        "Disponible": "Available",
+        "Entra pronto": "Moving in",
+        "Activo": "Active",
+        "Vence pronto": "Expiring",
+    ]
+
+    /// Spanish literal in, localized literal out.
+    static func t(_ spanish: String) -> String {
+        isEnglish ? (english[spanish] ?? spanish) : spanish
     }
 }

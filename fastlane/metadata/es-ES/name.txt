@@ -1,1 +1,1 @@
-RentalMngr: Alquileres
+Alquiler: Pisos y Habitaciones

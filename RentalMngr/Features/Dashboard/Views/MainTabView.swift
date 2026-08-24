@@ -1,7 +1,9 @@
+import StoreKit
 import SwiftUI
 
 struct MainTabView: View {
     @Environment(AppState.self) private var appState
+    @Environment(\.requestReview) private var requestReview
 
     var body: some View {
         @Bindable var bindable = appState
@@ -66,6 +68,12 @@ struct MainTabView: View {
         #endif
         .sheet(isPresented: $bindable.showPropertySwitcher) {
             PropertySwitcherView()
+        }
+        // Ask for a review only after the app has earned it (see ReviewPrompter).
+        .onChange(of: appState.reviewPrompter.shouldPrompt) { _, earned in
+            guard earned else { return }
+            appState.reviewPrompter.consume()
+            requestReview()
         }
     }
 }

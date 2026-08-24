@@ -1,40 +1,32 @@
-RentalMngr is the complete solution for landlords and property managers. Manage your properties, rooms, and tenants from a single app.
+Renting out rooms? This app was built for exactly that.
+Every room with its own tenant, rent and expenses, instead of a generic "property" app where a shared flat never quite fits.
+Paperwork included: lease as PDF, a listing for the empty room, and a yearly report for your tax return.
 
-PROPERTY & ROOM MANAGEMENT
-• Add properties with photos, addresses, and full details
-• Manage individual rooms with occupancy status
-• Detailed room-by-room inventory
-• Real-time occupancy overview
+PER ROOM, NOT PER PROPERTY
+• Every room with its tenant, its rent and its status: occupied or free
+• Common areas kept separate: kitchen, living room, terrace...
+• Photos and inventory for each room
+• Real occupancy at a glance
 
-TENANT CONTROL
-• Complete tenant profiles with documents and contracts
-• Track move-in and move-out dates
-• Payment history and balance tracking
-• Automatically generated PDF contracts
+PAPERWORK SORTED
+• Lease as PDF with your own clauses and variables: rent, deposit, dates
+• Room listing as PDF, with photos and your contact details
+• Yearly report per property: collected, pending, expenses and net
+• Documents stored per property and per tenant
 
-SIMPLIFIED FINANCES
-• Log income and expenses by property
-• Track utility bills (electricity, water, gas)
-• Monthly financial summary with charts
-• Export reports
+CLEAR RENT AND EXPENSES
+• Each room's rent, marked as collected or pending
+• Electricity, water, gas... or a flat service fee with what it covers
+• Expenses by category and a monthly summary across all your properties
 
-ROOMIE — SHARED LIVING
-• Shared expenses between housemates
-• Digital house rules
-• Automatic payment reminders
-• Notification dashboard
+NOTHING SLIPS THROUGH
+• Alerts for this month's rent, pending deposits and empty rooms
+• Contract-expiry alerts, with the notice period you choose
+• Weekly summary
 
-MODERN DESIGN
-• Clean and intuitive interface
-• iPhone and iPad support
-• Dark mode included
-• Available in English and Spanish
+ON ALL YOUR DEVICES
+• iPhone, iPad and Mac, synced instantly
+• Share a property with your partner, business partner or manager, with edit or read-only access
+• Face ID or Touch ID lock
 
-PREMIUM
-• Free: 1 property and 2 rooms to get started
-• Premium: unlimited properties and rooms
-• PDF contract generation
-• Custom contract variables
-• Share properties with collaborators
-• Full financial history
-• Monthly subscription, cancel anytime
+Free: 1 property and 2 rooms. Premium: no limits.

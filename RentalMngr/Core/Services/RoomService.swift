@@ -93,6 +93,14 @@ final class RoomService: RoomServiceProtocol {
             .execute()
     }
 
+    /// Elimina un fichero del bucket de fotos. Sin esto, quitar una foto de una
+    /// habitación la dejaba ocupando cuota de almacenamiento para siempre.
+    func deletePhoto(path: String) async throws {
+        try await client.storage
+            .from(SupabaseConfig.storageBucket)
+            .remove(paths: [path])
+    }
+
     func uploadPhoto(data: Data, path: String) async throws {
         try await client.storage
             .from(SupabaseConfig.storageBucket)

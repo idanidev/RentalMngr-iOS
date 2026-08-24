@@ -1,4 +1,5 @@
 import Auth
+import StoreKit
 import SwiftUI
 
 struct SettingsView: View {
@@ -15,6 +16,8 @@ struct SettingsView: View {
     @State private var isDeletingAccount = false
     @State private var errorMessage: String?
     @State private var showPaywall = false
+    @State private var showManageSubscriptions = false
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         List {
@@ -44,6 +47,7 @@ struct SettingsView: View {
             // Premium / Suscripción
             Section("Suscripción") {
                 premiumRow
+                manageSubscriptionRow
             }
 
             // Appearance
@@ -267,6 +271,9 @@ struct SettingsView: View {
                     locale: LanguageService.currentLocale, comment: "Confirmation message for permanent account deletion"))
         }
         .errorAlert($errorMessage)
+        #if !targetEnvironment(macCatalyst)
+            .manageSubscriptionsSheet(isPresented: $showManageSubscriptions)
+        #endif
         .sheet(isPresented: $showPaywall) {
             PaywallView()
                 .environment(appState.entitlementService)
@@ -276,6 +283,25 @@ struct SettingsView: View {
             if let uid = appState.authService.currentUser?.id {
                 await appState.entitlementService.refresh(userId: uid)
             }
+        }
+    }
+
+    /// Apple exige (y el usuario agradece) poder cancelar sin buscar cuatro
+    /// niveles dentro de Ajustes. En iOS abre la hoja nativa de suscripciones;
+    /// en Mac Catalyst esa hoja no existe, así que se abre la página de la cuenta.
+    private var manageSubscriptionRow: some View {
+        Button {
+            #if targetEnvironment(macCatalyst)
+                if let url = URL(string: "macappstore://apps.apple.com/account/subscriptions") {
+                    openURL(url)
+                }
+            #else
+                showManageSubscriptions = true
+            #endif
+        } label: {
+            Label(
+                String(localized: "Gestionar o cancelar suscripción", locale: LanguageService.currentLocale, comment: "Manage subscription row"),
+                systemImage: "creditcard")
         }
     }
 

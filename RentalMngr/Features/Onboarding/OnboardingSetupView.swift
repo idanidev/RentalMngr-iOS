@@ -55,7 +55,8 @@ final class OnboardingSetupViewModel {
                 name: propertyName.trimmingCharacters(in: .whitespaces),
                 address: propertyAddress.trimmingCharacters(in: .whitespaces),
                 description: nil,
-                ownerId: userId
+                ownerId: userId,
+                isSingleUnit: false
             )
             createdPropertyId = property.id
             isLoading = false
