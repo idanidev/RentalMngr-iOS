@@ -158,7 +158,7 @@ struct PropertyDetailView: View {
                             )
                         }
                     }
-                    .padding(.top, 18)
+                    .padding(.top, 8)
                     .padding(.bottom, 100)
                 }
             }

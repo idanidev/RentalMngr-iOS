@@ -229,7 +229,16 @@ private struct RoomRow: View, Equatable {
         lhs.room == rhs.room
     }
 
-    private var photoHeight: CGFloat { hSize == .regular ? 210 : 140 }
+    /// Alto del área de imagen.
+    ///
+    /// Sin foto la tarjeta se encoge **solo en iPhone**, donde las tarjetas van
+    /// en columna y el hueco vacío es puro desperdicio. En iPad y Mac van en
+    /// rejilla y mantienen el mismo alto: ahí alturas distintas dejan la
+    /// cuadrícula dentada (regla de docs/MAC_DESIGN.md).
+    private var photoHeight: CGFloat {
+        if hSize == .regular { return 210 }
+        return room.photos.isEmpty ? 88 : 140
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
