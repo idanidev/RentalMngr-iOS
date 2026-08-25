@@ -132,11 +132,6 @@ struct PropertySharingView: View {
                 }
             }
 
-            if let error = errorMessage {
-                Section {
-                    Text(error).foregroundStyle(.red).font(.caption)
-                }
-            }
         }
         .navigationTitle(String(localized: "Share", locale: LanguageService.currentLocale, comment: "Share property navigation title"))
         .navigationBarTitleDisplayMode(.inline)

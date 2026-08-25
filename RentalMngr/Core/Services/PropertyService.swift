@@ -365,7 +365,7 @@ final class PropertyService: PropertyServiceProtocol {
 
     func removeAccess(propertyId: UUID, userId: UUID) async throws {
         let params = RemoveAccessParams(p_property_id: propertyId, p_user_id: userId)
-        try await client.rpc("remove_property_access", params: params).execute()
+        try await client.rpc("revoke_property_access", params: params).execute()
     }
 
     func updateAccess(propertyId: UUID, userId: UUID, role: AccessRole) async throws {
@@ -383,7 +383,7 @@ final class PropertyService: PropertyServiceProtocol {
         }
         let params = RemoveAccessParams(
             p_property_id: propertyId, p_user_id: userId)
-        try await client.rpc("remove_property_access", params: params).execute()
+        try await client.rpc("revoke_property_access", params: params).execute()
     }
 
     /// Change user role for a property (matches webapp changeUserRole)
