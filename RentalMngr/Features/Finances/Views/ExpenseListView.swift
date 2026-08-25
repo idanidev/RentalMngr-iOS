@@ -4,7 +4,7 @@ struct ExpenseListView: View {
     @Environment(AppState.self) private var appState
     @State private var showAddSheet = false
     @State private var expenseToEdit: Expense? = nil
-    @State private var expenseToDelete: Expense? = nil
+    @State private var pendingAction: DestructiveAction?
     @State private var errorMessage: String?
     let propertyId: UUID
     let expenses: [Expense]
@@ -41,7 +41,7 @@ struct ExpenseListView: View {
                                                 Label(String(localized: "Edit", locale: LanguageService.currentLocale, comment: "Edit expense"), systemImage: "pencil")
                                             }
                                             Button(role: .destructive) {
-                                                expenseToDelete = expense
+                                                pendingAction = deleteConfirmation(for: expense)
                                             } label: {
                                                 Label(String(localized: "Delete", locale: LanguageService.currentLocale, comment: "Delete expense"), systemImage: "trash")
                                             }
@@ -83,29 +83,26 @@ struct ExpenseListView: View {
             NavigationStack { ExpenseFormView(propertyId: propertyId, expense: expense) }
                 .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
         }
-        .confirmationDialog(
-            String(localized: "Delete expense?", locale: LanguageService.currentLocale, comment: "Delete expense confirmation title"),
-            isPresented: Binding(get: { expenseToDelete != nil }, set: { if !$0 { expenseToDelete = nil } }),
-            titleVisibility: .visible
-        ) {
-            Button(String(localized: "Delete", locale: LanguageService.currentLocale, comment: "Delete expense button"), role: .destructive) {
-                if let expense = expenseToDelete {
-                    Task {
-                        do {
-                            try await appState.financeService.deleteExpense(id: expense.id)
-                            expenseToDelete = nil
-                            if let onRefresh { await onRefresh() }
-                        } catch {
-                            if !error.isCancellation {
-                                errorMessage = error.safeUserMessage
-                            }
-                            expenseToDelete = nil
-                        }
+        .destructiveConfirmation($pendingAction)
+        .errorAlert(Binding(get: { errorMessage }, set: { errorMessage = $0 }))
+    }
+
+    private func deleteConfirmation(for expense: Expense) -> DestructiveAction {
+        DestructiveAction(
+            title: String(localized: "¿Borrar el gasto de \(expense.amount.formatted(currencyCode: "EUR"))?", locale: LanguageService.currentLocale, comment: "Delete expense title"),
+            message: String(localized: "Dejará de contar en los totales y en el resumen del año. Esto no se puede deshacer.", locale: LanguageService.currentLocale, comment: "Delete expense message"),
+            confirmLabel: String(localized: "Borrar gasto", locale: LanguageService.currentLocale, comment: "Confirm delete expense"),
+            icon: "creditcard.fill",
+            perform: {
+                do {
+                    try await appState.financeService.deleteExpense(id: expense.id)
+                    if let onRefresh { await onRefresh() }
+                } catch {
+                    if !error.isCancellation {
+                        errorMessage = error.safeUserMessage
                     }
                 }
-            }
-        }
-        .errorAlert(Binding(get: { errorMessage }, set: { errorMessage = $0 }))
+            })
     }
 
     private var groupedByCategory: [String: [Expense]] {

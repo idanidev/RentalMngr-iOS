@@ -12,7 +12,7 @@ struct SettingsView: View {
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @AppStorage("hasCompletedSetup") private var hasCompletedSetup = false
     @State private var showSignOutConfirmation = false
-    @State private var showDeleteAccountConfirmation = false
+    @State private var pendingAction: DestructiveAction?
     @State private var isDeletingAccount = false
     @State private var errorMessage: String?
     @State private var showPaywall = false
@@ -181,7 +181,7 @@ struct SettingsView: View {
             // Delete account — required by Apple App Store Review Guidelines §5.1.1
             Section {
                 Button(role: .destructive) {
-                    showDeleteAccountConfirmation = true
+                    pendingAction = deleteAccountConfirmation
                 } label: {
                     if isDeletingAccount {
                         HStack {
@@ -239,37 +239,7 @@ struct SettingsView: View {
                 String(localized: "Your current session will be closed",
                     locale: LanguageService.currentLocale, comment: "Confirmation dialog message for sign out"))
         }
-        .confirmationDialog(
-            String(localized: "Delete Account?",
-                locale: LanguageService.currentLocale, comment: "Confirmation dialog title for permanent account deletion"),
-            isPresented: $showDeleteAccountConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button(
-                String(localized: "Delete Account Permanently",
-                    locale: LanguageService.currentLocale, comment: "Destructive confirmation button for account deletion"),
-                role: .destructive
-            ) {
-                Task {
-                    isDeletingAccount = true
-                    do {
-                        try await appState.authService.deleteAccount()
-                    } catch {
-                        errorMessage = error.safeUserMessage
-                        isDeletingAccount = false
-                    }
-                }
-            }
-            Button(
-                String(localized: "Cancel", locale: LanguageService.currentLocale, comment: "Cancel button in confirmation dialog"),
-                role: .cancel
-            ) {}
-        } message: {
-            Text(
-                String(localized:
-                        "All your data — properties, tenants, finances — will be permanently erased. This cannot be undone.",
-                    locale: LanguageService.currentLocale, comment: "Confirmation message for permanent account deletion"))
-        }
+        .destructiveConfirmation($pendingAction)
         .errorAlert($errorMessage)
         #if !targetEnvironment(macCatalyst)
             .manageSubscriptionsSheet(isPresented: $showManageSubscriptions)
@@ -284,6 +254,26 @@ struct SettingsView: View {
                 await appState.entitlementService.refresh(userId: uid)
             }
         }
+    }
+
+    /// Borrar la cuenta es irreversible y se lleva la base entera del usuario.
+    /// El diálogo del sistema no da sitio para enumerar qué desaparece, y aquí
+    /// esa lista es justo lo que hace pensárselo dos veces.
+    private var deleteAccountConfirmation: DestructiveAction {
+        DestructiveAction(
+            title: String(localized: "¿Borrar tu cuenta?", locale: LanguageService.currentLocale, comment: "Delete account title"),
+            message: String(localized: "Se borran tus propiedades, tus inquilinos, tus finanzas y tus documentos. No hay copia de seguridad y no se puede deshacer.", locale: LanguageService.currentLocale, comment: "Delete account message"),
+            confirmLabel: String(localized: "Borrar mi cuenta", locale: LanguageService.currentLocale, comment: "Confirm delete account"),
+            icon: "person.crop.circle.badge.xmark",
+            perform: {
+                isDeletingAccount = true
+                do {
+                    try await appState.authService.deleteAccount()
+                } catch {
+                    errorMessage = error.safeUserMessage
+                    isDeletingAccount = false
+                }
+            })
     }
 
     /// Apple exige (y el usuario agradece) poder cancelar sin buscar cuatro

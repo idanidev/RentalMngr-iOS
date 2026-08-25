@@ -6,7 +6,7 @@ struct ContractVariablesView: View {
     @State private var errorMessage: String?
     @State private var showAddSheet = false
     @State private var variableToEdit: ContractVariable?
-    @State private var variableToDelete: ContractVariable?
+    @State private var pendingAction: DestructiveAction?
 
     private let service = ContractVariableService()
 
@@ -106,7 +106,7 @@ struct ContractVariablesView: View {
                             .onTapGesture { variableToEdit = variable }
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 Button(role: .destructive) {
-                                    variableToDelete = variable
+                                    pendingAction = deleteConfirmation(for: variable)
                                 } label: {
                                     Label("Eliminar", systemImage: "trash")
                                 }
@@ -165,25 +165,18 @@ struct ContractVariablesView: View {
                 }
             }
         }
-        .confirmationDialog(
-            String(localized: "Eliminar variable?", locale: LanguageService.currentLocale),
-            isPresented: Binding(
-                get: { variableToDelete != nil },
-                set: { if !$0 { variableToDelete = nil } }
-            )
-        ) {
-            Button(String(localized: "Eliminar", locale: LanguageService.currentLocale), role: .destructive) {
-                if let variable = variableToDelete {
-                    Task { await deleteVariable(variable) }
-                }
-            }
-        } message: {
-            if let v = variableToDelete {
-                Text(String(localized: "Se eliminará \(v.templateKey). Los contratos ya generados no se verán afectados.", locale: LanguageService.currentLocale))
-            }
-        }
+        .destructiveConfirmation($pendingAction)
         .task { await loadVariables() }
         .errorAlert($errorMessage)
+    }
+
+    private func deleteConfirmation(for variable: ContractVariable) -> DestructiveAction {
+        DestructiveAction(
+            title: String(localized: "¿Borrar \(variable.templateKey)?", locale: LanguageService.currentLocale, comment: "Delete contract variable title"),
+            message: String(localized: "Las plantillas que la usen dejarán de rellenarla. Los contratos ya generados no cambian.", locale: LanguageService.currentLocale, comment: "Delete contract variable message"),
+            confirmLabel: String(localized: "Borrar variable", locale: LanguageService.currentLocale, comment: "Confirm delete contract variable"),
+            icon: "curlybraces",
+            perform: { await deleteVariable(variable) })
     }
 
     // MARK: - Rows

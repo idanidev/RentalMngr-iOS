@@ -3,6 +3,7 @@ import SwiftUI
 struct RemindersView: View {
     @Environment(AppState.self) private var appState
     @State private var viewModel: RemindersViewModel?
+    @State private var pendingAction: DestructiveAction?
     let propertyId: UUID
 
     var body: some View {
@@ -25,6 +26,7 @@ struct RemindersView: View {
                 }
             }
         }
+        .destructiveConfirmation($pendingAction)
         .navigationTitle(
             String(localized: "Reminders", locale: LanguageService.currentLocale, comment: "Navigation title for reminders list")
         )
@@ -78,7 +80,12 @@ struct RemindersView: View {
                     }
                     .swipeActions {
                         Button(role: .destructive) {
-                            Task { await vm.deleteReminder(reminder) }
+                            pendingAction = DestructiveAction(
+                                title: String(localized: "¿Borrar el recordatorio \(reminder.title)?", locale: LanguageService.currentLocale, comment: "Delete reminder title"),
+                                message: String(localized: "No volverá a avisarte. Esto no se puede deshacer.", locale: LanguageService.currentLocale, comment: "Delete reminder message"),
+                                confirmLabel: String(localized: "Borrar recordatorio", locale: LanguageService.currentLocale, comment: "Delete reminder confirm"),
+                                icon: "bell.slash.fill",
+                                perform: { await vm.deleteReminder(reminder) })
                         } label: {
                             Label(
                                 String(localized: "Delete",

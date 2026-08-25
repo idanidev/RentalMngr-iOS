@@ -8,6 +8,7 @@ struct InventoryListView: View {
     @State private var errorMsg: String?
     @State private var showAddParams = false
     @State private var itemToEdit: InventoryItem?
+    @State private var pendingAction: DestructiveAction?
     @Environment(AppState.self) private var appState
 
     // Service
@@ -38,7 +39,12 @@ struct InventoryListView: View {
                         InventoryItemRow(item: item)
                             .swipeActions(edge: .trailing) {
                                 Button(role: .destructive) {
-                                    deleteItem(item.id)
+                                    pendingAction = DestructiveAction(
+                                        title: String(localized: "¿Borrar \(item.name)?", locale: LanguageService.currentLocale, comment: "Delete inventory item title"),
+                                        message: String(localized: "Desaparecerá del inventario de la habitación. Si hay una fianza de por medio, es la prueba de lo que había.", locale: LanguageService.currentLocale, comment: "Delete inventory item message"),
+                                        confirmLabel: String(localized: "Borrar objeto", locale: LanguageService.currentLocale, comment: "Confirm delete inventory item"),
+                                        icon: "shippingbox.fill",
+                                        perform: { await deleteItem(item.id) })
                                 } label: {
                                     Label(
                                         String(localized: "Delete", locale: LanguageService.currentLocale, comment: "Delete action"),
@@ -59,6 +65,7 @@ struct InventoryListView: View {
                 .listStyle(.plain)
             }
         }
+        .destructiveConfirmation($pendingAction)
         .navigationTitle(String(localized: "Inventory", locale: LanguageService.currentLocale, comment: "Inventory navigation title"))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -126,16 +133,14 @@ struct InventoryListView: View {
         isLoading = false
     }
 
-    private func deleteItem(_ id: UUID) {
-        Task {
-            do {
-                try await service.deleteItem(id: id)
-                withAnimation {
-                    items.removeAll { $0.id == id }
-                }
-            } catch {
-                errorMsg = error.safeUserMessage
+    private func deleteItem(_ id: UUID) async {
+        do {
+            try await service.deleteItem(id: id)
+            withAnimation {
+                items.removeAll { $0.id == id }
             }
+        } catch {
+            errorMsg = error.safeUserMessage
         }
     }
 }

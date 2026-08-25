@@ -3,6 +3,7 @@ import SwiftUI
 struct HouseRulesView: View {
     @Environment(AppState.self) private var appState
     @State private var viewModel: HouseRulesViewModel?
+    @State private var pendingAction: DestructiveAction?
     @State private var showAddSheet = false
     let propertyId: UUID
 
@@ -23,6 +24,7 @@ struct HouseRulesView: View {
                 }
             }
         }
+        .destructiveConfirmation($pendingAction)
         .navigationTitle(
             String(localized: "House rules", locale: LanguageService.currentLocale, comment: "Navigation title for house rules list")
         )
@@ -80,7 +82,12 @@ struct HouseRulesView: View {
                             }
                             .swipeActions {
                                 Button(role: .destructive) {
-                                    Task { await vm.deleteRule(rule) }
+                                    pendingAction = DestructiveAction(
+                                title: String(localized: "¿Borrar la norma \(rule.title)?", locale: LanguageService.currentLocale, comment: "Delete house rule title"),
+                                message: String(localized: "Dejará de verse para todos los que viven en la casa. Esto no se puede deshacer.", locale: LanguageService.currentLocale, comment: "Delete house rule message"),
+                                confirmLabel: String(localized: "Borrar norma", locale: LanguageService.currentLocale, comment: "Delete house rule confirm"),
+                                icon: "list.bullet.rectangle.fill",
+                                perform: { await vm.deleteRule(rule) })
                                 } label: {
                                     Label(
                                         String(localized: "Delete",

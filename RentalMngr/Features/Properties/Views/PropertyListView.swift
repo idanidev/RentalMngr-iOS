@@ -6,7 +6,7 @@ struct PropertyListView: View {
     @State private var viewModel: PropertyListViewModel?
     @State private var showAddSheet = false
     @State private var showPaywall = false
-    @State private var propertyToDelete: Property?
+    @State private var pendingAction: DestructiveAction?
 
     var body: some View {
         Group {
@@ -49,30 +49,7 @@ struct PropertyListView: View {
             }
             .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
         }
-        .confirmationDialog(
-            String(localized: "Delete property?",
-                locale: LanguageService.currentLocale, comment: "Confirmation dialog title for deleting a property"),
-            isPresented: Binding(
-                get: { propertyToDelete != nil },
-                set: { if !$0 { propertyToDelete = nil } }
-            )
-        ) {
-            Button(
-                String(localized: "Delete", locale: LanguageService.currentLocale, comment: "Delete property button"), role: .destructive
-            ) {
-                if let property = propertyToDelete {
-                    Task { await viewModel?.deleteProperty(property) }
-                }
-            }
-        } message: {
-            Text(
-                String(
-                    localized: "This action cannot be undone. All associated rooms, tenants, and financial data will be deleted.",
-                    locale: LanguageService.currentLocale,
-                    comment: "Delete property warning message"
-                )
-            )
-        }
+        .destructiveConfirmation($pendingAction)
         .navigationDestination(for: Property.self) { property in
             PropertyDetailView(property: property)
         }
@@ -91,6 +68,22 @@ struct PropertyListView: View {
             }
             await viewModel?.loadProperties()
         }
+    }
+
+    /// Borrar una propiedad cascadea a trece tablas: habitaciones, inquilinos,
+    /// ingresos, gastos, documentos... El diálogo del sistema deja el detalle en
+    /// gris diminuto y resume con un "Delete" que no dice qué borra; esta hoja
+    /// lo cuenta con los números reales antes de tocar nada.
+    private func deleteConfirmation(for property: Property, vm: PropertyListViewModel) -> DestructiveAction {
+        let propertyId = property.id
+        return DestructiveAction(
+            title: String(localized: "¿Borrar \(property.name)?", locale: LanguageService.currentLocale, comment: "Delete property title"),
+            message: String(localized: "Se borrará la propiedad entera y todo lo que cuelga de ella. Esto no se puede deshacer.", locale: LanguageService.currentLocale, comment: "Delete property message"),
+            confirmLabel: String(localized: "Borrar propiedad", locale: LanguageService.currentLocale, comment: "Confirm delete property"),
+            icon: "building.2.fill",
+            impact: { await DeletionImpactService.forProperty(propertyId) },
+            perform: { await vm.deleteProperty(property) }
+        )
     }
 
     @ViewBuilder
@@ -139,7 +132,7 @@ struct PropertyListView: View {
                         .buttonStyle(.plain)
                         .contextMenu {
                             Button(role: .destructive) {
-                                propertyToDelete = property
+                                pendingAction = deleteConfirmation(for: property, vm: vm)
                             } label: {
                                 Label(
                                     String(localized: "Delete", locale: LanguageService.currentLocale, comment: "Swipe action to delete property"),
@@ -163,7 +156,7 @@ struct PropertyListView: View {
                     }
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         Button(role: .destructive) {
-                            propertyToDelete = property
+                            pendingAction = deleteConfirmation(for: property, vm: vm)
                         } label: {
                             Label(
                                 String(localized: "Delete", locale: LanguageService.currentLocale, comment: "Swipe action to delete property"),

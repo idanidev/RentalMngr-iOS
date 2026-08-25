@@ -11,17 +11,23 @@ struct DestructiveAction: Identifiable {
     /// Texto del botón. Un verbo, nunca "OK": el botón debe decir qué hace.
     let confirmLabel: String
     let icon: String
+    /// Recuento de lo que se borra en cascada, si aplica. Se resuelve con la hoja
+    /// ya abierta: primero se pregunta, y el detalle llega un instante después.
+    /// Así un fallo de red nunca convierte un borrado en algo silencioso.
+    let impact: (@Sendable () async -> DeletionImpact)?
     let perform: () async -> Void
 
     init(
         title: String, message: String, confirmLabel: String,
         icon: String = "exclamationmark.triangle.fill",
+        impact: (@Sendable () async -> DeletionImpact)? = nil,
         perform: @escaping () async -> Void
     ) {
         self.title = title
         self.message = message
         self.confirmLabel = confirmLabel
         self.icon = icon
+        self.impact = impact
         self.perform = perform
     }
 }
@@ -40,6 +46,7 @@ extension View {
 private struct DestructiveConfirmationModifier: ViewModifier {
     @Binding var action: DestructiveAction?
     @State private var isWorking = false
+    @State private var impact: DeletionImpact?
 
     func body(content: Content) -> some View {
         content.sheet(item: $action) { item in
@@ -58,6 +65,18 @@ private struct DestructiveConfirmationModifier: ViewModifier {
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 8)
+
+                if let impact, !impact.isEmpty {
+                    Text(
+                        "Se borrarán también \(impact.sentence).",
+                        comment: "Cascade deletion detail"
+                    )
+                    .font(.footnote.weight(.medium))
+                    .foregroundStyle(.red)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 12)
+                    .transition(.opacity)
+                }
 
                 Spacer(minLength: 0)
 
@@ -93,7 +112,13 @@ private struct DestructiveConfirmationModifier: ViewModifier {
                 }
             }
             .padding(24)
-            .presentationDetents([.height(360)])
+            .task(id: item.id) {
+                impact = nil
+                guard let load = item.impact else { return }
+                let result = await load()
+                withAnimation(.easeInOut(duration: 0.2)) { impact = result }
+            }
+            .presentationDetents([.height(impact?.isEmpty == false ? 420 : 360)])
             .presentationDragIndicator(.visible)
             .interactiveDismissDisabled(isWorking)
         }

@@ -3,6 +3,7 @@ import SwiftUI
 struct SharedExpensesView: View {
     @Environment(AppState.self) private var appState
     @State private var viewModel: SharedExpensesViewModel?
+    @State private var pendingAction: DestructiveAction?
     @State private var showAddSheet = false
     let propertyId: UUID
 
@@ -14,6 +15,7 @@ struct SharedExpensesView: View {
                 LoadingView()
             }
         }
+        .destructiveConfirmation($pendingAction)
         .navigationTitle(String(localized: "Shared expenses", locale: LanguageService.currentLocale, comment: "Navigation title for shared expenses list"))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -62,7 +64,12 @@ struct SharedExpensesView: View {
                     }
                     .swipeActions {
                         Button(role: .destructive) {
-                            Task { await vm.deleteExpense(expense) }
+                            pendingAction = DestructiveAction(
+                                title: String(localized: "¿Borrar el gasto \(expense.title)?", locale: LanguageService.currentLocale, comment: "Delete shared expense title"),
+                                message: String(localized: "Dejará de contar en el reparto entre compañeros. Esto no se puede deshacer.", locale: LanguageService.currentLocale, comment: "Delete shared expense message"),
+                                confirmLabel: String(localized: "Borrar gasto", locale: LanguageService.currentLocale, comment: "Delete shared expense confirm"),
+                                icon: "eurosign.circle.fill",
+                                perform: { await vm.deleteExpense(expense) })
                         } label: { Label(String(localized: "Delete", locale: LanguageService.currentLocale, comment: "Swipe action to delete"), systemImage: "trash") }
                     }
                 }

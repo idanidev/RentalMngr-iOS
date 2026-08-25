@@ -10,6 +10,7 @@ struct DocumentListView: View {
     @State private var viewModel: DocumentListViewModel
     @State private var isFileImporterPresented = false
     @State private var isScannerPresented = false
+    @State private var pendingAction: DestructiveAction?
     @Environment(\.openURL) var openURL
     @Environment(AppState.self) private var appState
     @Environment(\.horizontalSizeClass) private var hSize
@@ -141,6 +142,7 @@ struct DocumentListView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
+        .destructiveConfirmation($pendingAction)
         .alert(
             String(localized: "Upload error", locale: LanguageService.currentLocale, comment: "Alert title for upload error"),
             isPresented: Binding(
@@ -208,7 +210,12 @@ struct DocumentListView: View {
                     openDocument(doc)
                 }
                 Button(String(localized: "Delete", locale: LanguageService.currentLocale, comment: "Button to delete document"), systemImage: "trash", role: .destructive) {
-                    Task { await viewModel.deleteDocument(doc) }
+                    pendingAction = DestructiveAction(
+                        title: String(localized: "¿Borrar \(doc.name)?", locale: LanguageService.currentLocale, comment: "Delete document title"),
+                        message: String(localized: "Se borra el archivo, no solo el enlace. Si no tienes otra copia, lo pierdes.", locale: LanguageService.currentLocale, comment: "Delete document message"),
+                        confirmLabel: String(localized: "Borrar documento", locale: LanguageService.currentLocale, comment: "Confirm delete document"),
+                        icon: "doc.fill",
+                        perform: { await viewModel.deleteDocument(doc) })
                 }
             } label: {
                 Image(systemName: "ellipsis.circle")

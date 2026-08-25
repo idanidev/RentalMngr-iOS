@@ -6,6 +6,7 @@ struct RoomListView: View {
     @State private var viewModel: RoomListViewModel?
     @State private var showAddSheet = false
     @State private var roomForAd: Room?
+    @State private var pendingAction: DestructiveAction?
     let propertyId: UUID
     let rooms: [Room]
 
@@ -64,6 +65,24 @@ struct RoomListView: View {
         .onChange(of: rooms) { _, newRooms in
             viewModel?.rooms = newRooms
         }
+        .destructiveConfirmation($pendingAction)
+    }
+
+    /// Borrar una habitación arrastra en cascada sus ingresos, sus cargos de
+    /// suministros y su inventario. No hay papelera: por eso se pregunta, y por
+    /// eso la pregunta trae los números en vez de un "¿seguro?".
+    private func deleteConfirmation(for room: Room, vm: RoomListViewModel) -> DestructiveAction {
+        let roomId = room.id
+        return DestructiveAction(
+            title: String(localized: "¿Borrar \(room.name)?", locale: LanguageService.currentLocale, comment: "Delete room title"),
+            message: room.occupied
+                ? String(localized: "La habitación está ocupada. Se borrará junto con su historial, y esto no se puede deshacer.", locale: LanguageService.currentLocale, comment: "Delete occupied room")
+                : String(localized: "Se borrará junto con su historial. Esto no se puede deshacer.", locale: LanguageService.currentLocale, comment: "Delete room"),
+            confirmLabel: String(localized: "Borrar habitación", locale: LanguageService.currentLocale, comment: "Confirm delete room"),
+            icon: "bed.double.fill",
+            impact: { await DeletionImpactService.forRoom(roomId) },
+            perform: { await vm.deleteRoom(room) }
+        )
     }
 
     @ViewBuilder
@@ -147,7 +166,7 @@ struct RoomListView: View {
 
                                     Button(role: .destructive) {
                                         UINotificationFeedbackGenerator().notificationOccurred(.warning)
-                                        Task { await vm.deleteRoom(room) }
+                                        pendingAction = deleteConfirmation(for: room, vm: vm)
                                     } label: {
                                         Label(
                                             String(localized: "Delete",
@@ -180,7 +199,7 @@ struct RoomListView: View {
                                 .buttonStyle(.plain)
                                 .contextMenu {
                                     Button(role: .destructive) {
-                                        Task { await vm.deleteRoom(room) }
+                                        pendingAction = deleteConfirmation(for: room, vm: vm)
                                     } label: {
                                         Label(
                                             String(localized: "Delete",
