@@ -12,9 +12,27 @@ struct PropertySharingView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var successMessage: String?
+    /// Acción destructiva pendiente de confirmar. Quitar el acceso a alguien no
+    /// puede dispararse de un solo toque sin avisar.
+    @State private var pendingAction: DestructiveAction?
 
     var body: some View {
         List {
+
+            if let success = successMessage {
+
+                Section {
+
+                    Label(success, systemImage: "checkmark.circle.fill")
+
+                        .foregroundStyle(.green)
+
+                        .font(.subheadline)
+
+                }
+
+            }
+
             Section(String(localized: "Invite user", locale: LanguageService.currentLocale, comment: "Section header for inviting users")) {
                 TextField(String(localized: "Email", locale: LanguageService.currentLocale, comment: "Email field for invitation"), text: $email)
                     .textContentType(.emailAddress)
@@ -88,7 +106,12 @@ struct PropertySharingView: View {
                             Spacer()
                             if access.role != .owner {
                                 Button(role: .destructive) {
-                                    Task { await removeAccess(access) }
+                                    pendingAction = DestructiveAction(
+                                        title: String(localized: "¿Quitar el acceso a \(access.email)?", locale: LanguageService.currentLocale, comment: "Confirm remove access title"),
+                                        message: String(localized: "Dejará de ver esta propiedad y sus inquilinos. No se borra ningún dato, y podrás volver a invitarle cuando quieras.", locale: LanguageService.currentLocale, comment: "Confirm remove access message"),
+                                        confirmLabel: String(localized: "Quitar acceso", locale: LanguageService.currentLocale, comment: "Confirm remove access button"),
+                                        icon: "person.badge.minus"
+                                    ) { await removeAccess(access) }
                                 } label: {
                                     Image(systemName: "xmark.circle.fill")
                                         .foregroundStyle(.red)
@@ -115,7 +138,12 @@ struct PropertySharingView: View {
                             }
                             Spacer()
                             Button(role: .destructive) {
-                                Task { await revokeInvitation(invitation) }
+                                pendingAction = DestructiveAction(
+                                    title: String(localized: "¿Cancelar la invitación a \(invitation.email)?", locale: LanguageService.currentLocale, comment: "Confirm revoke invitation title"),
+                                    message: String(localized: "El enlace dejará de funcionar. Puedes volver a invitarle en cualquier momento.", locale: LanguageService.currentLocale, comment: "Confirm revoke invitation message"),
+                                    confirmLabel: String(localized: "Cancelar invitación", locale: LanguageService.currentLocale, comment: "Confirm revoke invitation button"),
+                                    icon: "envelope.badge.shield.half.filled"
+                                ) { await revokeInvitation(invitation) }
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
                                     .foregroundStyle(.red)
@@ -126,11 +154,6 @@ struct PropertySharingView: View {
                 }
             }
 
-            if let success = successMessage {
-                Section {
-                    Text(success).foregroundStyle(.green).font(.caption)
-                }
-            }
 
         }
         .navigationTitle(String(localized: "Share", locale: LanguageService.currentLocale, comment: "Share property navigation title"))
@@ -143,7 +166,8 @@ struct PropertySharingView: View {
         .task {
             await loadAccessData()
         }
-        .errorAlert($errorMessage)
+        .destructiveConfirmation($pendingAction)
+        .errorAlert($errorMessage, context: "Compartir propiedad")
     }
 
     private func loadAccessData() async {
@@ -185,6 +209,7 @@ struct PropertySharingView: View {
             try await appState.propertyService.removeAccess(
                 propertyId: property.id, userId: access.userId)
             await loadAccessData()
+            successMessage = String(localized: "Se ha quitado el acceso a \(access.email)", locale: LanguageService.currentLocale, comment: "Access removed confirmation")
         } catch {
             errorMessage = error.safeUserMessage
         }
