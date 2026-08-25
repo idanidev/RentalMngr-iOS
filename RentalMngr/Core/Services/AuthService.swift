@@ -95,6 +95,11 @@ final class AuthService: AuthServiceProtocol {
     func deleteAccount() async throws {
         // Remove this device's push token while still authenticated (RLS needs the session).
         await PushManager.shared?.clearOnSignOut()
+        // Las fotos van ANTES del RPC: el borrado en cascada elimina las filas
+        // de `rooms`, y sin ellas ya no hay forma de saber qué ficheros del
+        // bucket eran de este usuario. Quedarían huérfanos para siempre, que es
+        // justo lo que RGPD no permite.
+        await deleteOwnedPhotos()
         // Call the delete_account RPC which removes all user data + auth.users entry server-side
         try await client.rpc("delete_account").execute()
         // Purge the persisted session too — otherwise `emitLocalSessionAsInitialSession`
@@ -103,6 +108,37 @@ final class AuthService: AuthServiceProtocol {
         currentSession = nil
         currentUser = nil
         isAuthenticated = false
+    }
+
+    /// Borra del bucket todas las fotos de las habitaciones del usuario, y sus
+    /// miniaturas. Best-effort: si algo falla no se aborta el borrado de cuenta,
+    /// porque dejar la cuenta a medio borrar es peor que dejar un fichero suelto.
+    private func deleteOwnedPhotos() async {
+        struct RoomPhotos: Decodable { let photos: [String]? }
+        struct PropertyRooms: Decodable { let rooms: [RoomPhotos]? }
+
+        guard let uid = currentUser?.id else { return }
+        do {
+            let properties: [PropertyRooms] = try await client
+                .from(SupabaseTable.properties)
+                .select("rooms(photos)")
+                .eq("owner_id", value: uid)
+                .execute()
+                .value
+
+            let paths = properties
+                .flatMap { $0.rooms ?? [] }
+                .flatMap { $0.photos ?? [] }
+            guard !paths.isEmpty else { return }
+
+            // Originales y miniaturas de una vez.
+            let all = paths + paths.map(StoragePaths.thumbnail(for:))
+            try await client.storage
+                .from(SupabaseConfig.storageBucket)
+                .remove(paths: all)
+        } catch {
+            // Sin drama: el borrado de cuenta sigue adelante.
+        }
     }
 
     var currentUserId: UUID? {
