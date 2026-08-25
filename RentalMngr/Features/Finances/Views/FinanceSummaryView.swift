@@ -21,18 +21,41 @@ struct FinanceSummaryView: View {
             }
         }
         .toolbar {
-            if let vm = viewModel, vm.selectedSection == .expenses || vm.selectedSection == .income {
+            if let vm = viewModel, vm.selectedSection != .utilities {
                 ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        if viewModel?.selectedSection == .expenses {
-                            showAddExpense = true
-                        } else {
-                            showAddIncome = true
+                    // Finanzas abre en Resumen, y ahí no había "+": para apuntar un
+                    // gasto había que descubrir primero la pestaña Gastos. El estado
+                    // vacío llegaba a pedir "añade ingresos y gastos" desde una
+                    // pantalla que no dejaba hacerlo. En Resumen se pregunta cuál de
+                    // los dos; dentro de una pestaña ya se sabe.
+                    if vm.selectedSection == .summary {
+                        Menu {
+                            Button {
+                                showAddExpense = true
+                            } label: {
+                                Label(String(localized: "Añadir gasto", locale: LanguageService.currentLocale, comment: "Add expense menu item"), systemImage: "arrow.down.circle")
+                            }
+                            Button {
+                                showAddIncome = true
+                            } label: {
+                                Label(String(localized: "Añadir ingreso", locale: LanguageService.currentLocale, comment: "Add income menu item"), systemImage: "arrow.up.circle")
+                            }
+                        } label: {
+                            Image(systemName: "plus")
                         }
-                    } label: {
-                        Image(systemName: "plus")
+                        .accessibilityLabel(String(localized: "Añadir", locale: LanguageService.currentLocale, comment: "Accessibility label for add button"))
+                    } else {
+                        Button {
+                            if vm.selectedSection == .expenses {
+                                showAddExpense = true
+                            } else {
+                                showAddIncome = true
+                            }
+                        } label: {
+                            Image(systemName: "plus")
+                        }
+                        .accessibilityLabel(String(localized: "Añadir", locale: LanguageService.currentLocale, comment: "Accessibility label for add button"))
                     }
-                    .accessibilityLabel(String(localized: "Añadir", locale: LanguageService.currentLocale, comment: "Accessibility label for add button"))
                 }
             }
         }
