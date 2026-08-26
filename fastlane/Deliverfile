@@ -11,15 +11,15 @@ primary_category "BUSINESS"
 # URLs (REEMPLAZA con tus URLs reales de GitHub Pages / hosting)
 # ──────────────────────────────────────────────────────────────────
 support_url({
-  "default" => "https://idanidev.github.io/rentalmngr-privacy/support.html",
-  "es-ES"   => "https://idanidev.github.io/rentalmngr-privacy/support.html",
-  "en-US"   => "https://idanidev.github.io/rentalmngr-privacy/support.html"
+  "default" => "https://idanidev-portfolio.vercel.app/rentalmngr/soporte.html",
+  "es-ES"   => "https://idanidev-portfolio.vercel.app/rentalmngr/soporte.html",
+  "en-US"   => "https://idanidev-portfolio.vercel.app/rentalmngr/soporte.html"
 })
 
 privacy_url({
-  "default" => "https://idanidev.github.io/rentalmngr-privacy/",
-  "es-ES"   => "https://idanidev.github.io/rentalmngr-privacy/",
-  "en-US"   => "https://idanidev.github.io/rentalmngr-privacy/"
+  "default" => "https://idanidev-portfolio.vercel.app/rentalmngr/privacidad.html",
+  "es-ES"   => "https://idanidev-portfolio.vercel.app/rentalmngr/privacidad.html",
+  "en-US"   => "https://idanidev-portfolio.vercel.app/rentalmngr/privacidad.html"
 })
 
 # ──────────────────────────────────────────────────────────────────

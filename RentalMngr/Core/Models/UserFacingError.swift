@@ -121,7 +121,9 @@ struct UserFacingError: Identifiable {
             """
         var components = URLComponents()
         components.scheme = "mailto"
-        components.path = "support@rentalmngr.app"
+        // rentalmngr.app no está registrado: no tiene ni MX ni web, así que
+        // todo lo que se reportaba desde aquí rebotaba sin que nadie lo viera.
+        components.path = "idanideveloper@gmail.com"
         components.queryItems = [
             URLQueryItem(name: "subject", value: "Error en RentalMngr"),
             URLQueryItem(name: "body", value: body),

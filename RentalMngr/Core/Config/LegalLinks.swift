@@ -7,10 +7,10 @@ enum LegalLinks {
     /// redactar unos términos propios, y así no depende de que hospedemos nada.
     static let terms = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!
 
-    /// ⚠️ SUSTITUIR por la URL real cuando se publique `privacy-policy.html`
-    /// (ver HOSTING_INSTRUCCIONES.md). Debe ser la MISMA que se declare en
-    /// App Store Connect. Un enlace roto aquí también es motivo de rechazo.
-    static let privacy = URL(string: "https://idanidev.github.io/rentalmngr-privacy/")!
+    /// Tienen que ser las MISMAS que se declaran en App Store Connect: un enlace
+    /// roto aquí también es motivo de rechazo. Las anteriores apuntaban a un
+    /// repo de GitHub Pages que nunca llegó a existir y devolvían 404.
+    static let privacy = URL(string: "https://idanidev-portfolio.vercel.app/rentalmngr/privacidad.html")!
 
-    static let support = URL(string: "https://idanidev.github.io/rentalmngr-privacy/support.html")!
+    static let support = URL(string: "https://idanidev-portfolio.vercel.app/rentalmngr/soporte.html")!
 }

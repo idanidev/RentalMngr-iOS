@@ -77,5 +77,12 @@ struct UserFacingErrorTests {
         #expect(url.scheme == "mailto")
         #expect(body.contains("Compartir propiedad"))
         #expect(body.contains("schema cache"))
+
+        // La dirección tiene que existir. Estuvo apuntando a support@rentalmngr.app,
+        // un dominio sin registrar: los informes rebotaban y nadie los leía.
+        // Se comprueba sobre la cadena porque `url.path` viene vacío en un
+        // mailto:, que es una URL opaca y no jerárquica.
+        #expect(url.absoluteString.hasPrefix("mailto:idanideveloper@gmail.com?"))
+        #expect(!url.absoluteString.contains("rentalmngr.app"))
     }
 }
