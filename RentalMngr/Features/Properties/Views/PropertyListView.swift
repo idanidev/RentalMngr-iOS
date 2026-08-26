@@ -20,9 +20,14 @@ struct PropertyListView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
-                    // Free tier: max 1 property. Show paywall when limit reached.
-                    let count = viewModel?.properties.count ?? 0
-                    if !appState.entitlementService.isPremium && count >= FreeTierLimits.maxProperties {
+                    // El plan gratuito da 3 unidades. Se enseña el paywall al
+                    // llegar al tope de propiedades o al de unidades: con las 3
+                    // unidades gastadas, una propiedad nueva no admitiría ni una
+                    // habitación, así que crearla sería un callejón sin salida.
+                    let properties = viewModel?.properties ?? []
+                    let atLimit = properties.count >= FreeTierLimits.maxProperties
+                        || FreeTierLimits.managedUnits(in: properties) >= FreeTierLimits.maxUnits
+                    if !appState.entitlementService.isPremium && atLimit {
                         showPaywall = true
                     } else {
                         showAddSheet = true

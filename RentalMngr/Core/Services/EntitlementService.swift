@@ -101,10 +101,31 @@ enum EntitlementError: LocalizedError {
     }
 }
 
-// MARK: - Free tier limits (mirror backend triggers)
+// MARK: - Límites del plan gratuito
+//
+// Espejo de los triggers de la base: `managed_units`,
+// `enforce_free_tier_property_limit` y `enforce_free_tier_room_limit`. Quien
+// manda es el servidor; esto solo sirve para enseñar el paywall ANTES de que el
+// usuario choque. Cuando los dos números se separan, el usuario ve anunciado un
+// límite y sufre otro: el cliente bloqueaba a la primera propiedad mientras el
+// servidor dejaba llegar a tres.
 enum FreeTierLimits {
-    static let maxProperties = 1
-    static let maxRoomsTotal = 2
+    /// Unidades alquilables incluidas en el plan gratuito.
+    static let maxUnits = 3
+    /// Tope de propiedades. Existe para que no se creen propiedades vacías sin
+    /// fin, no para limitar lo que se alquila: eso lo hace `maxUnits`.
+    static let maxProperties = 3
     static let maxDocuments = 5
     static let financeHistoryMonths = 3
+
+    /// Unidades que gestiona alguien, contadas como en `managed_units`.
+    ///
+    /// Una casa alquilada entera cuenta **1**, tenga las habitaciones que tenga:
+    /// ahí las habitaciones son organización interna, no cosas que se alquilan
+    /// por separado. Un piso compartido cuenta **una por habitación**.
+    static func managedUnits(in properties: [Property]) -> Int {
+        properties.reduce(0) { total, property in
+            total + (property.isSingleUnit ? 1 : (property.rooms?.count ?? 0))
+        }
+    }
 }

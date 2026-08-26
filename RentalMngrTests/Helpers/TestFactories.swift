@@ -6,7 +6,8 @@ import Foundation
 func makeProperty(
     id: UUID = UUID(),
     name: String = "Test Property",
-    rooms: [Room]? = nil
+    rooms: [Room]? = nil,
+    isSingleUnit: Bool = false
 ) -> Property {
     Property(
         id: id,
@@ -17,6 +18,7 @@ func makeProperty(
         createdAt: Date(),
         updatedAt: nil,
         contractTemplate: nil,
+        isSingleUnit: isSingleUnit,
         rooms: rooms
     )
 }
