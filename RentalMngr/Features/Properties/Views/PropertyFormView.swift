@@ -38,6 +38,7 @@ struct PropertyFormView: View {
                     viewModel = PropertyFormViewModel(
                         propertyService: appState.propertyService,
                         utilityService: appState.utilityService,
+                        roomService: appState.roomService,
                         userId: userId,
                         property: property
                     )

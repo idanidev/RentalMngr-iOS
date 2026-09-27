@@ -140,7 +140,16 @@ struct PropertyDetailView: View {
                     VStack(spacing: 0) {
                         switch selectedTab {
                         case .rooms:
-                            RoomListView(propertyId: currentProperty.id, rooms: vm.rooms)
+                            // Una casa entera no se gestiona por habitaciones: su
+                            // pestaña enseña la casa, con renta e inquilino.
+                            if isSingleUnit {
+                                WholeHomeView(
+                                    propertyId: currentProperty.id,
+                                    rooms: vm.rooms,
+                                    onChange: { await vm.refreshData() })
+                            } else {
+                                RoomListView(propertyId: currentProperty.id, rooms: vm.rooms)
+                            }
                         case .tenants:
                             TenantListView(propertyId: currentProperty.id)
                         case .finances:

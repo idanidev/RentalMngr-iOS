@@ -1,4 +1,7 @@
 import Foundation
+import os
+
+private let logger = Logger(subsystem: "com.rentalmngr", category: "PropertyFormVM")
 
 /// Editable utility configuration for the property form
 struct EditableUtility: Identifiable {
@@ -27,17 +30,24 @@ final class PropertyFormViewModel {
     private var propertyId: UUID?
     private let propertyService: PropertyServiceProtocol
     private let utilityService: UtilityServiceProtocol
+    private let roomService: RoomServiceProtocol
     private let userId: UUID
+    /// Habitaciones que tenía la propiedad al abrir el formulario. Decide si al
+    /// marcarla como casa entera hay que crearle la unidad o ya tiene.
+    private let existingRoomCount: Int
 
     init(
         propertyService: PropertyServiceProtocol,
         utilityService: UtilityServiceProtocol,
+        roomService: RoomServiceProtocol,
         userId: UUID,
         property: Property? = nil
     ) {
         self.propertyService = propertyService
         self.utilityService = utilityService
+        self.roomService = roomService
         self.userId = userId
+        self.existingRoomCount = property?.rooms?.count ?? 0
 
         // Initialize all utility types as disabled
         self.utilities = UtilityType.allCases.map { type in
@@ -124,6 +134,19 @@ final class PropertyFormViewModel {
             try await utilityService.savePropertyUtilities(
                 propertyId: result.id, utilities: enabledUtilities
             )
+
+            // Una casa entera necesita una unidad por debajo donde colgar renta e
+            // inquilino. Si falla no se tira el guardado: la propiedad ya existe,
+            // y su pestaña Vivienda enseña un botón para prepararla.
+            if WholeHome.needsUnit(isSingleUnit: isSingleUnit, existingRooms: existingRoomCount) {
+                do {
+                    _ = try await roomService.createRoom(
+                        propertyId: result.id, name: WholeHome.unitName,
+                        monthlyRent: 0, roomType: .privateRoom, sizeSqm: nil)
+                } catch {
+                    logger.error("No se pudo crear la unidad de la casa entera: \(error)")
+                }
+            }
 
             isLoading = false
             return result

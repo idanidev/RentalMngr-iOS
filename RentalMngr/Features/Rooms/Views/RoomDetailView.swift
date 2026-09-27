@@ -10,8 +10,13 @@ struct RoomDetailView: View {
     @State private var showCheckOutConfirmation = false
     @State private var errorMessage: String?
 
-    init(room: Room) {
+    /// En una casa que se alquila entera esta "habitación" es la casa misma, así
+    /// que no se habla de tipos de habitación.
+    private let isWholeHome: Bool
+
+    init(room: Room, isWholeHome: Bool = false) {
         _room = State(initialValue: room)
+        self.isWholeHome = isWholeHome
     }
 
     @State private var inventory: [InventoryItem] = []
@@ -37,11 +42,13 @@ struct RoomDetailView: View {
 
             // Info
             Section(String(localized: "Information", locale: LanguageService.currentLocale, comment: "Section header for room info")) {
-                LabeledContent(
-                    String(localized: "Type", locale: LanguageService.currentLocale, comment: "Room type label"),
-                    value: room.roomType == .privateRoom
-                        ? String(localized: "Private", locale: LanguageService.currentLocale, comment: "Private room type")
-                        : String(localized: "Common", locale: LanguageService.currentLocale, comment: "Common room type"))
+                if !isWholeHome {
+                    LabeledContent(
+                        String(localized: "Type", locale: LanguageService.currentLocale, comment: "Room type label"),
+                        value: room.roomType == .privateRoom
+                            ? String(localized: "Private", locale: LanguageService.currentLocale, comment: "Private room type")
+                            : String(localized: "Common", locale: LanguageService.currentLocale, comment: "Common room type"))
+                }
                 if room.roomType == .privateRoom {
                     LabeledContent(
                         String(localized: "Monthly rent", locale: LanguageService.currentLocale, comment: "Monthly rent label"),
