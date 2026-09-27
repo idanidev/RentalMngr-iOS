@@ -56,7 +56,12 @@ struct DocumentScannerView: UIViewControllerRepresentable {
             return renderer.pdfData { ctx in
                 for i in 0..<scan.pageCount {
                     ctx.beginPage()
-                    let image = scan.imageOfPage(at: i)
+                    // Mismo tratamiento que las fotos del anuncio (ver
+                    // PDFImageEncoder), a más calidad: esto es un documento y
+                    // tiene que poder leerse. Medido con 3 páginas: 807 KB sin
+                    // tocar, 396 KB así.
+                    let image = PDFImageEncoder.forEmbedding(
+                        scan.imageOfPage(at: i), maxPixel: 2200, quality: 0.7)
                     // Scale image to fit A4 keeping aspect ratio
                     let imgSize = image.size
                     let scale = min(a4.width / imgSize.width, a4.height / imgSize.height)

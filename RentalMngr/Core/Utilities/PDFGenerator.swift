@@ -703,7 +703,10 @@ final class PDFGenerator {
             for col in 0..<columns where i + col < maxPhotos {
                 let x = margin + CGFloat(col) * (imgWidth + spacing)
                 let rect = CGRect(x: x, y: y, width: imgWidth, height: imgHeight)
-                let image = images[i + col]
+                // Reducida y recomprimida: una foto descargada llega respaldada por
+                // su JPEG original, y Core Graphics la metía entera en el PDF, a
+                // 4032 px. Así salían anuncios de 24 MB. Ver PDFImageEncoder.
+                let image = PDFImageEncoder.forEmbedding(images[i + col])
 
                 // Compute aspect-fill rect (preserves aspect ratio, crops overflow)
                 let imageAspect = image.size.width / image.size.height
