@@ -15,10 +15,18 @@ final class PDFGenerator {
 
     // MARK: - Contract PDF (Full Legal — matches web app contract.js)
 
+    /// Genera el contrato.
+    ///
+    /// Con `blankTemplate` en true sale la **plantilla para rellenar a mano**: no
+    /// se sustituye ningún dato, todos los huecos quedan como línea de puntos.
+    /// Por eso inquilino, habitación y arrendador son opcionales — una plantilla
+    /// en blanco se pide desde la propiedad, cuando todavía no hay inquilino.
     func generateContract(
-        tenant: Tenant, room: Room, property: Property, landlord: LandlordProfile,
+        tenant: Tenant? = nil, room: Room? = nil, property: Property,
+        landlord: LandlordProfile? = nil,
         template: String? = nil, customVariables: [ContractVariable] = [],
-        communityFeesIncludes: [String] = [], communityFeesAmount: Decimal? = nil
+        communityFeesIncludes: [String] = [], communityFeesAmount: Decimal? = nil,
+        blankTemplate: Bool = false
     )
         async throws -> Data
     {
@@ -48,10 +56,10 @@ final class PDFGenerator {
             return dateFormatter.string(from: d)
         }
 
-        let rent = Int(truncating: room.monthlyRent as NSDecimalNumber)
-        let deposit = Int(truncating: (tenant.depositAmount ?? 0) as NSDecimalNumber)
+        let rent = room.map { Int(truncating: $0.monthlyRent as NSDecimalNumber) } ?? 0
+        let deposit = Int(truncating: (tenant?.depositAmount ?? 0) as NSDecimalNumber)
         let depositWords = Self.numberToWords(deposit).uppercased()
-        let tenantAddress = tenant.currentAddress ?? property.address
+        let tenantAddress = tenant?.currentAddress ?? property.address
 
         let pdfData = await Task.detached(priority: .userInitiated) { [self] in
             let renderer = UIGraphicsPDFRenderer(bounds: pageRect)
@@ -65,20 +73,20 @@ final class PDFGenerator {
             let currencySymbol = Locale.current.currencySymbol ?? "€"
             let communityFeesInt = Int(truncating: (communityFeesAmount ?? 0) as NSDecimalNumber)
             let totalMonthlyInt = rent + communityFeesInt
-            let replacements: [String: String] = [
+            let resolved: [String: String] = [
                 // Current format: {{snake_case}}
-                "{{start_date}}": fmtDate(tenant.contractStartDate),
-                "{{end_date}}": fmtDate(tenant.contractEndDate),
+                "{{start_date}}": fmtDate(tenant?.contractStartDate),
+                "{{end_date}}": fmtDate(tenant?.contractEndDate),
                 "{{rent}}": rent > 0 ? "\(rent)\(currencySymbol)" : "",
                 "{{deposit}}": deposit > 0 ? "\(deposit)\(currencySymbol)" : "",
                 "{{deposit_words}}": deposit > 0 ? depositWords : "",
-                "{{tenant_name}}": tenant.fullName,
-                "{{tenant_dni}}": tenant.dni ?? "",
-                "{{landlord_name}}": landlord.fullName,
-                "{{landlord_dni}}": landlord.dni,
+                "{{tenant_name}}": tenant?.fullName ?? "",
+                "{{tenant_dni}}": tenant?.dni ?? "",
+                "{{landlord_name}}": landlord?.fullName ?? "",
+                "{{landlord_dni}}": landlord?.dni ?? "",
                 "{{property_address}}": property.address,
-                "{{room_name}}": room.name,
-                "{{habitacion}}": room.name,
+                "{{room_name}}": room?.name ?? "",
+                "{{habitacion}}": room?.name ?? "",
                 "{{tenant_address}}": tenantAddress,
                 "{{date}}": dateFormatter.string(from: Date()),
                 "{{community_fees_includes}}": communityFeesIncludes.joined(separator: ", "),
@@ -87,19 +95,23 @@ final class PDFGenerator {
                 "{{total_mensual}}": "\(totalMonthlyInt)\(currencySymbol)",
                 "{{total_monthly}}": "\(totalMonthlyInt)\(currencySymbol)",
                 // Legacy format: {camelCase} (single braces, camelCase)
-                "{startDateShort}": fmtDate(tenant.contractStartDate),
-                "{endDateShort}": fmtDate(tenant.contractEndDate),
+                "{startDateShort}": fmtDate(tenant?.contractStartDate),
+                "{endDateShort}": fmtDate(tenant?.contractEndDate),
                 "{monthlyRent}": rent > 0 ? "\(rent)\(currencySymbol)" : "",
                 "{depositAmount}": deposit > 0 ? "\(deposit)\(currencySymbol)" : "",
                 "{depositAmountWords}": deposit > 0 ? depositWords : "",
-                "{tenantName}": tenant.fullName,
-                "{tenantDni}": tenant.dni ?? "",
-                "{landlordName}": landlord.fullName,
-                "{landlordDni}": landlord.dni,
+                "{tenantName}": tenant?.fullName ?? "",
+                "{tenantDni}": tenant?.dni ?? "",
+                "{landlordName}": landlord?.fullName ?? "",
+                "{landlordDni}": landlord?.dni ?? "",
                 "{propertyAddress}": property.address,
                 "{tenantCurrentAddress}": tenantAddress,
                 "{currentDate}": dateFormatter.string(from: Date()),
             ]
+            // En modo plantilla no se sustituye nada: vaciar los valores hace que
+            // el relleno de huecos de más abajo —que ya existía para las variables
+            // sin definir— convierta cada uno en una línea para escribir a mano.
+            let replacements = blankTemplate ? resolved.mapValues { _ in "" } : resolved
 
             // 2. Process replacements
             // Normalize line endings first: templates saved from the web app may use
@@ -117,9 +129,10 @@ final class PDFGenerator {
 
             // 3. Process custom variables (user-defined)
             for variable in customVariables {
+                let value = blankTemplate ? "" : variable.defaultValue
                 bodyText = bodyText.replacingOccurrences(
                     of: variable.templateKey,
-                    with: variable.defaultValue.isEmpty ? blankFill : variable.defaultValue)
+                    with: value.isEmpty ? blankFill : value)
             }
 
             // 4. Any remaining {{placeholder}} (undefined variable) → blank fill-in line.
@@ -241,7 +254,7 @@ final class PDFGenerator {
             }
 
             // Contract notes if any
-            if let notes = tenant.contractNotes, !notes.isEmpty {
+            if let notes = tenant?.contractNotes, !notes.isEmpty {
                 y += 10
                 y = checkPageBreak(y: y, needed: 60, context: context)
                 y =

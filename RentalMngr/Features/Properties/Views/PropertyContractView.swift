@@ -13,6 +13,7 @@ struct PropertyContractView: View {
     @State private var showEditor = false
     @State private var customVariables: [ContractVariable] = []
     @State private var landlord: LandlordProfile?
+    @State private var showBlankContract = false
 
     var body: some View {
         Group {
@@ -40,7 +41,27 @@ struct PropertyContractView: View {
             }
             .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
         }
+        .sheet(isPresented: $showBlankContract) {
+            NavigationStack {
+                BlankContractView(property: property)
+            }
+            .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
+        }
         .toolbar {
+            // Disponible aunque no puedas editar: imprimir un contrato vacío no
+            // cambia nada de la propiedad.
+            ToolbarItem(placement: .secondaryAction) {
+                Button {
+                    showBlankContract = true
+                } label: {
+                    Label(
+                        String(
+                            localized: "Contrato en blanco", locale: LanguageService.currentLocale,
+                            comment: "Button to generate a blank, fill-in-by-hand contract"),
+                        systemImage: "doc.badge.plus"
+                    )
+                }
+            }
             if canEdit {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
@@ -97,6 +118,14 @@ struct PropertyContractView: View {
                             comment: "Empty state action button"))
                 }
                 .buttonStyle(.borderedProminent)
+            }
+            Button {
+                showBlankContract = true
+            } label: {
+                Text(
+                    String(
+                        localized: "Contrato en blanco", locale: LanguageService.currentLocale,
+                        comment: "Empty state action to generate a blank contract"))
             }
         }
     }
