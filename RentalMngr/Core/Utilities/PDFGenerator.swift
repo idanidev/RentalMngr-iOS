@@ -21,12 +21,16 @@ final class PDFGenerator {
     /// se sustituye ningún dato, todos los huecos quedan como línea de puntos.
     /// Por eso inquilino, habitación y arrendador son opcionales — una plantilla
     /// en blanco se pide desde la propiedad, cuando todavía no hay inquilino.
+    ///
+    /// `includeLandlord` deja puestos el nombre y el DNI del arrendador dentro de
+    /// una plantilla en blanco: son los únicos datos que no cambian de un
+    /// contrato a otro, y escribirlos a mano cada vez no aporta nada.
     func generateContract(
         tenant: Tenant? = nil, room: Room? = nil, property: Property,
         landlord: LandlordProfile? = nil,
         template: String? = nil, customVariables: [ContractVariable] = [],
         communityFeesIncludes: [String] = [], communityFeesAmount: Decimal? = nil,
-        blankTemplate: Bool = false
+        blankTemplate: Bool = false, includeLandlord: Bool = false
     )
         async throws -> Data
     {
@@ -111,7 +115,15 @@ final class PDFGenerator {
             // En modo plantilla no se sustituye nada: vaciar los valores hace que
             // el relleno de huecos de más abajo —que ya existía para las variables
             // sin definir— convierta cada uno en una línea para escribir a mano.
-            let replacements = blankTemplate ? resolved.mapValues { _ in "" } : resolved
+            let landlordKeys: Set<String> = [
+                "{{landlord_name}}", "{{landlord_dni}}", "{landlordName}", "{landlordDni}",
+            ]
+            let replacements: [String: String] = blankTemplate
+                ? resolved.reduce(into: [:]) { out, pair in
+                    let keep = includeLandlord && landlordKeys.contains(pair.key)
+                    out[pair.key] = keep ? pair.value : ""
+                }
+                : resolved
 
             // 2. Process replacements
             // Normalize line endings first: templates saved from the web app may use

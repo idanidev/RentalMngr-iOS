@@ -16,6 +16,14 @@ struct BlankContractView: View {
     @State private var pdfURL: URL?
     @State private var isLoading = true
     @State private var errorMessage: String?
+    /// Tus datos de arrendador son lo único que no cambia de un contrato a otro,
+    /// así que por defecto salen puestos. Se pueden quitar para un modelo neutro.
+    @State private var includeLandlord = true
+    @State private var landlord: LandlordProfile?
+
+    private var landlordIsEmpty: Bool {
+        (landlord?.fullName ?? "").isEmpty && (landlord?.dni ?? "").isEmpty
+    }
 
     private var fileName: String {
         let safeName = property.name
@@ -34,11 +42,33 @@ struct BlankContractView: View {
             } else if let pdfURL {
                 VStack(spacing: 0) {
                     PDFKitView(url: pdfURL)
+                        .id(pdfURL)
 
                     VStack(spacing: 10) {
-                        Text(String(localized: "Todos los datos quedan en blanco para escribirlos a mano. Las cláusulas son las de la plantilla de esta propiedad.",
-                            locale: LanguageService.currentLocale,
-                            comment: "Explanation shown under the blank contract"))
+                        Toggle(isOn: $includeLandlord) {
+                            Text(String(localized: "Poner mis datos de arrendador",
+                                locale: LanguageService.currentLocale,
+                                comment: "Toggle: keep the landlord's name and ID in the blank contract"))
+                                .font(.subheadline)
+                        }
+
+                        if includeLandlord && landlordIsEmpty {
+                            // Sin esto el interruptor parece no hacer nada.
+                            Text(String(localized: "Tu perfil de arrendador está vacío. Rellénalo en Ajustes para que salgan tu nombre y tu DNI.",
+                                locale: LanguageService.currentLocale,
+                                comment: "Hint when the landlord profile has no data"))
+                                .font(.caption)
+                                .foregroundStyle(.orange)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+
+                        Text(includeLandlord
+                            ? String(localized: "Tus datos salen puestos; los del inquilino, las fechas y los importes quedan en blanco. Las cláusulas son las de la plantilla de esta propiedad.",
+                                locale: LanguageService.currentLocale,
+                                comment: "Explanation under the blank contract, landlord data included")
+                            : String(localized: "Todos los datos quedan en blanco para escribirlos a mano. Las cláusulas son las de la plantilla de esta propiedad.",
+                                locale: LanguageService.currentLocale,
+                                comment: "Explanation shown under the blank contract"))
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
@@ -90,7 +120,7 @@ struct BlankContractView: View {
             }
         }
         .errorAlert($errorMessage, context: "Contrato en blanco")
-        .task { await generate() }
+        .task(id: includeLandlord) { await generate() }
         .onDisappear {
             if let pdfURL { try? FileManager.default.removeItem(at: pdfURL) }
         }
@@ -100,17 +130,30 @@ struct BlankContractView: View {
         // Las variables propias se traen igual que en el contrato normal: en
         // blanco también tienen que salir como huecos, no desaparecer.
         let customVars = (try? await ContractVariableService().fetchVariables()) ?? []
+        if landlord == nil {
+            landlord = try? await appState.userProfileService.getLandlordProfile()
+        }
         do {
             let data = try await PDFGenerator().generateContract(
                 property: property,
+                landlord: landlord,
                 customVariables: customVars,
-                blankTemplate: true
+                blankTemplate: true,
+                includeLandlord: includeLandlord
             )
-            let url = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+            // Una subcarpeta por variante: el visor recarga cuando cambia la URL,
+            // y así el fichero que se comparte conserva un nombre limpio.
+            let folder = FileManager.default.temporaryDirectory
+                .appendingPathComponent(includeLandlord ? "contrato-con-datos" : "contrato-en-blanco")
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            let url = folder.appendingPathComponent(fileName)
             try data.write(to: url)
+            if let previous = pdfURL, previous != url {
+                try? FileManager.default.removeItem(at: previous)
+            }
             pdfURL = url
         } catch where error.isCancellation {
-            // Salir de la pantalla cancela la tarea; no es un fallo.
+            // Salir de la pantalla o cambiar el interruptor cancela la tarea.
         } catch {
             errorMessage = error.safeUserMessage
         }

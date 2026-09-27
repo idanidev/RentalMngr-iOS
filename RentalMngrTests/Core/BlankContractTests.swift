@@ -114,4 +114,34 @@ struct BlankContractTests {
         #expect(salida.contains("Garaje:"))
         #expect(salida.contains("____"))
     }
+
+    @Test("Con mis datos: sale el arrendador y nada del inquilino")
+    func includeLandlordKeepsOnlyLandlord() async throws {
+        let prop = property()
+        let data = try await PDFGenerator().generateContract(
+            tenant: tenant(prop.id), room: room(prop.id), property: prop, landlord: landlord,
+            template: plantilla, blankTemplate: true, includeLandlord: true)
+
+        let salida = try texto(of: data)
+        // Lo mío, puesto.
+        #expect(salida.contains("Wenceslao Trujillo"))
+        #expect(salida.contains("11111111Y"))
+        // Lo del inquilino y los importes, en blanco aunque se hayan pasado.
+        for dato in ["Zacarias Quintanilla", "00000000X", "1234", "4321"] {
+            #expect(!salida.contains(dato), "se ha colado \(dato)")
+        }
+        #expect(salida.contains("____"))
+    }
+
+    @Test("La opción solo tiene efecto en blanco: un contrato normal no cambia")
+    func includeLandlordIgnoredWhenNotBlank() async throws {
+        let prop = property()
+        let data = try await PDFGenerator().generateContract(
+            tenant: tenant(prop.id), room: room(prop.id), property: prop, landlord: landlord,
+            template: plantilla, includeLandlord: true)
+
+        let salida = try texto(of: data)
+        #expect(salida.contains("Zacarias Quintanilla"))
+        #expect(salida.contains("Wenceslao Trujillo"))
+    }
 }
