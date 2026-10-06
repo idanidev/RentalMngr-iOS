@@ -54,6 +54,21 @@ struct PropertyTests {
         #expect(property.vacantPrivateRooms.count == 2)
     }
 
+    @Test("Un piso lleno no tiene nada libre aunque tenga zonas comunes")
+    func fullFlatWithCommonAreasHasNothingVacant() {
+        // El aviso de "habitaciones disponibles" contaba todo lo no ocupado, y la
+        // cocina o el salón nunca se marcan como ocupados: con cuatro pisos llenos
+        // decía "10 disponibles". Ahora cuenta con esta propiedad, que las excluye.
+        let property = makeProperty(rooms: [
+            makeRoom(type: .privateRoom, occupied: true),
+            makeRoom(type: .privateRoom, occupied: true),
+            makeRoom(type: .common, occupied: false),
+            makeRoom(type: .common, occupied: false),
+            makeRoom(type: .common, occupied: false),
+        ])
+        #expect(property.vacantPrivateRooms.isEmpty)
+    }
+
     // MARK: - Occupancy rate
 
     @Test("occupancyRate is 0 when there are no private rooms")

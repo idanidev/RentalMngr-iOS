@@ -75,10 +75,27 @@ final class LocalNotificationScheduler {
         let now = Date()
         let calendar = Calendar.current
 
-        // Server-backed settings (contract + weekly report) when a user is signed in.
-        var serverSettings: NotificationSettings?
-        if let userId {
-            serverSettings = try? await notificationService.fetchOrCreateSettings(userId: userId)
+        // Todo lo que viene del servidor se descarga ANTES de tocar la agenda, y si
+        // algo falla se deja como estaba. Antes cada descarga iba con `try?` y un
+        // fallo daba una lista vacía: luego se borraban todos los avisos pendientes
+        // y no se programaba ninguno. Sin conexión —o con el servidor pausado— cada
+        // vuelta a la app borraba los avisos de fin de contrato.
+        let serverSettings: NotificationSettings?
+        let properties: [Property]
+        let activeTenants: [Tenant]
+        do {
+            if let userId {
+                serverSettings = try await notificationService.fetchOrCreateSettings(userId: userId)
+            } else {
+                serverSettings = nil
+            }
+            properties = try await propertyService.fetchProperties()
+            activeTenants = properties.isEmpty
+                ? []
+                : try await tenantService.fetchActiveTenants(propertyIds: properties.map(\.id))
+        } catch {
+            logger.notice("Reprogramación aplazada: no se pudieron cargar los datos (\(error.localizedDescription)). Se mantienen los avisos actuales.")
+            return
         }
 
         var repeating: [UNNotificationRequest] = []
@@ -89,14 +106,7 @@ final class LocalNotificationScheduler {
             repeating.append(makeRentReminderRequest())
         }
 
-        // 2. Weekly report (repeating) — server toggle.
-        if serverSettings?.enableWeeklyReport == true {
-            let weekday = defaults.object(forKey: LocalNotifPrefKey.weeklyReportWeekday) as? Int ?? 2
-            repeating.append(makeWeeklyReportRequest(weekday: weekday))
-        }
-
         // Scan data once: tenants + rooms per property.
-        let properties = (try? await propertyService.fetchProperties()) ?? []
         let contractAlertsEnabled = serverSettings?.enableContractAlerts ?? true
         let alertDays = serverSettings?.contractAlertDays ?? [30, 15, 7]
         let depositEnabled = defaults.bool(forKey: LocalNotifPrefKey.depositPending)
@@ -107,15 +117,16 @@ final class LocalNotificationScheduler {
 
         // Una sola consulta para todas las propiedades: antes era una por cada
         // una, y esto corre en CADA vuelta a primer plano.
-        let tenantsByProperty = Dictionary(
-            grouping: (try? await tenantService.fetchActiveTenants(
-                propertyIds: properties.map(\.id))) ?? [],
-            by: \.propertyId)
+        let tenantsByProperty = Dictionary(grouping: activeTenants, by: \.propertyId)
+
+        // Cifras del resumen semanal. Se cuentan siempre, aunque el aviso de
+        // fianzas o el de libres estén apagados: el resumen es otro aviso.
+        var weeklyOccupied = 0
+        var weeklyTotal = 0
+        var weeklyDepositsPending = 0
 
         for property in properties {
             let tenants = tenantsByProperty[property.id] ?? []
-            // Rooms (with `occupied`) are already embedded by fetchProperties — no extra fetch.
-            let rooms = property.rooms ?? []
 
             for tenant in tenants {
                 // 3. Contract expiry one-shots.
@@ -133,14 +144,34 @@ final class LocalNotificationScheduler {
                 }
 
                 // Deposit-pending condition: active tenant with a contract but no deposit recorded.
-                if depositEnabled, hasContract(tenant), isDepositMissing(tenant) {
-                    depositPendingCount += 1
+                if hasContract(tenant), isDepositMissing(tenant) {
+                    weeklyDepositsPending += 1
+                    if depositEnabled { depositPendingCount += 1 }
                 }
             }
 
+            weeklyOccupied += property.occupiedPrivateRooms.count
+            weeklyTotal += property.privateRooms.count
+
             if vacantEnabled {
-                vacantRoomCount += rooms.filter { !$0.occupied }.count
+                // Solo habitaciones que se alquilan. Antes contaba todo lo que no
+                // estuviera ocupado, zonas comunes incluidas: la cocina, el salón y
+                // el baño nunca se marcan como ocupados, así que salían como
+                // "disponibles para alquilar" y el aviso decía 10 con todo lleno.
+                // Es la misma cuenta que el panel de inicio.
+                vacantRoomCount += property.vacantPrivateRooms.count
             }
+        }
+
+        // 2. Weekly report (repeating) — server toggle. Va después del recorrido
+        // porque lleva las cifras dentro.
+        if serverSettings?.enableWeeklyReport == true {
+            let weekday = defaults.object(forKey: LocalNotifPrefKey.weeklyReportWeekday) as? Int ?? 2
+            repeating.append(makeWeeklyReportRequest(
+                weekday: weekday,
+                body: Self.weeklySummaryBody(
+                    occupied: weeklyOccupied, total: weeklyTotal,
+                    depositsPending: weeklyDepositsPending)))
         }
 
         // 4. Condition summaries — fire at the next 9:00 if the condition currently holds.
@@ -253,10 +284,49 @@ final class LocalNotificationScheduler {
         return UNNotificationRequest(identifier: "rent_reminder", content: content, trigger: trigger)
     }
 
-    private func makeWeeklyReportRequest(weekday: Int) -> UNNotificationRequest {
+    /// Lo que dice el resumen semanal.
+    ///
+    /// Un aviso local no puede consultar datos cuando salta, así que las cifras
+    /// son las de la última vez que se abrió la app, que es cuando se reprograma.
+    /// Cuentan como el panel de inicio: solo habitaciones que se alquilan, sin
+    /// zonas comunes.
+    static func weeklySummaryBody(occupied: Int, total: Int, depositsPending: Int) -> String {
+        let locale = LanguageService.currentLocale
+        guard total > 0 else {
+            return String(localized: "Todavía no tienes habitaciones dadas de alta.",
+                locale: locale, comment: "Weekly summary when there are no rooms")
+        }
+        var partes = [String(localized: "\(occupied) de \(total) alquiladas.",
+            locale: locale, comment: "Weekly summary: rented rooms out of total")]
+
+        let libres = total - occupied
+        if libres == 0 {
+            partes.append(String(localized: "Todo ocupado.", locale: locale,
+                comment: "Weekly summary: nothing vacant"))
+        } else if libres == 1 {
+            partes.append(String(localized: "1 libre.", locale: locale,
+                comment: "Weekly summary: one vacant room"))
+        } else {
+            partes.append(String(localized: "\(libres) libres.", locale: locale,
+                comment: "Weekly summary: vacant rooms"))
+        }
+
+        if depositsPending == 1 {
+            partes.append(String(localized: "1 fianza pendiente.", locale: locale,
+                comment: "Weekly summary: one pending deposit"))
+        } else if depositsPending > 1 {
+            partes.append(String(localized: "\(depositsPending) fianzas pendientes.",
+                locale: locale, comment: "Weekly summary: pending deposits"))
+        }
+        return partes.joined(separator: " ")
+    }
+
+    private func makeWeeklyReportRequest(weekday: Int, body: String) -> UNNotificationRequest {
         let content = UNMutableNotificationContent()
         content.title = String(localized: "Weekly summary", locale: LanguageService.currentLocale, comment: "Toggle title for weekly report notification")
-        content.body = String(localized: "Occupancy, income and outstanding payments — every Monday at 9:00 AM", locale: LanguageService.currentLocale, comment: "Subtitle describing weekly report schedule and content")
+        // Antes el cuerpo era el texto del ajuste ("Occupancy, income… every Monday
+        // at 9:00 AM"): ni una cifra, y decía lunes aunque se eligiera otro día.
+        content.body = body
         content.sound = .default
 
         var components = DateComponents()
