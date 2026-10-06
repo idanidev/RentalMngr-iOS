@@ -144,6 +144,12 @@ struct RoomDetailView: View {
             Section(String(localized: "Actions", locale: LanguageService.currentLocale, comment: "Section header for actions")) {
                 if room.roomType == .privateRoom {
                     Button {
+                        // Con inquilino, "libre" es darle salida: la salida de
+                        // siempre, con su confirmación (#25).
+                        if RoomListViewModel.vacateAction(for: room) == .checkOut {
+                            showCheckOutConfirmation = true
+                            return
+                        }
                         Task {
                             do {
                                 try await appState.roomService.toggleOccupancy(

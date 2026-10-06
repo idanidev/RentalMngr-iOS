@@ -68,6 +68,23 @@ struct RoomListView: View {
         .destructiveConfirmation($pendingAction)
     }
 
+    /// Dejar libre una habitación con inquilino es darle salida: se pregunta y
+    /// se dice qué pasa y qué no, porque "libre" a secas no lo explica.
+    private func checkOutConfirmation(for room: Room, vm: RoomListViewModel) -> DestructiveAction {
+        let quien = room.tenantName ?? String(localized: "El inquilino",
+            locale: LanguageService.currentLocale, comment: "Fallback tenant name")
+        return DestructiveAction(
+            title: String(localized: "¿Dejar libre \(room.name)?", locale: LanguageService.currentLocale,
+                comment: "Check-out confirmation title"),
+            message: String(localized: "\(quien) sigue asignado a esta habitación, y para dejarla libre hay que darle salida. No se borra nada: su ficha, su contrato y sus pagos se conservan, y puedes volver a asignarle cuando quieras.",
+                locale: LanguageService.currentLocale, comment: "Check-out confirmation message"),
+            confirmLabel: String(localized: "Dar salida y dejar libre", locale: LanguageService.currentLocale,
+                comment: "Check-out confirmation button"),
+            icon: "door.left.hand.open",
+            perform: { await vm.checkOut(room) }
+        )
+    }
+
     /// Borrar una habitación arrastra en cascada sus ingresos, sus cargos de
     /// suministros y su inventario. No hay papelera: por eso se pregunta, y por
     /// eso la pregunta trae los números en vez de un "¿seguro?".
@@ -149,7 +166,12 @@ struct RoomListView: View {
 
                                     Button {
                                         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                                        Task { await vm.toggleOccupancy(room) }
+                                        switch RoomListViewModel.vacateAction(for: room) {
+                                        case .checkOut:
+                                            pendingAction = checkOutConfirmation(for: room, vm: vm)
+                                        case .toggle:
+                                            Task { await vm.toggleOccupancy(room) }
+                                        }
                                     } label: {
                                         Label(
                                             room.occupied

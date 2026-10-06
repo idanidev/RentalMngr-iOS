@@ -71,6 +71,31 @@ final class RoomListViewModel {
         }
     }
 
+    /// Qué significa "marcar como libre" para esta habitación.
+    ///
+    /// Con un inquilino asignado no basta con cambiar la marca: la lista deduce
+    /// la ocupación del inquilino, así que la habitación seguía saliendo ocupada
+    /// y el botón parecía no hacer nada (#25). Dejarla libre de verdad es darle
+    /// salida al inquilino.
+    enum VacateAction: Equatable { case toggle, checkOut }
+
+    static func vacateAction(for room: Room) -> VacateAction {
+        room.occupied && room.tenantId != nil ? .checkOut : .toggle
+    }
+
+    /// Da salida al inquilino y deja la habitación libre. No borra nada: su
+    /// ficha, su contrato y sus pagos se quedan; solo deja de estar asignado.
+    func checkOut(_ room: Room) async {
+        do {
+            try await tenantService.unassignFromRoom(roomId: room.id)
+            await refresh()
+        } catch where error.isCancellation || Task.isCancelled {
+            return
+        } catch {
+            errorMessage = error.safeUserMessage
+        }
+    }
+
     func toggleOccupancy(_ room: Room) async {
         do {
             try await roomService.toggleOccupancy(roomId: room.id, occupied: !room.occupied)
