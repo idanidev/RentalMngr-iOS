@@ -105,6 +105,8 @@ final class MockTenantService: TenantServiceProtocol, @unchecked Sendable {
     var stubbedError: Error?
     var deactivateCallCount = 0
     var activateCallCount = 0
+    /// Orden en que se llaman las operaciones que cambian la asignación.
+    var callLog: [String] = []
     var renewCallCount = 0
 
     func fetchTenants(propertyId: UUID, limit: Int?, offset: Int?) async throws -> [Tenant] {
@@ -144,6 +146,7 @@ final class MockTenantService: TenantServiceProtocol, @unchecked Sendable {
     func deactivateTenant(id: UUID) async throws {
         if let error = stubbedError { throw error }
         deactivateCallCount += 1
+        callLog.append("deactivate")
     }
 
     func activateTenant(id: UUID) async throws {
@@ -153,7 +156,10 @@ final class MockTenantService: TenantServiceProtocol, @unchecked Sendable {
 
     func assignToRoom(tenantId: UUID, roomId: UUID) async throws {}
 
-    func unassignFromRoom(roomId: UUID) async throws {}
+    func unassignFromRoom(roomId: UUID) async throws {
+        if let error = stubbedError { throw error }
+        callLog.append("unassign")
+    }
 
     func renewContract(tenantId: UUID, contractMonths: Int, currentEndDate: Date?) async throws {
         if let error = stubbedError { throw error }

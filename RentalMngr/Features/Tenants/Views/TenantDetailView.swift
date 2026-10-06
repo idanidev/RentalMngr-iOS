@@ -8,7 +8,7 @@ struct TenantDetailView: View {
     @State private var showAssignSheet = false
     @State private var showMoveSheet = false
     @State private var showRenewSheet = false
-    @State private var showDeactivateConfirmation = false
+    @State private var pendingAction: DestructiveAction?
     @State private var errorMessage: String?
 
     init(tenant: Tenant) {
@@ -154,11 +154,12 @@ struct TenantDetailView: View {
 
                 if tenant.active {
                     Button(role: .destructive) {
-                        showDeactivateConfirmation = true
+                        pendingAction = endContractConfirmation
                     } label: {
                         Label(
-                            String(localized: "Deactivate Tenant",
-                                locale: LanguageService.currentLocale, comment: "Button to deactivate tenant"), systemImage: "person.slash"
+                            String(localized: "Dar de baja el contrato",
+                                locale: LanguageService.currentLocale, comment: "Button to end the tenant's contract and free the room"),
+                            systemImage: "door.left.hand.open"
                         )
                         .frame(maxWidth: hSize == .regular ? .infinity : nil, alignment: .leading)
                         .contentShape(Rectangle())
@@ -244,32 +245,40 @@ struct TenantDetailView: View {
             }
             .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
         }
-        .confirmationDialog(
-            String(localized: "Deactivate Tenant?",
-                locale: LanguageService.currentLocale, comment: "Dialog title for deactivate tenant confirmation"),
-            isPresented: $showDeactivateConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button(
-                String(localized: "Deactivate", locale: LanguageService.currentLocale, comment: "Destructive button to confirm deactivation"),
-                role: .destructive
-            ) {
-                Task {
-                    do {
-                        try await appState.tenantService.deactivateTenant(id: tenant.id)
-                        tenant.active = false
-                    } catch {
-                        errorMessage = error.safeUserMessage
-                    }
-                }
-            }
-            Button(String(localized: "Cancel", locale: LanguageService.currentLocale, comment: "Cancel button"), role: .cancel) {}
-        } message: {
-            Text(
-                String(localized: "This will mark the tenant as inactive.",
-                    locale: LanguageService.currentLocale, comment: "Message in deactivate tenant dialog"))
-        }
+        .destructiveConfirmation($pendingAction)
         .errorAlert($errorMessage)
+    }
+
+    /// Dar de baja deja la habitación libre y al inquilino inactivo. Se dice qué
+    /// habitación se libera y que no se borra nada, que es lo que preocupa.
+    private var endContractConfirmation: DestructiveAction {
+        let tenantId = tenant.id
+        let roomId = tenant.room?.id
+        let message: String
+        if let habitacion = tenant.room?.name {
+            message = String(localized: "\(habitacion) queda libre y \(tenant.fullName) pasa a inactivo. No se borra nada: su ficha, su contrato y sus pagos se conservan, y puedes reactivarle cuando quieras.",
+                locale: LanguageService.currentLocale, comment: "End contract confirmation, tenant with a room")
+        } else {
+            message = String(localized: "\(tenant.fullName) pasa a inactivo. No se borra nada: su ficha, su contrato y sus pagos se conservan, y puedes reactivarle cuando quieras.",
+                locale: LanguageService.currentLocale, comment: "End contract confirmation, tenant without a room")
+        }
+        return DestructiveAction(
+            title: String(localized: "¿Dar de baja el contrato de \(tenant.fullName)?",
+                locale: LanguageService.currentLocale, comment: "End contract confirmation title"),
+            message: message,
+            confirmLabel: String(localized: "Dar de baja", locale: LanguageService.currentLocale,
+                comment: "End contract confirmation button"),
+            icon: "door.left.hand.open",
+            perform: {
+                do {
+                    try await appState.tenantService.endContract(tenantId: tenantId, roomId: roomId)
+                    tenant = try await appState.tenantService.fetchTenant(id: tenantId)
+                } catch where error.isCancellation {
+                    return
+                } catch {
+                    errorMessage = error.safeUserMessage
+                }
+            })
     }
 
     @ViewBuilder

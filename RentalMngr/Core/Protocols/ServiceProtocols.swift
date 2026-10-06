@@ -272,3 +272,22 @@ extension FinanceServiceProtocol {
         )
     }
 }
+
+// MARK: - Dar de baja un contrato
+
+extension TenantServiceProtocol {
+    /// Da de baja el contrato: deja libre la habitación y marca al inquilino como
+    /// inactivo.
+    ///
+    /// Antes "desactivar inquilino" solo hacía lo segundo, y la habitación se
+    /// quedaba con él enganchado: seguía ocupada por alguien que ya no estaba
+    /// (#26). Primero se libera la habitación porque es repetible sin daño: si
+    /// lo segundo falla, volver a intentarlo no rompe nada.
+    func endContract(tenantId: UUID, roomId: UUID?) async throws {
+        if let roomId {
+            try await unassignFromRoom(roomId: roomId)
+        }
+        try await deactivateTenant(id: tenantId)
+    }
+}
+
