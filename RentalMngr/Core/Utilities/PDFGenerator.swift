@@ -118,9 +118,14 @@ final class PDFGenerator {
             let landlordKeys: Set<String> = [
                 "{{landlord_name}}", "{{landlord_dni}}", "{landlordName}", "{landlordDni}",
             ]
+            // La dirección es la de la propia vivienda desde la que se saca el
+            // contrato: no cambia de un inquilino a otro, así que en blanco se
+            // queda puesta siempre.
+            let propertyKeys: Set<String> = ["{{property_address}}", "{propertyAddress}"]
             let replacements: [String: String] = blankTemplate
                 ? resolved.reduce(into: [:]) { out, pair in
-                    let keep = includeLandlord && landlordKeys.contains(pair.key)
+                    let keep = propertyKeys.contains(pair.key)
+                        || (includeLandlord && landlordKeys.contains(pair.key))
                     out[pair.key] = keep ? pair.value : ""
                 }
                 : resolved
@@ -131,12 +136,12 @@ final class PDFGenerator {
             // print as spurious line breaks / boxes on some printers.
             // A placeholder with no value (empty built-in or undefined variable) is
             // rendered as a blank fill-in line so it can be completed by hand.
-            let blankFill = "______________"
             var bodyText = templateBody
                 .replacingOccurrences(of: "\r\n", with: "\n")
                 .replacingOccurrences(of: "\r", with: "\n")
             for (key, value) in replacements {
-                bodyText = bodyText.replacingOccurrences(of: key, with: value.isEmpty ? blankFill : value)
+                bodyText = bodyText.replacingOccurrences(
+                    of: key, with: value.isEmpty ? Self.blank(for: key) : value)
             }
 
             // 3. Process custom variables (user-defined)
@@ -144,23 +149,50 @@ final class PDFGenerator {
                 let value = blankTemplate ? "" : variable.defaultValue
                 bodyText = bodyText.replacingOccurrences(
                     of: variable.templateKey,
-                    with: value.isEmpty ? blankFill : value)
+                    with: value.isEmpty ? Self.blank(for: variable.templateKey) : value)
             }
 
             // 4. Any remaining {{placeholder}} (undefined variable) → blank fill-in line.
             bodyText = bodyText.replacingOccurrences(
-                of: "\\{\\{[^}]*\\}\\}", with: blankFill, options: .regularExpression)
+                of: "\\{\\{[^}]*\\}\\}", with: Self.blank(for: ""), options: .regularExpression)
 
             // 3. Render paragraphs
             let lines = bodyText.components(separatedBy: "\n")
 
-            for line in lines {
+            for (index, line) in lines.enumerated() {
                 let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
 
                 // Distinct empty line → vertical spacing (next content line breaks itself)
                 if trimmed.isEmpty {
                     y += 12
                     continue
+                }
+
+                // Va antes que la comprobación de título. La primera fila de la firma
+                // suele ser "**EL ARRENDADOR**<tab>**EL ARRENDATARIO**": corta y en
+                // mayúsculas, así que se tomaba por un título, se pintaba como tal y
+                // nunca llegaba aquí — ni a reservar sitio para la firma. Una línea
+                // con hueco de columnas es una fila a dos columnas, no un título.
+                // Two-column row (e.g. the signature block). A tab or a run of 3+ spaces
+                // marks the column gap; we lay the two parts at fixed positions because
+                // padding columns with spaces does not align in a proportional font.
+                if let gap = trimmed.range(of: "(\\t+| {3,})", options: .regularExpression) {
+                    let left = trimmed[..<gap.lowerBound].trimmingCharacters(in: .whitespaces)
+                    let right = trimmed[gap.upperBound...].trimmingCharacters(in: .whitespaces)
+                    if !left.isEmpty, !right.isEmpty {
+                        // A bold left part marks the start of the signature block. Se mide
+                        // el bloque entero —títulos, huecos para firmar, nombres, DNI— y
+                        // si no cabe se pasa completo a la hoja siguiente. Antes se
+                        // reservaban 92 pt fijos y, con los huecos de firmar, el bloque
+                        // medía más y se partía entre dos hojas.
+                        let leftIsBold = left.hasPrefix("**") && left.hasSuffix("**")
+                        let needed = leftIsBold
+                            ? measureSignatureBlock(lines, from: index, contentWidth: contentWidth)
+                            : 28
+                        y = checkPageBreak(y: y, needed: needed, context: context)
+                        y = drawTwoColumns(left, right, at: y, contentWidth: contentWidth) + 4
+                        continue
+                    }
                 }
 
                 // Header check (### Header or short ALL-CAPS line)
@@ -182,22 +214,6 @@ final class PDFGenerator {
                         displayText, at: CGPoint(x: margin, y: y),
                         font: font, color: charcoal, maxWidth: contentWidth) + 8
                     continue
-                }
-
-                // Two-column row (e.g. the signature block). A tab or a run of 3+ spaces
-                // marks the column gap; we lay the two parts at fixed positions because
-                // padding columns with spaces does not align in a proportional font.
-                if let gap = trimmed.range(of: "(\\t+| {3,})", options: .regularExpression) {
-                    let left = trimmed[..<gap.lowerBound].trimmingCharacters(in: .whitespaces)
-                    let right = trimmed[gap.upperBound...].trimmingCharacters(in: .whitespaces)
-                    if !left.isEmpty, !right.isEmpty {
-                        // A bold left part marks the start of the signature block — reserve
-                        // enough height to keep the whole block (titles + lines + names) together.
-                        let leftIsBold = left.hasPrefix("**") && left.hasSuffix("**")
-                        y = checkPageBreak(y: y, needed: leftIsBold ? 92 : 28, context: context)
-                        y = drawTwoColumns(left, right, at: y, contentWidth: contentWidth) + 4
-                        continue
-                    }
                 }
 
                 // Bold markers **text**
@@ -390,6 +406,84 @@ final class PDFGenerator {
         return attr.boundingRect(
             with: CGSize(width: contentWidth, height: .greatestFiniteMagnitude),
             options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil).height
+    }
+
+    /// Alto real del bloque de firma, desde su primera fila hasta donde acaba.
+    ///
+    /// Repite la misma aritmética con la que luego se pinta: filas a dos
+    /// columnas, líneas vacías (12 pt, los huecos para firmar) y líneas cortas
+    /// sueltas como un "Fdo." centrado. Se para en el primer párrafo normal o
+    /// título, que ya no es firma. Nunca devuelve más que una página: un bloque
+    /// más alto que eso se partiría igual, y así no se salta hojas en blanco.
+    func measureSignatureBlock(_ lines: [String], from start: Int, contentWidth: CGFloat) -> CGFloat {
+        let colWidth = (contentWidth - 24) / 2
+        var height: CGFloat = 0
+        for raw in lines[start...] {
+            let line = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            if line.isEmpty {
+                height += 12
+                continue
+            }
+            if let gap = line.range(of: "(\\t+| {3,})", options: .regularExpression) {
+                let left = line[..<gap.lowerBound].trimmingCharacters(in: .whitespaces)
+                let right = line[gap.upperBound...].trimmingCharacters(in: .whitespaces)
+                if !left.isEmpty, !right.isEmpty {
+                    let h = max(
+                        measureColumnPart(left, maxWidth: colWidth),
+                        measureColumnPart(right, maxWidth: colWidth))
+                    height += h + 4
+                    continue
+                }
+            }
+            let isHeading = line.hasPrefix("### ")
+                || (line.count > 3 && line.count < 80 && line == line.uppercased())
+            guard line.count <= 60, !isHeading else { break }
+            height += measureHeight(
+                line.replacingOccurrences(of: "**", with: ""),
+                font: .systemFont(ofSize: 11), maxWidth: contentWidth) + 4
+        }
+        return min(height, pageHeight - margin * 2)
+    }
+
+    private func measureColumnPart(_ raw: String, maxWidth: CGFloat) -> CGFloat {
+        let isBold = raw.hasPrefix("**") && raw.hasSuffix("**") && raw.count > 4
+        let text = raw.replacingOccurrences(of: "**", with: "")
+        return measureHeight(text, font: isBold ? .boldSystemFont(ofSize: 11) : .systemFont(ofSize: 11),
+            maxWidth: maxWidth)
+    }
+
+    /// Línea para rellenar a mano, del largo que pide cada dato.
+    ///
+    /// Antes todos los huecos medían lo mismo, 14 guiones: sobraba para una
+    /// fecha y no llegaba para escribir un nombre con sus dos apellidos. Los
+    /// anchos van en puntos y se convierten a guiones con la fuente real, así
+    /// que el nombre cabe junto a "Fdo.:" en media columna de la firma sin
+    /// saltar de línea.
+    static func blank(for key: String) -> String {
+        let k = key.lowercased()
+        let points: CGFloat
+        if k.contains("name") || k.contains("nombre") {
+            points = 190
+        } else if k.contains("address") || k.contains("direccion") {
+            points = 230
+        } else if k.contains("dni") || k.contains("nif") {
+            points = 95
+        } else if k.contains("date") || k.contains("fecha") {
+            points = 110
+        } else if k.contains("words") || k.contains("includes") {
+            // Importe en letra y lista de servicios incluidos: texto, no cifra.
+            points = 170
+        } else if k.contains("rent") || k.contains("deposit") || k.contains("fees")
+            || k.contains("total") || k.contains("amount") || k.contains("gastos") {
+            points = 60
+        } else {
+            points = 100
+        }
+        // Se mide una tira y no un guion suelto: un carácter aislado no ocupa lo
+        // mismo que dentro de una línea, y con el suelto los huecos salían cortos.
+        let tira = String(repeating: "_", count: 100) as NSString
+        let underscore = tira.size(withAttributes: [.font: UIFont.systemFont(ofSize: 11)]).width / 100
+        return String(repeating: "_", count: max(8, Int(points / max(underscore, 1))))
     }
 
     /// Draw two columns at fixed positions (left half / right half). Used for the

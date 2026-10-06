@@ -144,4 +144,20 @@ struct BlankContractTests {
         #expect(salida.contains("Zacarias Quintanilla"))
         #expect(salida.contains("Wenceslao Trujillo"))
     }
+
+    @Test("En blanco, la dirección de la vivienda sale puesta")
+    func blankKeepsPropertyAddress() async throws {
+        // Es la de la propia vivienda desde la que se saca el contrato: no cambia
+        // de un inquilino a otro. makeProperty la pone en "Calle Mayor 1".
+        let prop = property()
+        for conMisDatos in [false, true] {
+            let data = try await PDFGenerator().generateContract(
+                tenant: tenant(prop.id), room: room(prop.id), property: prop, landlord: landlord,
+                template: plantilla, blankTemplate: true, includeLandlord: conMisDatos)
+            let salida = try texto(of: data)
+            #expect(salida.contains("Calle Mayor 1"))
+            // La dirección anterior del inquilino, en cambio, es suya: en blanco.
+            #expect(!salida.contains("Calle Inventada 99"))
+        }
+    }
 }

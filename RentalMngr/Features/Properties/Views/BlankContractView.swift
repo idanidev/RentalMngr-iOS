@@ -63,10 +63,10 @@ struct BlankContractView: View {
                         }
 
                         Text(includeLandlord
-                            ? String(localized: "Tus datos salen puestos; los del inquilino, las fechas y los importes quedan en blanco. Las cláusulas son las de la plantilla de esta propiedad.",
+                            ? String(localized: "Tus datos y la dirección de la vivienda salen puestos; lo del inquilino, las fechas y los importes quedan en blanco. Las cláusulas son las de la plantilla de esta propiedad.",
                                 locale: LanguageService.currentLocale,
                                 comment: "Explanation under the blank contract, landlord data included")
-                            : String(localized: "Todos los datos quedan en blanco para escribirlos a mano. Las cláusulas son las de la plantilla de esta propiedad.",
+                            : String(localized: "La dirección de la vivienda sale puesta; el resto queda en blanco para escribirlo a mano. Las cláusulas son las de la plantilla de esta propiedad.",
                                 locale: LanguageService.currentLocale,
                                 comment: "Explanation shown under the blank contract"))
                             .font(.caption2)
