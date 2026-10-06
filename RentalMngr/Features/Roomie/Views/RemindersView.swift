@@ -79,7 +79,11 @@ struct RemindersView: View {
                         }
                     }
                     .swipeActions {
-                        Button(role: .destructive) {
+                        // Sin role: .destructive a propósito: con ese rol SwiftUI retira la
+                        // fila al pulsar, como si ya estuviera borrada. Aquí antes se pregunta,
+                        // y al confirmar se quitaba por segunda vez: la lista no cuadraba y la
+                        // app se cerraba (#23).
+                        Button {
                             pendingAction = DestructiveAction(
                                 title: String(localized: "¿Borrar el recordatorio \(reminder.title)?", locale: LanguageService.currentLocale, comment: "Delete reminder title"),
                                 message: String(localized: "No volverá a avisarte. Esto no se puede deshacer.", locale: LanguageService.currentLocale, comment: "Delete reminder message"),
@@ -92,6 +96,7 @@ struct RemindersView: View {
                                     locale: LanguageService.currentLocale, comment: "Swipe action to delete a reminder"),
                                 systemImage: "trash")
                         }
+                        .tint(.red)
                     }
                 }
             }

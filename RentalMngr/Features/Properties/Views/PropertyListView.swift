@@ -160,13 +160,18 @@ struct PropertyListView: View {
                             .equatable()
                     }
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                        Button(role: .destructive) {
+                        // Sin role: .destructive a propósito: con ese rol SwiftUI retira la
+                        // fila al pulsar, como si ya estuviera borrada. Aquí antes se pregunta,
+                        // y al confirmar se quitaba por segunda vez: la lista no cuadraba y la
+                        // app se cerraba (#23).
+                        Button {
                             pendingAction = deleteConfirmation(for: property, vm: vm)
                         } label: {
                             Label(
                                 String(localized: "Delete", locale: LanguageService.currentLocale, comment: "Swipe action to delete property"),
                                 systemImage: "trash")
                         }
+                        .tint(.red)
                     }
                 }
             }

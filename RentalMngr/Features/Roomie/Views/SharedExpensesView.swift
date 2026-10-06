@@ -63,7 +63,11 @@ struct SharedExpensesView: View {
                         Text(expense.amount.formatted(currencyCode: "EUR")).fontWeight(.semibold)
                     }
                     .swipeActions {
-                        Button(role: .destructive) {
+                        // Sin role: .destructive a propósito: con ese rol SwiftUI retira la
+                        // fila al pulsar, como si ya estuviera borrada. Aquí antes se pregunta,
+                        // y al confirmar se quitaba por segunda vez: la lista no cuadraba y la
+                        // app se cerraba (#23).
+                        Button {
                             pendingAction = DestructiveAction(
                                 title: String(localized: "¿Borrar el gasto \(expense.title)?", locale: LanguageService.currentLocale, comment: "Delete shared expense title"),
                                 message: String(localized: "Dejará de contar en el reparto entre compañeros. Esto no se puede deshacer.", locale: LanguageService.currentLocale, comment: "Delete shared expense message"),
@@ -71,6 +75,7 @@ struct SharedExpensesView: View {
                                 icon: "eurosign.circle.fill",
                                 perform: { await vm.deleteExpense(expense) })
                         } label: { Label(String(localized: "Delete", locale: LanguageService.currentLocale, comment: "Swipe action to delete"), systemImage: "trash") }
+                        .tint(.red)
                     }
                 }
             }

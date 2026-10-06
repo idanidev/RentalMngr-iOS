@@ -38,7 +38,11 @@ struct InventoryListView: View {
                     ForEach(items) { item in
                         InventoryItemRow(item: item)
                             .swipeActions(edge: .trailing) {
-                                Button(role: .destructive) {
+                                // Sin role: .destructive a propósito: con ese rol SwiftUI retira la
+                                // fila al pulsar, como si ya estuviera borrada. Aquí antes se pregunta,
+                                // y al confirmar se quitaba por segunda vez: la lista no cuadraba y la
+                                // app se cerraba (#23).
+                                Button {
                                     pendingAction = DestructiveAction(
                                         title: String(localized: "¿Borrar \(item.name)?", locale: LanguageService.currentLocale, comment: "Delete inventory item title"),
                                         message: String(localized: "Desaparecerá del inventario de la habitación. Si hay una fianza de por medio, es la prueba de lo que había.", locale: LanguageService.currentLocale, comment: "Delete inventory item message"),
@@ -50,6 +54,7 @@ struct InventoryListView: View {
                                         String(localized: "Delete", locale: LanguageService.currentLocale, comment: "Delete action"),
                                         systemImage: "trash")
                                 }
+                                .tint(.red)
 
                                 Button {
                                     itemToEdit = item
