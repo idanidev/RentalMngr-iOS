@@ -22,4 +22,5 @@ enum SupabaseTable {
     static let contractVariables = "contract_variables"
     static let userSubscriptions = "user_subscriptions"
     static let deviceTokens = "device_tokens"
+    static let rentChanges = "rent_changes"
 }

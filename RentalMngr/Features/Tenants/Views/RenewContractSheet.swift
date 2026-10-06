@@ -3,11 +3,17 @@ import SwiftUI
 struct RenewContractSheet: View {
     let tenant: Tenant
     let onRenew: (Int) async throws -> Void
+    /// Registra la renta nueva en el historial, si se ha puesto una (#24).
+    let onRentChange: ((Decimal, Date) async throws -> Void)?
 
     @Environment(\.dismiss) private var dismiss
     @State private var selectedMonths: Int
     @State private var isRenewing = false
     @State private var errorMessage: String?
+    @State private var newRentText = ""
+    /// Si la renovación ya se hizo y lo que falló fue la renta, reintentar no
+    /// puede volver a renovar: alargaría el contrato dos veces.
+    @State private var renewed = false
 
     private let options: [(Int, String)] = [
         (1,  "1 mes"),
@@ -17,9 +23,13 @@ struct RenewContractSheet: View {
         (24, "24 meses (2 años)"),
     ]
 
-    init(tenant: Tenant, onRenew: @escaping (Int) async throws -> Void) {
+    init(
+        tenant: Tenant, onRenew: @escaping (Int) async throws -> Void,
+        onRentChange: ((Decimal, Date) async throws -> Void)? = nil
+    ) {
         self.tenant = tenant
         self.onRenew = onRenew
+        self.onRentChange = onRentChange
         let validOptions = [1, 3, 6, 12, 24]
         let initial = tenant.contractMonths.flatMap { validOptions.contains($0) ? $0 : nil } ?? 6
         _selectedMonths = State(initialValue: initial)
@@ -106,6 +116,33 @@ struct RenewContractSheet: View {
                     )
                 }
 
+                if onRentChange != nil {
+                    Section {
+                        LabeledContent(
+                            String(localized: "Renta actual", locale: LanguageService.currentLocale,
+                                comment: "Current rent label"),
+                            value: tenant.effectiveMonthlyRent?.formatted(currencyCode: "EUR") ?? "—")
+                        TextField(
+                            String(localized: "Renta nueva (opcional)", locale: LanguageService.currentLocale,
+                                comment: "Optional new rent at renewal"),
+                            text: $newRentText)
+                            .keyboardType(.decimalPad)
+                            .disabled(renewed)
+                    } header: {
+                        Text(String(localized: "Renta", locale: LanguageService.currentLocale,
+                            comment: "Rent section header in renewal"))
+                    } footer: {
+                        if rentIsInvalid {
+                            Text(String(localized: "Ese importe no es válido.",
+                                locale: LanguageService.currentLocale, comment: "Invalid rent at renewal"))
+                                .foregroundStyle(.orange)
+                        } else {
+                            Text(String(localized: "Déjalo vacío si no cambia. Si pones una, queda en el historial de renta desde el inicio del contrato nuevo.",
+                                locale: LanguageService.currentLocale, comment: "Renewal rent footer"))
+                        }
+                    }
+                }
+
                 if let error = errorMessage {
                     Section {
                         Text(error)
@@ -133,7 +170,7 @@ struct RenewContractSheet: View {
                                 .fontWeight(.semibold)
                         }
                     }
-                    .disabled(isRenewing)
+                    .disabled(isRenewing || rentIsInvalid)
                 }
             }
         }
@@ -151,14 +188,40 @@ struct RenewContractSheet: View {
         }
     }
 
+    /// La renta nueva a apuntar, o nil si no se ha puesto o es la misma.
+    private var rentToRecord: Decimal? {
+        let draft = RentChangeDraft(amountText: newRentText)
+        guard draft.problem(currentRent: tenant.effectiveMonthlyRent) == nil else { return nil }
+        return draft.amount
+    }
+
+    /// Hay algo escrito y no es un importe válido. Escribir la misma renta no
+    /// cuenta como error: simplemente no hay nada que apuntar.
+    private var rentIsInvalid: Bool {
+        guard !newRentText.trimmingCharacters(in: .whitespaces).isEmpty else { return false }
+        let problem = RentChangeDraft(amountText: newRentText)
+            .problem(currentRent: tenant.effectiveMonthlyRent)
+        return problem == .notANumber || problem == .notPositive
+    }
+
     private func renew() async {
         isRenewing = true
         errorMessage = nil
         do {
-            try await onRenew(selectedMonths)
+            if !renewed {
+                try await onRenew(selectedMonths)
+                renewed = true
+            }
+            if let amount = rentToRecord, let onRentChange {
+                try await onRentChange(amount, newStartDate)
+            }
             dismiss()
         } catch {
-            errorMessage = error.safeUserMessage
+            errorMessage = renewed
+                ? String(localized: "El contrato se ha renovado, pero no se ha podido registrar la renta nueva. Vuelve a intentarlo: no se renovará otra vez.",
+                    locale: LanguageService.currentLocale, comment: "Renewal ok, rent change failed")
+                    + "\n\n" + error.safeUserMessage
+                : error.safeUserMessage
         }
         isRenewing = false
     }

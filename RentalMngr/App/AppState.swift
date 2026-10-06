@@ -30,6 +30,7 @@ final class AppState {
     let documentService: DocumentServiceProtocol
     let inventoryService: InventoryServiceProtocol
     let utilityService: UtilityServiceProtocol
+    let rentChangeService: RentChangeServiceProtocol
     let entitlementService = EntitlementService()
     /// Gates the App Store review prompt to genuine success moments.
     let reviewPrompter = ReviewPrompter()
@@ -61,6 +62,7 @@ final class AppState {
         self.documentService = DocumentService(storageService: self.storageService)
         self.inventoryService = InventoryService()
         self.utilityService = UtilityService()
+        self.rentChangeService = RentChangeService()
 
         LocalNotificationScheduler.registerDefaults()
         self.localNotificationScheduler = LocalNotificationScheduler(

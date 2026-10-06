@@ -118,6 +118,12 @@ struct TenantDetailView: View {
                 }
             }
 
+            RentHistorySection(tenant: tenant) {
+                if let updated = try? await appState.tenantService.fetchTenant(id: tenant.id) {
+                    tenant = updated
+                }
+            }
+
             // Actions Section
             Section(String(localized: "Actions", locale: LanguageService.currentLocale, comment: "Section header for tenant actions")) {
                 Button {
@@ -239,10 +245,18 @@ struct TenantDetailView: View {
                 }
             }
         } content: {
-            RenewContractSheet(tenant: tenant) { months in
-                try await appState.tenantService.renewContract(
-                    tenantId: tenant.id, contractMonths: months, currentEndDate: tenant.contractEndDate)
-            }
+            RenewContractSheet(
+                tenant: tenant,
+                onRenew: { months in
+                    try await appState.tenantService.renewContract(
+                        tenantId: tenant.id, contractMonths: months, currentEndDate: tenant.contractEndDate)
+                },
+                onRentChange: { amount, from in
+                    _ = try await appState.rentChangeService.recordChange(
+                        tenantId: tenant.id, newAmount: amount, effectiveDate: from,
+                        note: String(localized: "Renovación de contrato", locale: LanguageService.currentLocale,
+                            comment: "Note stored with a rent change made at renewal"))
+                })
             .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
         }
         .destructiveConfirmation($pendingAction)
