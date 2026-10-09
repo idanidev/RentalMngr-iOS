@@ -206,6 +206,26 @@ struct TenantListViewModelTests {
 
         #expect(service.renewCallCount == 1)
     }
+
+    @Test("Se pone al día cuando otra pantalla cambia un inquilino (#27)")
+    func reloadsAfterChangeElsewhere() async throws {
+        // Renovar desde la ficha y volver dejaba la lista con la fecha vieja: la
+        // lista solo se enteraba por tiempo real, y en el servidor `tenants` no
+        // está publicada. Ahora la ficha avisa y la lista llama a esto.
+        let service = MockTenantService()
+        let id = UUID()
+        let antes = try #require(Calendar.current.date(from: DateComponents(year: 2026, month: 10, day: 31)))
+        let despues = try #require(Calendar.current.date(from: DateComponents(year: 2027, month: 4, day: 30)))
+        service.stubbedTenants = [makeTenant(id: id, contractEndDate: antes)]
+        let vm = makeVM(tenantService: service)
+        await vm.loadTenants()
+        #expect(vm.tenants.first?.contractEndDate == antes)
+
+        // La ficha renueva: en el servidor ya está la fecha nueva.
+        service.stubbedTenants = [makeTenant(id: id, contractEndDate: despues)]
+        await vm.reloadAfterChange()
+        #expect(vm.tenants.first?.contractEndDate == despues)
+    }
 }
 
 // MARK: - Helpers

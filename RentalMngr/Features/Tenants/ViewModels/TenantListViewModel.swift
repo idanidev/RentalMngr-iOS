@@ -192,6 +192,12 @@ final class TenantListViewModel {
         }
     }
 
+    /// Recarga sin enseñar el indicador de carga: para cuando otra pantalla ha
+    /// cambiado un inquilino y la lista solo tiene que ponerse al día.
+    func reloadAfterChange() async {
+        await refreshData()
+    }
+
     private func refreshData() async {
         do {
             let currentCount = max(limit, tenants.count)

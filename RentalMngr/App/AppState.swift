@@ -6,6 +6,21 @@ final class AppState {
     var selectedProperty: Property?
     var propertiesNavigationPath = NavigationPath()
     var selectedTab: AppTab = .dashboard
+
+    /// Sube cada vez que esta app cambia los datos de un inquilino: renovar, dar
+    /// de baja, editar, registrar una subida… La lista, el panel de inicio y los
+    /// avisos lo observan y se recargan.
+    ///
+    /// Hace falta porque el tiempo real no llega: en el servidor, `tenants`,
+    /// `rooms` y `properties` no están publicadas para tiempo real, así que las
+    /// escuchas sobre ellas nunca reciben nada. Al renovar desde la ficha y
+    /// volver, la lista seguía con las fechas viejas (#27). Con esto, lo que
+    /// cambias tú se ve al momento pase lo que pase con el servidor.
+    private(set) var tenantDataRevision = 0
+
+    func tenantDataDidChange() {
+        tenantDataRevision &+= 1
+    }
     /// Toggled by a long-press on the Properties tab to present the property switcher.
     var showPropertySwitcher = false
 

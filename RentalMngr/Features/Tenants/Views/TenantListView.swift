@@ -54,6 +54,10 @@ struct TenantListView: View {
                 )
             }
         }
+        .onChange(of: appState.tenantDataRevision) {
+            // Lo cambiado en la ficha de un inquilino se ve al volver (#27).
+            Task { await viewModel?.reloadAfterChange() }
+        }
         .task {
             await viewModel?.loadTenants()
         }

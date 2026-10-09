@@ -45,6 +45,15 @@ struct ContentView: View {
         .task {
             await appState.authService.observeAuthState()
         }
+        .onChange(of: appState.tenantDataRevision) {
+            // Al renovar, el aviso de "el contrato vence en 7 días" tiene que
+            // desaparecer ya, no la próxima vez que se abra la app.
+            guard appState.authService.isAuthenticated else { return }
+            Task {
+                await appState.localNotificationScheduler.rescheduleAll(
+                    userId: appState.authService.currentUserId)
+            }
+        }
         .task(id: appState.authService.isAuthenticated) {
             guard appState.authService.isAuthenticated else {
                 setupCheckComplete = false

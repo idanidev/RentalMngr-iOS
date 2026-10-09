@@ -119,9 +119,7 @@ struct TenantDetailView: View {
             }
 
             RentHistorySection(tenant: tenant) {
-                if let updated = try? await appState.tenantService.fetchTenant(id: tenant.id) {
-                    tenant = updated
-                }
+                await reloadTenant()
             }
 
             // Actions Section
@@ -176,6 +174,7 @@ struct TenantDetailView: View {
                             do {
                                 try await appState.tenantService.activateTenant(id: tenant.id)
                                 tenant = try await appState.tenantService.fetchTenant(id: tenant.id)
+                                appState.tenantDataDidChange()
                             } catch {
                                 errorMessage = error.safeUserMessage
                             }
@@ -201,9 +200,7 @@ struct TenantDetailView: View {
         }
         .sheet(isPresented: $showEditSheet) {
             Task {
-                if let updated = try? await appState.tenantService.fetchTenant(id: tenant.id) {
-                    tenant = updated
-                }
+                await reloadTenant()
             }
         } content: {
             NavigationStack {
@@ -213,9 +210,7 @@ struct TenantDetailView: View {
         }
         .sheet(isPresented: $showAssignSheet) {
             Task {
-                if let updated = try? await appState.tenantService.fetchTenant(id: tenant.id) {
-                    tenant = updated
-                }
+                await reloadTenant()
             }
         } content: {
             NavigationStack {
@@ -231,18 +226,14 @@ struct TenantDetailView: View {
                 tenantService: appState.tenantService
             ) {
                 Task {
-                    if let updated = try? await appState.tenantService.fetchTenant(id: tenant.id) {
-                        tenant = updated
-                    }
+                    await reloadTenant()
                 }
             }
             .preferredColorScheme(appState.userInterfaceStyle.colorScheme)
         }
         .sheet(isPresented: $showRenewSheet) {
             Task {
-                if let updated = try? await appState.tenantService.fetchTenant(id: tenant.id) {
-                    tenant = updated
-                }
+                await reloadTenant()
             }
         } content: {
             RenewContractSheet(
@@ -250,6 +241,9 @@ struct TenantDetailView: View {
                 onRenew: { months in
                     try await appState.tenantService.renewContract(
                         tenantId: tenant.id, contractMonths: months, currentEndDate: tenant.contractEndDate)
+                    // Antes se recargaba al cerrar la hoja, cuando ya había
+                    // terminado la animación: se veían las fechas viejas un rato.
+                    await reloadTenant()
                 },
                 onRentChange: { amount, from in
                     _ = try await appState.rentChangeService.recordChange(
@@ -261,6 +255,18 @@ struct TenantDetailView: View {
         }
         .destructiveConfirmation($pendingAction)
         .errorAlert($errorMessage)
+    }
+
+    /// Recarga el inquilino y, si algo ha cambiado, avisa al resto de pantallas.
+    /// Si no cambió nada —una hoja cerrada sin guardar— no molesta a nadie.
+    private func reloadTenant() async {
+        guard let updated = try? await appState.tenantService.fetchTenant(id: tenant.id) else {
+            return
+        }
+        if updated != tenant {
+            tenant = updated
+            appState.tenantDataDidChange()
+        }
     }
 
     /// Dar de baja deja la habitación libre y al inquilino inactivo. Se dice qué
@@ -287,6 +293,7 @@ struct TenantDetailView: View {
                 do {
                     try await appState.tenantService.endContract(tenantId: tenantId, roomId: roomId)
                     tenant = try await appState.tenantService.fetchTenant(id: tenantId)
+                    appState.tenantDataDidChange()
                 } catch where error.isCancellation {
                     return
                 } catch {

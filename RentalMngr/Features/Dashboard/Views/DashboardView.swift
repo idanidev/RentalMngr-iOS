@@ -107,6 +107,11 @@ struct DashboardView: View {
         .refreshable {
             await viewModel?.refresh()
         }
+        .onChange(of: appState.tenantDataRevision) {
+            // Contratos por vencer, ocupación… Con datos ya cargados no enseña
+            // el indicador, así que no parpadea.
+            Task { await viewModel?.refresh() }
+        }
         .task {
             if viewModel == nil {
                 viewModel = DashboardViewModel(
